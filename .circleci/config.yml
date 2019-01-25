@@ -1,0 +1,72 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: quay.io/cybozu/golang:1.11-bionic
+    working_directory: /work
+    steps:
+      - checkout
+      - mkdir /tmp/workspace
+      - run: test -z "$(gofmt -s -l . | tee /dev/stderr)"
+      - run: golint -set_exit_status ./...
+      - run: BOGIN=/tmp/workspace go install ./pkg/...
+      - run: go test -race -v ./...
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - setup-hw
+  deploy:
+    working_directory: /app
+    docker:
+      - image: docker:stable
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /tmp/workspace
+      - run: cp /tmp/workspace/setup-hw docker
+      - setup_remote_docker
+      - run:
+          name: Install tools
+          command: |
+            apk add --no-cache curl jq
+      - run:
+          name: Check repository tag
+          command: |
+            if [ "$(./tag_exists setup-hw)" = ng ]; then
+                touch .build
+            fi
+      - run:
+          name: Build images
+          command: |
+            if [ ! -f .build ]; then
+                echo "nothing to build."
+                exit 0
+            fi
+            docker build -t quay.io/cybozu/setup-hw:latest --target stage1 docker
+            docker build -t quay.io/cybozu/setup-hw-secret:latest docker
+      - deploy:
+          name: Push Docker image to Quay.io
+          command: |
+            if [ "${CIRCLE_BRANCH}" != "master" ]; then
+                exit 0
+            fi
+            if [ ! -f .build ]; then
+                exit 0
+            fi
+            docker login -u $QUAY_USER -p $QUAY_PASSWORD quay.io
+            TAG=$(cat TAG)
+            for name in setup-hw setup-hw-secret; do
+                echo "pushing $name ..."
+                docker push quay.io/cybozu/${name}:latest
+                docker tag  quay.io/cybozu/${name}:latest quay.io/cybozu/${name}:$TAG
+                docker push quay.io/cybozu/${name}:$TAG
+            fi
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build

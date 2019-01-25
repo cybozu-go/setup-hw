@@ -1,0 +1,21 @@
+#!/bin/sh -e
+
+if [ $# -ne 1 ]; then
+    echo "Usage: tag_exists NAME"
+    exit 1
+fi
+
+API=https://quay.io/v2
+NAME="$1"
+TAG=$(cat TAG)
+TOKEN=$(curl -s -H 'Accept-Encoding: application/json' -u "$QUAY_USER:$QUAY_PASSWORD" "$API/auth?service=quay.io&scope=repository:cybozu/$NAME:pull" | jq -r .token)
+TAGS=$(curl -s -H 'Accept-Encoding: application/json' -H "Authorization: Bearer $TOKEN" "$API/cybozu/$NAME/tags/list" | jq -r '.tags[]')
+
+for t in $TAGS; do
+    if [ "$t" = "$TAG" ]; then
+        echo "ok"
+        exit 0
+    fi
+done
+
+echo "ng"
