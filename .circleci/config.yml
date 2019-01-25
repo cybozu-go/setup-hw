@@ -60,7 +60,7 @@ jobs:
                 docker push quay.io/cybozu/${name}:latest
                 docker tag  quay.io/cybozu/${name}:latest quay.io/cybozu/${name}:$TAG
                 docker push quay.io/cybozu/${name}:$TAG
-            fi
+            done
 
 workflows:
   version: 2
