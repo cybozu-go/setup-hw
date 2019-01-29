@@ -93,7 +93,8 @@ BMC users are statically defined in `setup-hw` as follows:
 Credential types are:
 
 * Raw password
-* Hashed password with salt
+* Hashed password with salt  
+    For iDRAC, read [Dell's manual](https://www.dell.com/support/manuals/us/en/04/poweredge-r940/idrac_3.15.15.15_ug/generating-hash-password-without-snmpv3-and-ipmi-authentication?guid=guid-e4486863-89bc-4b0c-9578-ff564fade424&lang=en-us) how to generate hash and salt.
 * Authorized public keys for SSH
 
 Supported credential types varies by BMC types.
