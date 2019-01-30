@@ -1,0 +1,21 @@
+{
+    "root": {
+        "password": {
+            "hash": "7DC9C71A51E0B494700E52CC11F80E2837C025D60120EE8C6F03D5A3C91B504A",
+            "salt": "593C31FF6D409480F032AA2FF6EC781E"
+        }
+    },
+    "power": {
+        "password": {
+            "raw": "ranranran"
+        },
+        "authorized_keys": [
+            "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC+CayRlLvi+VPdtAqVdq8PH/y/56XivHJ20QVggbxsxHt2CfGDc/gH9Nv9b/3lGuOQDh30TDX51Mj0JQEHRc3V7CGicOR2f+5fn2+8tvU2UrjBGab/SD2IyuSrsWr2qY4pIngGm8uE8x0lNd++1KZB+JxsJFUEG15ezLQV3WZWBIjjZtmvrtahvRApLlj9v55uvMzf3E8KTE/c1NDz3UxKq88e23ebBceXEnB7E1I0crDWN++L0ZivOIZ973b42s4hv1a4f6bV4xBCgMk4jqWCU8RJhFyLpdxQXgje1eQKegjVlDSe0xfeIzwJ1zXqEfOSh74lk7vzvQCk0AcdypiT dummy@dummy"
+        ]
+    },
+    "support": {
+        "password": {
+            "raw": "no support"
+        }
+    }
+}

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"os"
 	"testing"
 )
 
@@ -34,6 +36,32 @@ func TestIPv4Config(t *testing.T) {
 		if !tc.valid {
 			t.Errorf("validation failed for %+v", c)
 		}
+	}
+}
+
+func TestAddressConfig(t *testing.T) {
+	t.Parallel()
+
+	f, err := os.Open("../../testdata/bmc-address.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+
+	var c AddressConfig
+	err = json.NewDecoder(f).Decode(&c)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if c.IPv4.Address != "1.2.3.4" {
+		t.Error(`c.IPv4.Address != "1.2.3.4"`)
+	}
+	if c.IPv4.Netmask != "255.255.255.0" {
+		t.Error(`c.IPv4.Netmask != "255.255.255.0"`)
+	}
+	if c.IPv4.Gateway != "1.2.3.1" {
+		t.Error(`c.IPv4.Gateway != "1.2.3.1"`)
 	}
 }
 
@@ -71,5 +99,33 @@ func TestUserConfig(t *testing.T) {
 	uc.Support = badCred
 	if err := uc.Validate(); err == nil {
 		t.Error("credential for support must be invalid")
+	}
+
+	f, err := os.Open("../../testdata/bmc-user.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+
+	uc = UserConfig{}
+	err = json.NewDecoder(f).Decode(&uc)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if uc.Root.Password.Hash != "7DC9C71A51E0B494700E52CC11F80E2837C025D60120EE8C6F03D5A3C91B504A" {
+		t.Error("wrong root password hash")
+	}
+	if uc.Root.Password.Salt != "593C31FF6D409480F032AA2FF6EC781E" {
+		t.Error("wrong root password salt")
+	}
+	if uc.Power.Password.Raw != "ranranran" {
+		t.Error("wrong power password")
+	}
+	if len(uc.Power.AuthorizedKeys) != 1 {
+		t.Error("wrong power authorized keys")
+	}
+	if uc.Support.Password.Raw != "no support" {
+		t.Error("wrong support password")
 	}
 }

@@ -15,7 +15,7 @@ Usage
 ### Build
 
 ```console
-$ docker build -t setup-hw:latest .
+$ docker build -t setup-hw:latest docker
 ```
 
 ### Run as a system service
@@ -28,10 +28,13 @@ rkt and systemd:
 $ sudo systemd-run --unit=setup-hw.service \
   rkt run --net=host --dns=host --hosts-entry=host --hostname=%H \
   --insecure-options=all \
-  --volume cg,kind=host,source=/sys/fs/cgroup --mount volume=cg,target=/sys/fs/cgroup \
+  --volume dev,kind=host,source=/dev --mount volume=dev,target=/dev \
+  --volume sys,kind=host,source=/sys --mount volume=sys,target=/sys \
+  --volume modules,kind=host,source=/lib/modules,readOnly=true --mount volume=modules,target=/lib/modules \
   --volume neco,kind=host,source=/etc/neco,readOnly=true --mount volume=neco,target=/etc/neco \
   setup-hw:latest \
-    --name setup-hw
+    --name setup-hw \
+    --caps-retain=CAP_SYS_ADMIN,CAP_SYS_CHROOT,CAP_CHOWN,CAP_FOWNER,CAP_NET_ADMIN
 ```
 
 Docker:
@@ -39,7 +42,8 @@ Docker:
 ```console
 $ docker run -d --name=setup-hw \
   --net=host --privileged \
-  -v /sys/fs/cgroup:/sys/fs/cgroup \
+  -v /dev:/dev \
+  -v /lib/modules:/lib/modules:ro \
   -v /etc/neco:/etc/neco:ro \
   setup-hw:latest
 ```
@@ -49,7 +53,8 @@ $ docker run -d --name=setup-hw \
 rkt:
 
 ```console
-$ sudo rkt enter POD_UUID idracadm7 ...
+$ POD_UUID=$(sudo rkt list --full | grep running | grep setup-hw | cut -f 1)
+$ sudo rkt enter $POD_UUID idracadm7 ...
 ```
 
 Docker:
@@ -94,7 +99,7 @@ Credential types are:
 
 * Raw password
 * Hashed password with salt  
-    For iDRAC, read [Dell's manual](https://www.dell.com/support/manuals/us/en/04/poweredge-r940/idrac_3.15.15.15_ug/generating-hash-password-without-snmpv3-and-ipmi-authentication?guid=guid-e4486863-89bc-4b0c-9578-ff564fade424&lang=en-us) how to generate hash and salt.
+    For iDRAC, use [`idrac-passwd-hash`](./pkg/idrac-passwd-hash) tool to generate them.
 * Authorized public keys for SSH
 
 Supported credential types varies by BMC types.
@@ -127,17 +132,20 @@ Example:
 1. Run `setup-hw` container as a system service.
 2. Prepare `/etc/neco/bmc-address.json` and `/etc/neco/bmc-user.json`.
 3. Use `rkt enter` or `docker exec` to run `setup-hw` inside the container.
+4. If `setup-hw` exists with status code 10, the server need to be rebooted.
 
 rkt:
 
 ```console
-$ sudo rkt enter POD_UUID setup-hw
+$ sudo rkt enter $POD_UUID setup-hw
+$ if [ $? -eq 10 ]; then sudo reboot; done
 ```
 
 Docker:
 
 ```console
 $ docker exec setup-hw setup-hw
+$ if [ $? -eq 10 ]; then sudo reboot; done
 ```
 
 [BMC]: https://en.wikipedia.org/wiki/Intelligent_Platform_Management_Interface#Baseboard_management_controller
