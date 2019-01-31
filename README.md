@@ -132,7 +132,7 @@ Example:
 1. Run `setup-hw` container as a system service.
 2. Prepare `/etc/neco/bmc-address.json` and `/etc/neco/bmc-user.json`.
 3. Use `rkt enter` or `docker exec` to run `setup-hw` inside the container.
-4. If `setup-hw` exists with status code 10, the server need to be rebooted.
+4. If `setup-hw` exits with status code 10, the server need to be rebooted.
 
 rkt:
 
