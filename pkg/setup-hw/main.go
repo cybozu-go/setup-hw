@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/cybozu-go/log"
+	"github.com/cybozu-go/setup-hw/lib"
 	"github.com/cybozu-go/well"
 )
 
@@ -64,16 +65,16 @@ func main() {
 		log.ErrorExit(err)
 	}
 
-	vendor, err := DetectVendor()
+	vendor, err := lib.DetectVendor()
 	if err != nil {
 		log.ErrorExit(err)
 	}
 
 	var setup func(*AddressConfig, *UserConfig) (bool, error)
 	switch vendor {
-	case QEMU:
+	case lib.QEMU:
 		setup = setupQEMU
-	case Dell:
+	case lib.Dell:
 		setup = setupDell
 	default:
 		log.ErrorExit(errors.New("unsupported vendor hardware"))
