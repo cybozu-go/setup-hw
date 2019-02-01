@@ -1,8 +1,9 @@
 FROM centos:7 as stage1
 
 COPY setup-hw /usr/local/bin/setup-hw
+COPY monitor-hw /usr/local/sbin/monitor-hw
 
-CMD ["/bin/sleep", "infinity"]
+CMD ["/usr/local/sbin/monitor-hw"]
 
 
 # Install vendor tools
@@ -16,5 +17,3 @@ RUN (curl -sf http://linux.dell.com/repo/hardware/DSU_${DSU_VERSION}/bootstrap.c
     && yum clean all
 
 ENV PATH /opt/dell/srvadmin/bin:$PATH
-
-CMD ["/bin/sh", "-c", "/usr/libexec/instsvcdrv-helper start && /bin/sleep infinity"]
