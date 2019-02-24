@@ -254,6 +254,9 @@ func (dc *dellConfigurator) configiDRAC(ctx context.Context) error {
 	if err := dc.configUsers(ctx); err != nil {
 		return err
 	}
+	if err := dc.configVirtualConsole(ctx); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -367,6 +370,11 @@ func (dc *dellConfigurator) configUsers(ctx context.Context) error {
 		return err
 	}
 	return nil
+}
+
+func (dc *dellConfigurator) configVirtualConsole(ctx context.Context) error {
+	_, err := racadmSetConfig(ctx, "iDRAC.VirtualConsole.PluginType", "2")
+	return err
 }
 
 // setupDell configures BIOS and iDRAC for Dell servers.
