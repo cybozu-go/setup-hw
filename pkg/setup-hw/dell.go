@@ -165,6 +165,9 @@ func (dc *dellConfigurator) Run(ctx context.Context) error {
 	if err := dc.configBIOS(ctx); err != nil {
 		return err
 	}
+	if err := dc.configTpm(ctx); err != nil {
+		return err
+	}
 	if err := dc.configSystem(ctx); err != nil {
 		return err
 	}
@@ -202,12 +205,30 @@ func (dc *dellConfigurator) configBIOS(ctx context.Context) error {
 	return nil
 }
 
+func (dc *dellConfigurator) configTpm(ctx context.Context) error {
+	if err := dc.configTpmSecurity(ctx); err != nil {
+		return err
+	}
+	if err := dc.configTpmCommand(ctx); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (dc *dellConfigurator) configPerformance(ctx context.Context) error {
 	return dc.enqueueConfig(ctx, "BIOS.SysProfileSettings.SysProfile", "PerfPerWattOptimizedOs")
 }
 
 func (dc *dellConfigurator) configProcessor(ctx context.Context) error {
 	return dc.enqueueConfig(ctx, "BIOS.ProcSettings.LogicalProc", "Disabled")
+}
+
+func (dc *dellConfigurator) configTpmSecurity(ctx context.Context) error {
+	return dc.enqueueConfig(ctx, "BIOS.SysSecurity.TpmSecurity", "OnPbm")
+}
+
+func (dc *dellConfigurator) configTpmCommand(ctx context.Context) error {
+	return dc.enqueueConfig(ctx, "BIOS.SysSecurity.TpmCommand", "Activate")
 }
 
 func (dc *dellConfigurator) configSystem(ctx context.Context) error {
