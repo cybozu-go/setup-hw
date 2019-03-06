@@ -165,9 +165,6 @@ func (dc *dellConfigurator) Run(ctx context.Context) error {
 	if err := dc.configBIOS(ctx); err != nil {
 		return err
 	}
-	if err := dc.configTpm(ctx); err != nil {
-		return err
-	}
 	if err := dc.configSystem(ctx); err != nil {
 		return err
 	}
@@ -202,15 +199,19 @@ func (dc *dellConfigurator) configBIOS(ctx context.Context) error {
 	if err := dc.configProcessor(ctx); err != nil {
 		return err
 	}
-	return nil
-}
-
-func (dc *dellConfigurator) configTpm(ctx context.Context) error {
 	if err := dc.configTpmSecurity(ctx); err != nil {
 		return err
 	}
-	if err := dc.configTpmCommand(ctx); err != nil {
+
+	key := "BIOS.SysSecurity.TpmStatus"
+	val, err := racadmGetConfig(ctx, key)
+	if err != nil {
 		return err
+	}
+	if val == "Unknown" {
+		if err := dc.configTpmCommand(ctx); err != nil {
+			return err
+		}
 	}
 	return nil
 }
