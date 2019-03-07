@@ -208,7 +208,7 @@ func (dc *dellConfigurator) configBIOS(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	if val == "Unknown" {
+	if val != "Enabled, Activated" {
 		if err := dc.configTpmCommand(ctx); err != nil {
 			return err
 		}
