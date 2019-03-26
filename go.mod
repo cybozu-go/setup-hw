@@ -3,7 +3,6 @@ module github.com/cybozu-go/setup-hw
 require (
 	github.com/cybozu-go/log v1.5.0
 	github.com/cybozu-go/well v1.8.1
-	github.com/google/pprof v0.0.0-20190309163659-77426154d546 // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20181103185306-d547d1d9531e // indirect
 	github.com/howeyc/gopass v0.0.0-20170109162249-bf9dde6d0d2c
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect

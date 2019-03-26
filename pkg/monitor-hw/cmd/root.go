@@ -5,21 +5,26 @@ import (
 	"errors"
 
 	"github.com/cybozu-go/log"
+	"github.com/cybozu-go/setup-hw/collector"
 	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/setup-hw/lib"
 	"github.com/cybozu-go/well"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/cobra"
 )
 
 var opts struct {
-	listenAddress string
-	collectors    string
-	resetInterval int
+	listenAddress    string
+	collectorsString string
+	collectors       map[string]collector.Collector
+	interval         int
+	resetInterval    int
 }
 
 const (
 	defaultPort          = ":9105"
 	defaultCollectors    = "chassis"
+	defaultInterval      = 60
 	defaultResetInterval = 3600
 )
 
@@ -32,6 +37,12 @@ var rootCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		well.LogConfig{}.Apply()
 
+		collectors, err := collector.LoadCollectors(opts.collectorsString)
+		if err != nil {
+			return err
+		}
+		opts.collectors = collectors
+
 		ac, uc, err := config.LoadConfig()
 		if err != nil {
 			return err
@@ -42,19 +53,32 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
-		var monitor func(context.Context, *config.AddressConfig, *config.UserConfig) error
+		var monitor func(context.Context) error
+		var initExporter func(*config.AddressConfig, *config.UserConfig) (prometheus.Collector, error)
 		switch vendor {
 		case lib.QEMU:
 			monitor = monitorQEMU
+			initExporter = initExporterQEMU
 		case lib.Dell:
 			monitor = monitorDell
+			initExporter = initExporterDell
 		default:
 			return errors.New("unsupported vendor hardware")
 		}
 
+		collector, err := initExporter(ac, uc)
+		if err != nil {
+			return err
+		}
+		err = startExporter(collector)
+		if err != nil {
+			return err
+		}
+
 		well.Go(func(ctx context.Context) error {
-			return monitor(ctx, ac, uc)
+			return monitor(ctx)
 		})
+
 		well.Stop()
 		err = well.Wait()
 		if err != nil && !well.IsSignaled(err) {
@@ -74,6 +98,7 @@ func Execute() {
 
 func init() {
 	rootCmd.Flags().StringVar(&opts.listenAddress, "listen", defaultPort, "listening address and port number")
-	rootCmd.Flags().StringVar(&opts.collectors, "collectors", defaultCollectors, "list of collector names")
-	rootCmd.Flags().IntVar(&opts.resetInterval, "reset-interval", defaultResetInterval, "interval of resetting iDRAC (dell servers only).")
+	rootCmd.Flags().StringVar(&opts.collectorsString, "collectors", defaultCollectors, "list of collector names")
+	rootCmd.Flags().IntVar(&opts.interval, "interval", defaultInterval, "interval of collecting metrics")
+	rootCmd.Flags().IntVar(&opts.resetInterval, "reset-interval", defaultResetInterval, "interval of resetting iDRAC (dell servers only)")
 }

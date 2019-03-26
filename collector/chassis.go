@@ -1,6 +1,7 @@
 package collector
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -8,6 +9,10 @@ import (
 
 type chassisCollector struct {
 	current *prometheus.Desc
+}
+
+func init() {
+	Factories["chassis"] = NewChassisCollector
 }
 
 // NewChassisCollector returns a new instance of chassisCollector.
@@ -30,5 +35,16 @@ func (c *chassisCollector) Collect(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(
 			c.current, prometheus.GaugeValue, float)
 	}
+	return nil
+}
+
+// Update gathers new metrics.
+func (c *chassisCollector) Update(ctx context.Context) error {
+	values, err := rfclient.Chassis(ctx)
+	if err != nil {
+		return err
+	}
+
+	Metrics.Set("chassis", values)
 	return nil
 }
