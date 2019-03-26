@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"context"
@@ -69,7 +69,7 @@ func monitorDell(ctx context.Context, ac *config.AddressConfig, uc *config.UserC
 	mux.Handle("/metrics", handler)
 	serv := &well.HTTPServer{
 		Server: &http.Server{
-			Addr:    ":9137",
+			Addr:    opts.listenAddress,
 			Handler: mux,
 		},
 	}
@@ -84,11 +84,6 @@ func monitorDell(ctx context.Context, ac *config.AddressConfig, uc *config.UserC
 
 func initDell(ctx context.Context, ac *config.AddressConfig, uc *config.UserConfig) error {
 	collector.Metrics = collector.NewSafeMetrics()
-
-	// endpoint, err := url.Parse("https://support:" + userConfig.Support.Password.Raw + "@" + addressConfig.IPv4.Address)
-	// if err != nil {
-	// 	return err
-	// }
 	endpoint, err := url.Parse("https://" + ac.IPv4.Address)
 	if err != nil {
 		return err
