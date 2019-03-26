@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"crypto/tls"
-	"fmt"
 	"net/http"
 	"net/url"
 	"time"
@@ -36,20 +35,20 @@ func monitorDell(ctx context.Context, ac *config.AddressConfig, uc *config.UserC
 		return err
 	}
 
-	well.Go(func(ctx context.Context) error {
+	env := well.NewEnvironment(ctx)
+	env.Go(func(ctx context.Context) error {
 		for {
-			select {
-			case <-time.After(time.Duration(5 * time.Minute)):
-			case <-ctx.Done():
-				return nil
-			}
 			values, err := client.Chassis(ctx)
 			if err != nil {
 				// TODO: log and continue?
 				return err
 			}
-			fmt.Println("collector.Metrics.Set(\"chassis\", values)")
 			collector.Metrics.Set("chassis", values)
+			select {
+			case <-time.After(time.Duration(5 * time.Minute)):
+			case <-ctx.Done():
+				return nil
+			}
 		}
 		return nil
 	})
@@ -66,11 +65,21 @@ func monitorDell(ctx context.Context, ac *config.AddressConfig, uc *config.UserC
 			ErrorLog:      nil, // TODO
 			ErrorHandling: promhttp.ContinueOnError,
 		})
-	http.HandleFunc("/metrics", func(w http.ResponseWriter, r *http.Request) {
-		handler.ServeHTTP(w, r)
-	})
+	mux := http.NewServeMux()
+	mux.Handle("/metrics", handler)
+	serv := &well.HTTPServer{
+		Server: &http.Server{
+			Addr:    ":9137",
+			Handler: mux,
+		},
+	}
+	err = serv.ListenAndServe()
+	if err != nil {
+		return err
+	}
 
-	return http.ListenAndServe(":9138", nil)
+	env.Stop()
+	return env.Wait()
 }
 
 func initDell(ctx context.Context, ac *config.AddressConfig, uc *config.UserConfig) error {
@@ -93,5 +102,7 @@ func initDell(ctx context.Context, ac *config.AddressConfig, uc *config.UserConf
 	}
 	client = redfish.New(endpoint, transport)
 
-	return well.CommandContext(ctx, "/usr/libexec/instsvcdrv-helper", "start").Run()
+	// TODO: uncomment this
+	//return well.CommandContext(ctx, "/usr/libexec/instsvcdrv-helper", "start").Run()
+	return nil
 }
