@@ -3,14 +3,13 @@ package main
 import (
 	"context"
 	"crypto/tls"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"time"
 
 	"github.com/cybozu-go/setup-hw/collector"
+	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/setup-hw/redfish"
 	"github.com/cybozu-go/well"
 	"github.com/prometheus/client_golang/prometheus"
@@ -32,8 +31,8 @@ func (c RedfishCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
-func monitorDell(ctx context.Context) error {
-	if err := initDell(ctx); err != nil {
+func monitorDell(ctx context.Context, ac *config.AddressConfig, uc *config.UserConfig) error {
+	if err := initDell(ctx, ac, uc); err != nil {
 		return err
 	}
 
@@ -74,31 +73,19 @@ func monitorDell(ctx context.Context) error {
 	return http.ListenAndServe(":9138", nil)
 }
 
-func initDell(ctx context.Context) error {
+func initDell(ctx context.Context, ac *config.AddressConfig, uc *config.UserConfig) error {
 	collector.Metrics = collector.NewSafeMetrics()
 
-	data, err := ioutil.ReadFile("/etc/neco/bmc-address.json")
+	// endpoint, err := url.Parse("https://support:" + userConfig.Support.Password.Raw + "@" + addressConfig.IPv4.Address)
+	// if err != nil {
+	// 	return err
+	// }
+	endpoint, err := url.Parse("https://" + ac.IPv4.Address)
 	if err != nil {
 		return err
 	}
-	addressConfig := AddressConfig{}
-	if err := json.Unmarshal(data, &addressConfig); err != nil {
-		return err
-	}
+	endpoint.User = url.UserPassword("support", uc.Support.Password.Raw)
 
-	data, err = ioutil.ReadFile("/etc/neco/bmc-user.json")
-	if err != nil {
-		return err
-	}
-	userConfig := UserConfig{}
-	if err := json.Unmarshal(data, &userConfig); err != nil {
-		return err
-	}
-
-	endpoint, err := url.Parse("https://support:" + userConfig.Support.Password.Raw + "@" + addressConfig.IPv4.Address)
-	if err != nil {
-		return err
-	}
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: true,
@@ -106,6 +93,5 @@ func initDell(ctx context.Context) error {
 	}
 	client = redfish.New(endpoint, transport)
 
-	//return well.CommandContext(ctx, "/usr/libexec/instsvcdrv-helper", "start").Run()
-	return nil
+	return well.CommandContext(ctx, "/usr/libexec/instsvcdrv-helper", "start").Run()
 }

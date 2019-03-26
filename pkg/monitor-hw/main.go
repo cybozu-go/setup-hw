@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/cybozu-go/log"
+	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/setup-hw/lib"
 	"github.com/cybozu-go/well"
 )
@@ -12,12 +13,17 @@ import (
 func main() {
 	well.LogConfig{}.Apply()
 
+	ac, uc, err := config.LoadConfig()
+	if err != nil {
+		log.ErrorExit(err)
+	}
+
 	vendor, err := lib.DetectVendor()
 	if err != nil {
 		log.ErrorExit(err)
 	}
 
-	var monitor func(ctx context.Context) error
+	var monitor func(context.Context, *config.AddressConfig, *config.UserConfig) error
 	switch vendor {
 	case lib.QEMU:
 		monitor = monitorQEMU
@@ -27,7 +33,9 @@ func main() {
 		log.ErrorExit(errors.New("unsupported vendor hardware"))
 	}
 
-	well.Go(monitor)
+	well.Go(func(ctx context.Context) error {
+		return monitor(ctx, ac, uc)
+	})
 	well.Stop()
 	err = well.Wait()
 	if err != nil && !well.IsSignaled(err) {

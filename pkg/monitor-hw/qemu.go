@@ -1,8 +1,12 @@
 package main
 
-import "context"
+import (
+	"context"
 
-func monitorQEMU(ctx context.Context) error {
+	"github.com/cybozu-go/setup-hw/config"
+)
+
+func monitorQEMU(ctx context.Context, ac *config.AddressConfig, uc *config.UserConfig) error {
 	<-ctx.Done()
 	return nil
 }

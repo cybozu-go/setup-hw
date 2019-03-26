@@ -1,10 +1,20 @@
-package main
+package config
 
 import (
+	"encoding/json"
 	"errors"
 	"net"
+	"os"
 
 	"golang.org/x/crypto/ssh"
+)
+
+const (
+	// AddressFile is the filename of the BMC address configuration file.
+	AddressFile = "/etc/neco/bmc-address.json"
+
+	// UserFile is the filename of the BMC user credentials.
+	UserFile = "/etc/neco/bmc-user.json"
 )
 
 // IPv4Config represents NIC configuration parameters for IPv4 network.
@@ -100,4 +110,41 @@ func (c UserConfig) Validate() error {
 		return err
 	}
 	return nil
+}
+
+// LoadConfig loads AddressConfig and UserConfig.
+func LoadConfig() (*AddressConfig, *UserConfig, error) {
+	f, err := os.Open(AddressFile)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer f.Close()
+
+	bmcAddress := new(AddressConfig)
+	err = json.NewDecoder(f).Decode(bmcAddress)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if err := bmcAddress.Validate(); err != nil {
+		return nil, nil, err
+	}
+
+	g, err := os.Open(UserFile)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer g.Close()
+
+	bmcUsers := new(UserConfig)
+	err = json.NewDecoder(g).Decode(bmcUsers)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if err := bmcUsers.Validate(); err != nil {
+		return nil, nil, err
+	}
+
+	return bmcAddress, bmcUsers, nil
 }

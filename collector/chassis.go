@@ -10,10 +10,12 @@ type chassisCollector struct {
 	current *prometheus.Desc
 }
 
+// NewChassisCollector returns a new instance of chassisCollector.
 func NewChassisCollector() Collector {
 	return &chassisCollector{}
 }
 
+// Collect exposes new metrics via prometheus registry.
 func (c *chassisCollector) Collect(ch chan<- prometheus.Metric) error {
 	values := Metrics.Get("chassis")
 	for _, value := range values {

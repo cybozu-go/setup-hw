@@ -2,20 +2,13 @@ package redfish
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"path"
 )
 
-// Options allow to set options for the Redfish package
-type Options struct {
-	RedfishEndpoint string
-}
-
-// Redfish contains the Options and a Client to mock outputs during development
+// Redfish contains the Endpoint and a Client
 type Redfish struct {
 	Endpoint *url.URL
 	Client   *http.Client
@@ -35,8 +28,8 @@ type Status struct {
 	State        string `json:"State"`
 }
 
-func convertHealth(health string) string {
-	switch health {
+func (s Status) healthValue() string {
+	switch s.Health {
 	case "OK":
 		return "0"
 	case "Warning":
@@ -47,8 +40,20 @@ func convertHealth(health string) string {
 	return "-1"
 }
 
-func convertState(state string) string {
-	switch state {
+func (s Status) healthRollupValue() string {
+	switch s.HealthRollup {
+	case "OK":
+		return "0"
+	case "Warning":
+		return "1"
+	case "Critical":
+		return "2"
+	}
+	return "-1"
+}
+
+func (s Status) stateValue() string {
+	switch s.State {
 	case "Enabled":
 		return "0"
 	case "Disabled":
@@ -60,7 +65,7 @@ func convertState(state string) string {
 // New returns a new *Redfish
 func New(endpoint *url.URL, transport *http.Transport) *Redfish {
 	return &Redfish{
-		Endpoint: endpoint, // https://user:pass@1.2.3.4
+		Endpoint: endpoint,
 		Client: &http.Client{
 			Transport: transport,
 		},
@@ -90,56 +95,4 @@ func (r *Redfish) get(ctx context.Context, path string) ([]byte, error) {
 	}
 
 	return ioutil.ReadAll(resp.Body)
-}
-
-// Chassis returns metrics values of chassis
-func (r *Redfish) Chassis(ctx context.Context) ([]Value, error) {
-	values := make([]Value, 0)
-
-	data, err := r.get(ctx, "/redfish/v1/Chassis")
-	if err != nil {
-		return nil, err
-	}
-
-	chassis := new(struct {
-		Members []struct {
-			ODataID string `json:"@odata.id"`
-		} `json:"Members"`
-	})
-	err = json.Unmarshal(data, chassis)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, m := range chassis.Members {
-		chassisID := path.Base(m.ODataID)
-
-		data, err := r.get(ctx, m.ODataID)
-		c := new(struct {
-			Status Status `json:"Status"`
-		})
-		err = json.Unmarshal(data, c)
-		if err != nil {
-			return nil, err
-		}
-		values = append(values,
-			Value{
-				Name:   "chassis_status_health",
-				Value:  convertHealth(c.Status.Health),
-				Labels: map[string]string{"Chassis": chassisID},
-			},
-			Value{
-				Name:   "chassis_status_healthrollup",
-				Value:  convertHealth(c.Status.HealthRollup),
-				Labels: map[string]string{"Chassis": chassisID},
-			},
-			Value{
-				Name:   "chassis_status_state",
-				Value:  convertState(c.Status.State),
-				Labels: map[string]string{"Chassis": chassisID},
-			},
-		)
-	}
-
-	return values, nil
 }
