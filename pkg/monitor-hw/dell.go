@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -48,6 +49,7 @@ func monitorDell(ctx context.Context) error {
 				// TODO: log and continue?
 				return err
 			}
+			fmt.Println("collector.Metrics.Set(\"chassis\", values)")
 			collector.Metrics.Set("chassis", values)
 		}
 		return nil
@@ -69,7 +71,7 @@ func monitorDell(ctx context.Context) error {
 		handler.ServeHTTP(w, r)
 	})
 
-	return http.ListenAndServe(":9137", nil)
+	return http.ListenAndServe(":9138", nil)
 }
 
 func initDell(ctx context.Context) error {
