@@ -18,27 +18,12 @@ type Redfish struct {
 	Client   *http.Client
 }
 
-type ConvertRuleSet struct {
-	Path  string
-	Rules []ConvertRule
-}
-
-type ConvertRule struct {
-	Pointer string
-	Name    string
-	Type    Converter
-}
-
 // {
 // 	Path: "/redfish/v1/system/{sid}",
 // 	Pointer: "/processor[{pid}]/status",
 // 	Name: "processor_status",
 // 	Type: StatusConverter
 // }
-
-type Converter interface {
-	Convert(interface{}) (string, map[string]string)
-}
 
 // Value contains a metrics name, value and labels
 type Value struct {
@@ -52,40 +37,6 @@ type Status struct {
 	Health       string `json:"Health"`
 	HealthRollup string `json:"HealthRollup"`
 	State        string `json:"State"`
-}
-
-func (s Status) healthValue() string {
-	switch s.Health {
-	case "OK":
-		return "0"
-	case "Warning":
-		return "1"
-	case "Critical":
-		return "2"
-	}
-	return "-1"
-}
-
-func (s Status) healthRollupValue() string {
-	switch s.HealthRollup {
-	case "OK":
-		return "0"
-	case "Warning":
-		return "1"
-	case "Critical":
-		return "2"
-	}
-	return "-1"
-}
-
-func (s Status) stateValue() string {
-	switch s.State {
-	case "Enabled":
-		return "0"
-	case "Disabled":
-		return "1"
-	}
-	return "-1"
 }
 
 var rfclient *Redfish
