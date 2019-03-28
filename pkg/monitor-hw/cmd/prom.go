@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/cybozu-go/log"
+	"github.com/cybozu-go/setup-hw/redfish"
 	"github.com/cybozu-go/well"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -13,13 +15,11 @@ import (
 func startExporter(collector prometheus.Collector) error {
 	well.Go(func(ctx context.Context) error {
 		for {
-			// TODO: parallelize
-			for _, c := range opts.collectors {
-				err := c.Update(ctx)
-				if err != nil {
-					// TODO: log and continue?
-					return err
-				}
+			err := redfish.Update(ctx)
+			if err != nil {
+				log.Warn("failed to update Redfish data", map[string]interface{}{
+					log.FnError: err,
+				})
 			}
 			select {
 			case <-time.After(time.Duration(opts.interval) * time.Second):

@@ -10,19 +10,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-type RedfishCollector struct {
-	collectors map[string]collector.Collector
-}
-
-func (c RedfishCollector) Describe(ch chan<- *prometheus.Desc) {
-}
-
-func (c RedfishCollector) Collect(ch chan<- prometheus.Metric) {
-	for _, c := range c.collectors {
-		c.Collect(ch)
-	}
-}
-
 func monitorDell(ctx context.Context) error {
 	if err := initDell(ctx); err != nil {
 		return err
@@ -31,12 +18,12 @@ func monitorDell(ctx context.Context) error {
 	env := well.NewEnvironment(ctx)
 	env.Go(func(ctx context.Context) error {
 		for {
-			// TODO: reset iDRAC
 			select {
 			case <-time.After(time.Duration(opts.resetInterval) * time.Second):
 			case <-ctx.Done():
 				return nil
 			}
+			// TODO: reset iDRAC
 		}
 		return nil
 	})

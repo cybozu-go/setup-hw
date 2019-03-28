@@ -1,6 +1,7 @@
 module github.com/cybozu-go/setup-hw
 
 require (
+	github.com/Jeffail/gabs v1.2.0
 	github.com/cybozu-go/log v1.5.0
 	github.com/cybozu-go/well v1.8.1
 	github.com/gopherjs/gopherjs v0.0.0-20181103185306-d547d1d9531e // indirect

@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/cybozu-go/log"
-	"github.com/cybozu-go/setup-hw/collector"
 	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/setup-hw/lib"
 	"github.com/cybozu-go/well"
@@ -14,16 +13,14 @@ import (
 )
 
 var opts struct {
-	listenAddress    string
-	collectorsString string
-	collectors       map[string]collector.Collector
-	interval         int
-	resetInterval    int
+	listenAddress string
+	interval      int
+	resetInterval int
 }
 
 const (
 	defaultPort          = ":9105"
-	defaultCollectors    = "chassis"
+	defaultRedfishRoot   = "/redfish/v1"
 	defaultInterval      = 60
 	defaultResetInterval = 3600
 )
@@ -36,12 +33,6 @@ var rootCmd = &cobra.Command{
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		well.LogConfig{}.Apply()
-
-		collectors, err := collector.LoadCollectors(opts.collectorsString)
-		if err != nil {
-			return err
-		}
-		opts.collectors = collectors
 
 		ac, uc, err := config.LoadConfig()
 		if err != nil {
@@ -98,7 +89,7 @@ func Execute() {
 
 func init() {
 	rootCmd.Flags().StringVar(&opts.listenAddress, "listen", defaultPort, "listening address and port number")
-	rootCmd.Flags().StringVar(&opts.collectorsString, "collectors", defaultCollectors, "list of collector names")
+	rootCmd.Flags().StringVar(&opts.redfishRoot, "redfish", defaultRedfishRoot, "root path of Redfish data")
 	rootCmd.Flags().IntVar(&opts.interval, "interval", defaultInterval, "interval of collecting metrics")
 	rootCmd.Flags().IntVar(&opts.resetInterval, "reset-interval", defaultResetInterval, "interval of resetting iDRAC (dell servers only)")
 }
