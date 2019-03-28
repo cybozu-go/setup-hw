@@ -18,13 +18,6 @@ type Redfish struct {
 	Client   *http.Client
 }
 
-// {
-// 	Path: "/redfish/v1/system/{sid}",
-// 	Pointer: "/processor[{pid}]/status",
-// 	Name: "processor_status",
-// 	Type: StatusConverter
-// }
-
 // Value contains a metrics name, value and labels
 type Value struct {
 	Name   string
@@ -42,7 +35,7 @@ type Status struct {
 var rfclient *Redfish
 
 // New returns a new *Redfish
-func New(ac *config.AddressConfig, uc *config.UserConfig) (*Redfish, error) {
+func NewRedfish(ac *config.AddressConfig, uc *config.UserConfig) (*Redfish, error) {
 	endpoint, err := url.Parse("https://" + ac.IPv4.Address)
 	if err != nil {
 		return nil, err
@@ -63,19 +56,19 @@ func New(ac *config.AddressConfig, uc *config.UserConfig) (*Redfish, error) {
 	}, nil
 }
 
-func (r *Redfish) get(ctx context.Context, path string, cmap ContainerMap) ContainerMap {
+func (r *Redfish) get(ctx context.Context, path string, dataMap RedfishDataMap) RedfishDataMap {
 	u, err := r.Endpoint.Parse(path)
 	if err != nil {
 		log.Warn("failed to parse Redfish path", map[string]interface{}{
 			"path":      path,
 			log.FnError: err,
 		})
-		return cmap
+		return dataMap
 	}
 
 	epath := u.EscapedPath()
-	if _, ok := cmap[epath]; ok {
-		return cmap
+	if _, ok := dataMap[epath]; ok {
+		return dataMap
 	}
 
 	req, err := http.NewRequest("GET", u.String(), nil)
@@ -84,7 +77,7 @@ func (r *Redfish) get(ctx context.Context, path string, cmap ContainerMap) Conta
 			"url":       u.String(),
 			log.FnError: err,
 		})
-		return cmap
+		return dataMap
 	}
 	req = req.WithContext(ctx)
 
@@ -94,7 +87,7 @@ func (r *Redfish) get(ctx context.Context, path string, cmap ContainerMap) Conta
 			"url":       u.String(),
 			log.FnError: err,
 		})
-		return cmap
+		return dataMap
 	}
 	defer resp.Body.Close()
 
@@ -104,25 +97,33 @@ func (r *Redfish) get(ctx context.Context, path string, cmap ContainerMap) Conta
 			"status":    resp.StatusCode,
 			log.FnError: err,
 		})
-		return cmap
+		return dataMap
 	}
 
-	parsed, err := gabs.ParseJSON(ioutil.ReadAll(resp.Body))
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Warn("failed to read Redfish data", map[string]interface{}{
+			"url":       u.String(),
+			log.FnError: err,
+		})
+		return dataMap
+	}
+
+	parsed, err := gabs.ParseJSON(body)
 	if err != nil {
 		log.Warn("failed to parse Redfish data", map[string]interface{}{
 			"url":       u.String(),
 			log.FnError: err,
 		})
-		return cmap
+		return dataMap
 	}
-	cmap[epath] = parsed
+	dataMap[epath] = parsed
 
-	return r.follow(ctx, parsed, cmap)
+	return r.follow(ctx, parsed, dataMap)
 }
 
-func (r *Redfish) follow(ctx context.Context, parsed *gabs.Container, cmap ContainerMap) ContainerMap {
-	childrenMap, ok := parsed.ChildrenMap()
-	if ok {
+func (r *Redfish) follow(ctx context.Context, parsed *gabs.Container, dataMap RedfishDataMap) RedfishDataMap {
+	if childrenMap, err := parsed.ChildrenMap(); err == nil {
 		for k, v := range childrenMap {
 			if k == "@odata.id" {
 				path, ok := v.Data().(string)
@@ -132,25 +133,25 @@ func (r *Redfish) follow(ctx context.Context, parsed *gabs.Container, cmap Conta
 					})
 					continue
 				}
-				cmap = r.get(ctx, path, cmap)
+				dataMap = r.get(ctx, path, dataMap)
 			} else {
-				cmap = r.follow(ctx, v, cmap)
+				dataMap = r.follow(ctx, v, dataMap)
 			}
 		}
-		return cmap
+		return dataMap
 	}
 
-	childrenSlice, ok := parsed.Children()
-	if ok {
+	if childrenSlice, err := parsed.Children(); err == nil {
 		for _, v := range childrenSlice {
-			cmap = r.follow(ctx, v, cmap)
+			dataMap = r.follow(ctx, v, dataMap)
 		}
-		return cmap
+		return dataMap
 	}
 
-	return cmap
+	return dataMap
 }
 
-func (r *Redfish) Traverse(ctx context.Context, rootPath str) (ContainerMap, error) {
-	return r.get(ctx, rootPath, make(ContainerMap))
+func (r *Redfish) Update(ctx context.Context, rootPath string) {
+	dataMap := r.get(ctx, rootPath, make(RedfishDataMap))
+	cache.Set(dataMap)
 }

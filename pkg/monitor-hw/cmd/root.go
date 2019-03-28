@@ -8,12 +8,12 @@ import (
 	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/setup-hw/lib"
 	"github.com/cybozu-go/well"
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/cobra"
 )
 
 var opts struct {
 	listenAddress string
+	redfishRoot   string
 	interval      int
 	resetInterval int
 }
@@ -45,23 +45,19 @@ var rootCmd = &cobra.Command{
 		}
 
 		var monitor func(context.Context) error
-		var initExporter func(*config.AddressConfig, *config.UserConfig) (prometheus.Collector, error)
+		var ruleFile string
 		switch vendor {
 		case lib.QEMU:
 			monitor = monitorQEMU
-			initExporter = initExporterQEMU
+			ruleFile = ""
 		case lib.Dell:
 			monitor = monitorDell
-			initExporter = initExporterDell
+			ruleFile = "dell_redfish_1.0.2.yml"
 		default:
 			return errors.New("unsupported vendor hardware")
 		}
 
-		collector, err := initExporter(ac, uc)
-		if err != nil {
-			return err
-		}
-		err = startExporter(collector)
+		err = startExporter(ac, uc, ruleFile)
 		if err != nil {
 			return err
 		}

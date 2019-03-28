@@ -5,22 +5,23 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/cybozu-go/log"
+	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/setup-hw/redfish"
 	"github.com/cybozu-go/well"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-func startExporter(collector prometheus.Collector) error {
+func startExporter(ac *config.AddressConfig, uc *config.UserConfig, ruleFile string) error {
+	rfclient, err := redfish.NewRedfish(ac, uc)
+	if err != nil {
+		return err
+	}
+
 	well.Go(func(ctx context.Context) error {
 		for {
-			err := redfish.Update(ctx)
-			if err != nil {
-				log.Warn("failed to update Redfish data", map[string]interface{}{
-					log.FnError: err,
-				})
-			}
+			rfclient.Update(ctx, opts.redfishRoot)
+
 			select {
 			case <-time.After(time.Duration(opts.interval) * time.Second):
 			case <-ctx.Done():
@@ -30,7 +31,11 @@ func startExporter(collector prometheus.Collector) error {
 		return nil
 	})
 
-	err := prometheus.Register(collector)
+	collector, err := redfish.NewRedfishCollector(ruleFile)
+	if err != nil {
+		return err
+	}
+	err = prometheus.Register(collector)
 	if err != nil {
 		return err
 	}

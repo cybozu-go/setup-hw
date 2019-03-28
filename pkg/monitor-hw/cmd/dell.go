@@ -4,10 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/cybozu-go/setup-hw/collector"
-	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/well"
-	"github.com/prometheus/client_golang/prometheus"
 )
 
 func monitorDell(ctx context.Context) error {
@@ -36,13 +33,4 @@ func initDell(ctx context.Context) error {
 	// TODO: uncomment this
 	//return well.CommandContext(ctx, "/usr/libexec/instsvcdrv-helper", "start").Run()
 	return nil
-}
-
-func initExporterDell(ac *config.AddressConfig, uc *config.UserConfig) (prometheus.Collector, error) {
-	err := collector.InitRedfishCollectors(ac, uc)
-	if err != nil {
-		return nil, err
-	}
-
-	return RedfishCollector{collectors: opts.collectors}, nil
 }
