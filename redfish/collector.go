@@ -105,8 +105,84 @@ type matchedProperty struct {
 }
 
 func findJSONPointerPattern(parsedJSON *gabs.Container, pointer string) []matchedProperty {
-	return nil
-	// "/A/B" => "A.B"
-	// "/A[{id}]/B" => "/A" -> (list processing) -> "/B"
-	//
+	if pointer == "" {
+		return []matchedProperty{
+			matchedProperty{
+				property: parsedJSON.Data(),
+				indexes:  make(map[string]int),
+			},
+		}
+	}
+	if pointer[0] != '/' {
+		log.Warn("wrong pointer path", map[string]interface{}{
+			"pointer": pointer,
+		})
+		return nil
+	}
+	matched, subpath, index, remainder := splitPointer(pointer)
+	if !matched {
+		p := strings.ReplaceAll(pointer[1:], "/", ".")
+		v := parsedJSON.Path(p)
+		if v == nil {
+			log.Warn("cannot find pointed value", map[string]interface{}{
+				"pointer": pointer,
+			})
+			return nil
+		}
+		return []matchedProperty{
+			matchedProperty{
+				property: v.Data(),
+				indexes:  make(map[string]int),
+			},
+		}
+	}
+	p := strings.ReplaceAll(subpath[1:], "/", ".")
+	v := parsedJSON.Path(p)
+	if v == nil {
+		log.Warn("cannot find pointed value", map[string]interface{}{
+			"pointer": pointer,
+		})
+		return nil
+	}
+	// Check if v is slice before using Children() because Children() works also for map.
+	_, ok := v.Data().([]interface{})
+	if !ok {
+		log.Warn("array not found", map[string]interface{}{
+			"pointer": pointer,
+		})
+		return nil
+	}
+	var result []matchedProperty
+	children, err := v.Children()
+	if err != nil {
+		log.Warn("get gabs.Children() failed", map[string]interface{}{
+			"pointer": pointer,
+		})
+		return nil
+	}
+	for i, child := range children {
+		ms := findJSONPointerPattern(child, remainder)
+		for _, m := range ms {
+			m.indexes[index] = i
+			result = append(result, m)
+		}
+	}
+	return result
+}
+
+func splitPointer(pointer string) (matched bool, subpath, index, remainder string) {
+	ts := strings.SplitN(pointer, "[", 2)
+	if len(ts) != 2 {
+		return false, "", "", ""
+	}
+	subpath = ts[0]
+
+	ts = strings.SplitN(ts[1], "]", 2)
+	if len(ts) != 2 {
+		return false, "", "", ""
+	}
+	index = ts[0]
+	remainder = ts[1]
+	matched = true
+	return
 }
