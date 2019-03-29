@@ -1,5 +1,6 @@
 /*
 Copyright (c) 2014 Ashley Jeffs
+Copyright (c) 2019 Cybozu
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -37,9 +38,6 @@ import (
 var (
 	// ErrOutOfBounds - Index out of bounds.
 	ErrOutOfBounds = errors.New("out of bounds")
-
-	// ErrNotObjOrArray - The target is not an object or array type.
-	ErrNotObjOrArray = errors.New("not an object or array")
 
 	// ErrNotObj - The target is not an object type.
 	ErrNotObj = errors.New("not an object")
@@ -87,9 +85,7 @@ func (g *Container) Path(path string) *Container {
 }
 
 // Search - Attempt to find and return an object within the JSON structure by specifying the
-// hierarchy of field names to locate the target. If the search encounters an array and has not
-// reached the end target then it will iterate each object of the array for the target and return
-// all of the results in a JSON array.
+// hierarchy of field names to locate the target.
 func (g *Container) Search(hierarchy ...string) *Container {
 	var object interface{}
 
@@ -100,19 +96,6 @@ func (g *Container) Search(hierarchy ...string) *Container {
 			if !ok {
 				return nil
 			}
-		} else if marray, ok := object.([]interface{}); ok {
-			tmpArray := []interface{}{}
-			for _, val := range marray {
-				tmpGabs := &Container{val}
-				res := tmpGabs.Search(hierarchy[target:]...)
-				if res != nil {
-					tmpArray = append(tmpArray, res.Data())
-				}
-			}
-			if len(tmpArray) == 0 {
-				return nil
-			}
-			return &Container{tmpArray}
 		} else {
 			return nil
 		}
@@ -146,9 +129,7 @@ func (g *Container) Index(index int) *Container {
 	return &Container{nil}
 }
 
-// Children - Return a slice of all the children of the array. This also works for objects, however,
-// the children returned for an object will NOT be in order and you lose the names of the returned
-// objects this way.
+// Children - Return a slice of all the children of the array.
 func (g *Container) Children() ([]*Container, error) {
 	if array, ok := g.Data().([]interface{}); ok {
 		children := make([]*Container, len(array))
@@ -157,14 +138,7 @@ func (g *Container) Children() ([]*Container, error) {
 		}
 		return children, nil
 	}
-	if mmap, ok := g.Data().(map[string]interface{}); ok {
-		children := []*Container{}
-		for _, obj := range mmap {
-			children = append(children, &Container{obj})
-		}
-		return children, nil
-	}
-	return nil, ErrNotObjOrArray
+	return nil, ErrNotArray
 }
 
 // ChildrenMap - Return a map of all the children of an object.

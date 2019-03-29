@@ -1,5 +1,6 @@
 /*
 Copyright (c) 2014 Ashley Jeffs
+Copyright (c) 2019 Cybozu
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -118,10 +119,7 @@ func TestExistsWithArrays(t *testing.T) {
 		return
 	}
 
-	if exp, actual := true, val.Exists("foo", "bar", "baz"); exp != actual {
-		t.Errorf("Wrong result from array based Exists: %v != %v", exp, actual)
-	}
-	if exp, actual := false, val.Exists("foo", "bar", "baz_NOPE"); exp != actual {
+	if exp, actual := false, val.Exists("foo", "bar", "baz"); exp != actual {
 		t.Errorf("Wrong result from array based Exists: %v != %v", exp, actual)
 	}
 
@@ -132,10 +130,7 @@ func TestExistsWithArrays(t *testing.T) {
 		return
 	}
 
-	if exp, actual := true, val.Exists("foo", "bar", "baz"); exp != actual {
-		t.Errorf("Wrong result from array based Exists: %v != %v", exp, actual)
-	}
-	if exp, actual := false, val.Exists("foo", "bar", "baz_NOPE"); exp != actual {
+	if exp, actual := false, val.Exists("foo", "bar", "baz"); exp != actual {
 		t.Errorf("Wrong result from array based Exists: %v != %v", exp, actual)
 	}
 
@@ -147,10 +142,7 @@ func TestExistsWithArrays(t *testing.T) {
 		return
 	}
 
-	if exp, actual := true, val.Exists("foo", "bar", "baz"); exp != actual {
-		t.Errorf("Wrong result from array based Exists: %v != %v", exp, actual)
-	}
-	if exp, actual := false, val.Exists("foo", "bar", "baz_NOPE"); exp != actual {
+	if exp, actual := false, val.Exists("foo", "bar", "baz"); exp != actual {
 		t.Errorf("Wrong result from array based Exists: %v != %v", exp, actual)
 	}
 }
@@ -210,7 +202,7 @@ func TestFindArray(t *testing.T) {
 		{
 			`{"test":{"array":[{"value":1}, {"value":2}, {"value":3}]}}`,
 			"test.array.value",
-			"[1,2,3]",
+			"{}",
 		},
 		{
 			`{
@@ -241,7 +233,7 @@ func TestFindArray(t *testing.T) {
 				}
 			}`,
 			"test.array.values.more",
-			"[[1,2,3],[4,5,6],[7,8,9]]",
+			"{}",
 		},
 	} {
 		val, err := ParseJSON([]byte(this.input))
@@ -475,14 +467,12 @@ func TestChildren(t *testing.T) {
 		"objectThree":{
 		}
 	}`))
+	expected := json1.String()
 
 	objects, _ := json1.Children()
 	for _, object := range objects {
 		object.Set("hello world", "child")
 	}
-
-	expected := `{"objectOne":{"child":"hello world"},"objectThree":{"child":"hello world"}` +
-		`,"objectTwo":{"child":"hello world"}}`
 	received := json1.String()
 	if expected != received {
 		t.Errorf("json1: expected %v, received %v", expected, received)
@@ -1081,7 +1071,7 @@ func TestNoTypeChildren(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	exp := ErrNotObjOrArray
+	exp := ErrNotArray
 	if _, act := jsonObj.S("not_obj_or_array").Children(); act != exp {
 		t.Errorf("Unexpected value returned: %v != %v", exp, act)
 	}
