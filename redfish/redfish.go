@@ -79,7 +79,7 @@ func (r *Redfish) get(ctx context.Context, path string, dataMap RedfishDataMap) 
 
 	if resp.StatusCode != http.StatusOK {
 		log.Warn("Redfish answered non-OK", map[string]interface{}{
-			"url":       u.String,
+			"url":       u.String(),
 			"status":    resp.StatusCode,
 			log.FnError: err,
 		})
