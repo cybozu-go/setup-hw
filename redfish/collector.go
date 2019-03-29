@@ -53,7 +53,7 @@ func (c RedfishCollector) Collect(ch chan<- prometheus.Metric) {
 			}
 
 			for _, propertyRule := range rule.Rules {
-				matchedProperties := findJSONPointerPattern(parsedJSON, propertyRule.Pointer)
+				matchedProperties := matchPointer(propertyRule.Pointer, parsedJSON)
 				for _, matched := range matchedProperties {
 					value := propertyRule.Converter(matched.property)
 					labels := make(prometheus.Labels)
@@ -121,7 +121,11 @@ type matchedProperty struct {
 	indexes  map[string]int
 }
 
-func findJSONPointerPattern(parsedJSON *gabs.Container, pointer string) []matchedProperty {
+func matchPointer(pointer string, parsedJSON *gabs.Container) []matchedProperty {
+	return matchPointerAux(pointer, parsedJSON, pointer)
+}
+
+func matchPointerAux(pointer string, parsedJSON *gabs.Container, rootPointer string) []matchedProperty {
 	if pointer == "" {
 		return []matchedProperty{
 			matchedProperty{
@@ -132,8 +136,8 @@ func findJSONPointerPattern(parsedJSON *gabs.Container, pointer string) []matche
 	}
 
 	if pointer[0] != '/' {
-		log.Warn("wrong pointer path", map[string]interface{}{
-			"pointer": pointer,
+		log.Warn("pointer must begin with '/'", map[string]interface{}{
+			"pointer": rootPointer,
 		})
 		return nil
 	}
@@ -144,7 +148,7 @@ func findJSONPointerPattern(parsedJSON *gabs.Container, pointer string) []matche
 		v := parsedJSON.Path(p)
 		if v == nil {
 			log.Warn("cannot find pointed value", map[string]interface{}{
-				"pointer": pointer,
+				"pointer": rootPointer,
 			})
 			return nil
 		}
@@ -160,22 +164,22 @@ func findJSONPointerPattern(parsedJSON *gabs.Container, pointer string) []matche
 	v := parsedJSON.Path(p)
 	if v == nil {
 		log.Warn("cannot find pointed value", map[string]interface{}{
-			"pointer": pointer,
+			"pointer": rootPointer,
 		})
 		return nil
 	}
 
 	children, err := v.Children()
 	if err != nil {
-		log.Warn("get gabs.Children() failed", map[string]interface{}{
-			"pointer": pointer,
+		log.Warn("index pattern is used, but parent is not array", map[string]interface{}{
+			"pointer": rootPointer,
 		})
 		return nil
 	}
 
 	var result []matchedProperty
 	for i, child := range children {
-		ms := findJSONPointerPattern(child, remainder)
+		ms := matchPointerAux(remainder, child, rootPointer)
 		for _, m := range ms {
 			m.indexes[index] = i
 			result = append(result, m)
