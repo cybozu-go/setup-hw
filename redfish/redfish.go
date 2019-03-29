@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/Jeffail/gabs"
 	"github.com/cybozu-go/log"
 	"github.com/cybozu-go/setup-hw/config"
+	"github.com/cybozu-go/setup-hw/gabs"
 )
 
 // Redfish contains the Endpoint and a Client
@@ -17,22 +17,6 @@ type Redfish struct {
 	Endpoint *url.URL
 	Client   *http.Client
 }
-
-// Value contains a metrics name, value and labels
-type Value struct {
-	Name   string
-	Value  float64
-	Labels map[string]string
-}
-
-// Status represents Status type of Redfish
-type Status struct {
-	Health       string `json:"Health"`
-	HealthRollup string `json:"HealthRollup"`
-	State        string `json:"State"`
-}
-
-var rfclient *Redfish
 
 // New returns a new *Redfish
 func NewRedfish(ac *config.AddressConfig, uc *config.UserConfig) (*Redfish, error) {

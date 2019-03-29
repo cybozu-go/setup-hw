@@ -2,12 +2,12 @@ package redfish
 
 import (
 	"os"
-	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 
-	"github.com/Jeffail/gabs"
 	"github.com/cybozu-go/log"
+	"github.com/cybozu-go/setup-hw/gabs"
 	"github.com/prometheus/client_golang/prometheus"
 	yaml "gopkg.in/yaml.v2"
 )
@@ -46,20 +46,9 @@ func (c RedfishCollector) Collect(ch chan<- prometheus.Metric) {
 	dataMap := cache.Get()
 
 	for _, rule := range c.rules {
-		// rule.Path:    "/redfish/v1/Chassis/{chassis}"
-		// pathPattern: "^/redfish/v1/Chassis/(?P<chassis>[^/]+)$"
-		pathPattern := "^" + strings.ReplaceAll(strings.ReplaceAll(rule.Path, "{", "(?P<"), "}", ">[^/]+") + "$"
-		pathRegExp, err := regexp.Compile(pathPattern)
-		if err != nil {
-			log.Warn("wrong path pattern in metrics rule", map[string]interface{}{
-				"path":      rule.Path,
-				log.FnError: err,
-			})
-			continue
-		}
-
 		for path, parsedJSON := range dataMap {
-			if !pathRegExp.MatchString(path) {
+			matched, pathLabels := matchPath(rule.Path, path)
+			if !matched {
 				continue
 			}
 
@@ -67,7 +56,13 @@ func (c RedfishCollector) Collect(ch chan<- prometheus.Metric) {
 				matchedProperties := findJSONPointerPattern(parsedJSON, propertyRule.Pointer)
 				for _, matched := range matchedProperties {
 					value := propertyRule.Converter(matched.property)
-					labels := make(prometheus.Labels) //TODO
+					labels := make(prometheus.Labels)
+					for k, v := range pathLabels {
+						labels[k] = v
+					}
+					for k, v := range matched.indexes {
+						labels[k] = strconv.Itoa(v)
+					}
 					desc := prometheus.NewDesc(
 						prometheus.BuildFQName(Namespace, "", propertyRule.Name),
 						propertyRule.Description, nil, labels)
@@ -76,6 +71,28 @@ func (c RedfishCollector) Collect(ch chan<- prometheus.Metric) {
 			}
 		}
 	}
+}
+
+func matchPath(rulePath, path string) (bool, prometheus.Labels) {
+	ruleElements := strings.Split(rulePath, "/")
+	pathElements := strings.Split(path, "/")
+
+	if len(ruleElements) != len(pathElements) {
+		return false, nil
+	}
+
+	labels := make(prometheus.Labels)
+	for i := 0; i < len(ruleElements); i++ {
+		ln := len(ruleElements[i])
+		if ruleElements[i][0] == '{' && ruleElements[i][ln-1] == '}' {
+			labelName := ruleElements[i][1 : ln-1]
+			labels[labelName] = pathElements[i]
+		} else if ruleElements[i] != pathElements[i] {
+			return false, nil
+		}
+	}
+
+	return true, labels
 }
 
 type RedfishDataMap map[string]*gabs.Container
@@ -113,12 +130,14 @@ func findJSONPointerPattern(parsedJSON *gabs.Container, pointer string) []matche
 			},
 		}
 	}
+
 	if pointer[0] != '/' {
 		log.Warn("wrong pointer path", map[string]interface{}{
 			"pointer": pointer,
 		})
 		return nil
 	}
+
 	matched, subpath, index, remainder := splitPointer(pointer)
 	if !matched {
 		p := strings.ReplaceAll(pointer[1:], "/", ".")
@@ -136,6 +155,7 @@ func findJSONPointerPattern(parsedJSON *gabs.Container, pointer string) []matche
 			},
 		}
 	}
+
 	p := strings.ReplaceAll(subpath[1:], "/", ".")
 	v := parsedJSON.Path(p)
 	if v == nil {
@@ -144,15 +164,7 @@ func findJSONPointerPattern(parsedJSON *gabs.Container, pointer string) []matche
 		})
 		return nil
 	}
-	// Check if v is slice before using Children() because Children() works also for map.
-	_, ok := v.Data().([]interface{})
-	if !ok {
-		log.Warn("array not found", map[string]interface{}{
-			"pointer": pointer,
-		})
-		return nil
-	}
-	var result []matchedProperty
+
 	children, err := v.Children()
 	if err != nil {
 		log.Warn("get gabs.Children() failed", map[string]interface{}{
@@ -160,6 +172,8 @@ func findJSONPointerPattern(parsedJSON *gabs.Container, pointer string) []matche
 		})
 		return nil
 	}
+
+	var result []matchedProperty
 	for i, child := range children {
 		ms := findJSONPointerPattern(child, remainder)
 		for _, m := range ms {
@@ -167,22 +181,22 @@ func findJSONPointerPattern(parsedJSON *gabs.Container, pointer string) []matche
 			result = append(result, m)
 		}
 	}
+
 	return result
 }
 
 func splitPointer(pointer string) (matched bool, subpath, index, remainder string) {
-	ts := strings.SplitN(pointer, "[", 2)
-	if len(ts) != 2 {
-		return false, "", "", ""
+	ts := strings.Split(pointer, "/")
+	for i, t := range ts {
+		if t[0] == '{' && t[len(t)-1] == '}' {
+			matched = true
+			subpath = "/" + strings.Join(ts[0:i], "/")
+			index = t[1 : len(t)-1]
+			if i != len(ts)-1 {
+				remainder = "/" + strings.Join(ts[i+1:len(ts)], "/")
+			}
+			return
+		}
 	}
-	subpath = ts[0]
-
-	ts = strings.SplitN(ts[1], "]", 2)
-	if len(ts) != 2 {
-		return false, "", "", ""
-	}
-	index = ts[0]
-	remainder = ts[1]
-	matched = true
-	return
+	return false, "", "", ""
 }
