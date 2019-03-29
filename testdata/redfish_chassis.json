@@ -1,0 +1,30 @@
+{
+    "@odata.context": "/redfish/v1/$metadata#Chassis.Chassis",
+    "@odata.id": "/redfish/v1/Chassis/System.Embedded.1",
+    "@odata.type": "#Chassis.v1_2_0.Chassis",
+    "Actions": {
+        "#Chassis.Reset": {
+            "ResetType@Redfish.AllowableValues": [
+                "On",
+                "ForceOff"
+            ],
+            "target": "/redfish/v1/Chassis/System.Embedded.1/Actions/Chassis.Reset"
+        }
+    },
+    "AssetTag": null,
+    "ChassisType": "Rack",
+    "Description": "It represents the properties for physical components for any system.It represent racks, rackmount servers, blades, standalone, modular systems,enclosures, and all other containers.The non-cpu/device centric parts of the schema are all accessed either directly or indirectly through this resource.",
+    "Id": "System.Embedded.1",
+    "IndicatorLED": "Off",
+    "PowerState": "On",
+    "SKU": "H8TG8N2",
+    "SerialNumber": "CNFCP0081H011P",
+    "Status": {
+        "Health": "Critical",
+        "HealthRollup": "Critical",
+        "State": "Enabled"
+    },
+    "Thermal": {
+        "@odata.id": "/redfish/v1/Chassis/System.Embedded.1/Thermal"
+    }
+}

@@ -42,7 +42,7 @@ func TestIPv4Config(t *testing.T) {
 func TestAddressConfig(t *testing.T) {
 	t.Parallel()
 
-	f, err := os.Open("../../testdata/bmc-address.json")
+	f, err := os.Open("../testdata/bmc-address.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -101,7 +101,7 @@ func TestUserConfig(t *testing.T) {
 		t.Error("credential for support must be invalid")
 	}
 
-	f, err := os.Open("../../testdata/bmc-user.json")
+	f, err := os.Open("../testdata/bmc-user.json")
 	if err != nil {
 		t.Fatal(err)
 	}

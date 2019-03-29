@@ -1,29 +1,35 @@
 package redfish
 
 import (
+	"context"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
 
 	"github.com/cybozu-go/log"
+	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/setup-hw/gabs"
 	"github.com/prometheus/client_golang/prometheus"
 	yaml "gopkg.in/yaml.v2"
 )
 
-func init() {
-	cache = &Cache{dataMap: make(RedfishDataMap)}
-}
-
 // Namespace is the first part of the metrics name.
 const Namespace = "hw"
 
 type RedfishCollector struct {
-	rules []ConvertRule
+	rules    []ConvertRule
+	rfclient *Redfish
+	cache    *Cache
 }
 
-func NewRedfishCollector(ruleFile string) (*RedfishCollector, error) {
+func NewRedfishCollector(ac *config.AddressConfig, uc *config.UserConfig, ruleFile string) (*RedfishCollector, error) {
+	cache := &Cache{dataMap: make(RedfishDataMap)}
+	rfclient, err := NewRedfish(ac, uc, cache)
+	if err != nil {
+		return nil, err
+	}
+
 	f, err := os.Open(ruleFile)
 	if err != nil {
 		return nil, err
@@ -36,14 +42,14 @@ func NewRedfishCollector(ruleFile string) (*RedfishCollector, error) {
 		return nil, err
 	}
 
-	return &RedfishCollector{rules: rules}, nil
+	return &RedfishCollector{rules: rules, rfclient: rfclient, cache: cache}, nil
 }
 
 func (c RedfishCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (c RedfishCollector) Collect(ch chan<- prometheus.Metric) {
-	dataMap := cache.Get()
+	dataMap := c.cache.Get()
 
 	for _, rule := range c.rules {
 		for path, parsedJSON := range dataMap {
@@ -71,6 +77,10 @@ func (c RedfishCollector) Collect(ch chan<- prometheus.Metric) {
 			}
 		}
 	}
+}
+
+func (c *RedfishCollector) Update(ctx context.Context, rootPath string) {
+	c.rfclient.Update(ctx, rootPath)
 }
 
 func matchPath(rulePath, path string) (bool, prometheus.Labels) {
@@ -101,8 +111,6 @@ type Cache struct {
 	dataMap RedfishDataMap
 	mux     sync.Mutex
 }
-
-var cache *Cache
 
 func (c *Cache) Set(dataMap RedfishDataMap) {
 	c.mux.Lock()

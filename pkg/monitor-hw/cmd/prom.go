@@ -13,15 +13,19 @@ import (
 )
 
 func startExporter(ac *config.AddressConfig, uc *config.UserConfig, ruleFile string) error {
-	rfclient, err := redfish.NewRedfish(ac, uc)
+	// rfclient, err := redfish.NewRedfish(ac, uc)
+	// if err != nil {
+	// 	return err
+	// }
+
+	collector, err := redfish.NewRedfishCollector(ac, uc, ruleFile)
 	if err != nil {
 		return err
 	}
 
 	well.Go(func(ctx context.Context) error {
 		for {
-			rfclient.Update(ctx, opts.redfishRoot)
-
+			collector.Update(ctx, opts.redfishRoot)
 			select {
 			case <-time.After(time.Duration(opts.interval) * time.Second):
 			case <-ctx.Done():
@@ -31,10 +35,6 @@ func startExporter(ac *config.AddressConfig, uc *config.UserConfig, ruleFile str
 		return nil
 	})
 
-	collector, err := redfish.NewRedfishCollector(ruleFile)
-	if err != nil {
-		return err
-	}
 	err = prometheus.Register(collector)
 	if err != nil {
 		return err

@@ -16,10 +16,11 @@ import (
 type Redfish struct {
 	Endpoint *url.URL
 	Client   *http.Client
+	cache    *Cache
 }
 
 // New returns a new *Redfish
-func NewRedfish(ac *config.AddressConfig, uc *config.UserConfig) (*Redfish, error) {
+func NewRedfish(ac *config.AddressConfig, uc *config.UserConfig, cache *Cache) (*Redfish, error) {
 	endpoint, err := url.Parse("https://" + ac.IPv4.Address)
 	if err != nil {
 		return nil, err
@@ -37,6 +38,7 @@ func NewRedfish(ac *config.AddressConfig, uc *config.UserConfig) (*Redfish, erro
 		Client: &http.Client{
 			Transport: transport,
 		},
+		cache: cache,
 	}, nil
 }
 
@@ -137,5 +139,5 @@ func (r *Redfish) follow(ctx context.Context, parsed *gabs.Container, dataMap Re
 
 func (r *Redfish) Update(ctx context.Context, rootPath string) {
 	dataMap := r.get(ctx, rootPath, make(RedfishDataMap))
-	cache.Set(dataMap)
+	r.cache.Set(dataMap)
 }
