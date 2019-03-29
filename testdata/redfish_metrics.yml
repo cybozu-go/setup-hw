@@ -1,0 +1,21 @@
+- Path: /redfish/v1/Chassis/{chassis}
+  Rules: 
+    - Pointer: /Status/Health
+      Name: chassis_status_health
+      Type: health
+    - Pointer: /Absent/Pointer/Should/Not/Block/Processing
+      Name: dummy
+      Type: health
+    - Pointer: /Sub/{sub}/Status/Health
+      Name: chassis_sub_status_health
+      Type: health
+- Path: /redfish/v1/Absent/Path/Should/Not/Block/Processing
+  Rules:
+    - Pointer: /Status/Health
+      Name: dummy
+      Type: health
+- Path: /redfish/v1/Chassis/{chassis}/Block/{block}
+  Rules:
+    - Pointer: /Status/Health
+      Name: block_status_health
+      Type: health

@@ -2,6 +2,7 @@ package redfish
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -94,7 +95,7 @@ func matchPath(rulePath, path string) (bool, prometheus.Labels) {
 	labels := make(prometheus.Labels)
 	for i := 0; i < len(ruleElements); i++ {
 		ln := len(ruleElements[i])
-		if ruleElements[i][0] == '{' && ruleElements[i][ln-1] == '}' {
+		if ln >= 2 && ruleElements[i][0] == '{' && ruleElements[i][ln-1] == '}' {
 			labelName := ruleElements[i][1 : ln-1]
 			labels[labelName] = pathElements[i]
 		} else if ruleElements[i] != pathElements[i] {
@@ -168,6 +169,7 @@ func matchPointerAux(pointer string, parsedJSON *gabs.Container, rootPointer str
 		}
 	}
 
+	fmt.Println("subpath: ", subpath)
 	p := strings.ReplaceAll(subpath[1:], "/", ".")
 	v := parsedJSON.Path(p)
 	if v == nil {
@@ -200,9 +202,9 @@ func matchPointerAux(pointer string, parsedJSON *gabs.Container, rootPointer str
 func splitPointer(pointer string) (matched bool, subpath, index, remainder string) {
 	ts := strings.Split(pointer, "/")
 	for i, t := range ts {
-		if t[0] == '{' && t[len(t)-1] == '}' {
+		if len(t) >= 2 && t[0] == '{' && t[len(t)-1] == '}' {
 			matched = true
-			subpath = "/" + strings.Join(ts[0:i], "/")
+			subpath = strings.Join(ts[0:i], "/")
 			index = t[1 : len(t)-1]
 			if i != len(ts)-1 {
 				remainder = "/" + strings.Join(ts[i+1:len(ts)], "/")
