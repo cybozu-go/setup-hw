@@ -8,7 +8,6 @@ import (
 	"net/url"
 
 	"github.com/cybozu-go/log"
-	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/setup-hw/gabs"
 )
 
@@ -20,12 +19,15 @@ type Redfish struct {
 }
 
 // New returns a new *Redfish
-func NewRedfish(ac *config.AddressConfig, uc *config.UserConfig, cache *Cache) (*Redfish, error) {
-	endpoint, err := url.Parse("https://" + ac.IPv4.Address)
+func NewRedfish(cc *RedfishCollectorConfig, cache *Cache) (*Redfish, error) {
+	endpoint, err := url.Parse("https://" + cc.AddressConfig.IPv4.Address)
 	if err != nil {
 		return nil, err
 	}
-	endpoint.User = url.UserPassword("support", uc.Support.Password.Raw)
+	endpoint.User = url.UserPassword("support", cc.UserConfig.Support.Password.Raw)
+	if cc.Port != "" {
+		endpoint.Host = endpoint.Host + ":" + cc.Port
+	}
 
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{

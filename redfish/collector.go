@@ -2,8 +2,7 @@ package redfish
 
 import (
 	"context"
-	"fmt"
-	"os"
+	"io"
 	"strconv"
 	"strings"
 	"sync"
@@ -24,21 +23,22 @@ type RedfishCollector struct {
 	cache    *Cache
 }
 
-func NewRedfishCollector(ac *config.AddressConfig, uc *config.UserConfig, ruleFile string) (*RedfishCollector, error) {
-	cache := &Cache{dataMap: make(RedfishDataMap)}
-	rfclient, err := NewRedfish(ac, uc, cache)
-	if err != nil {
-		return nil, err
-	}
+type RedfishCollectorConfig struct {
+	AddressConfig *config.AddressConfig
+	Port          string
+	UserConfig    *config.UserConfig
+	Rule          io.Reader
+}
 
-	f, err := os.Open(ruleFile)
+func NewRedfishCollector(cc *RedfishCollectorConfig) (*RedfishCollector, error) {
+	cache := &Cache{dataMap: make(RedfishDataMap)}
+	rfclient, err := NewRedfish(cc, cache)
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
 
 	var rules []ConvertRule
-	err = yaml.NewDecoder(f).Decode(&rules)
+	err = yaml.NewDecoder(cc.Rule).Decode(&rules)
 	if err != nil {
 		return nil, err
 	}
@@ -169,7 +169,6 @@ func matchPointerAux(pointer string, parsedJSON *gabs.Container, rootPointer str
 		}
 	}
 
-	fmt.Println("subpath: ", subpath)
 	p := strings.ReplaceAll(subpath[1:], "/", ".")
 	v := parsedJSON.Path(p)
 	if v == nil {

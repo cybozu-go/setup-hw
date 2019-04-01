@@ -1,6 +1,7 @@
 package redfish
 
 import (
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -64,10 +65,18 @@ func testCollect(t *testing.T) {
 		},
 	}
 
-	ac := &config.AddressConfig{IPv4: config.IPv4Config{Address: "1.2.3.4"}}
-	uc := &config.UserConfig{}
-	ruleFile := "../testdata/redfish_metrics.yml"
-	collector, err := NewRedfishCollector(ac, uc, ruleFile)
+	rule, err := os.Open("../testdata/redfish_metrics.yml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rule.Close()
+
+	cc := &RedfishCollectorConfig{
+		AddressConfig: &config.AddressConfig{IPv4: config.IPv4Config{Address: "1.2.3.4"}},
+		UserConfig:    &config.UserConfig{},
+		Rule:          rule,
+	}
+	collector, err := NewRedfishCollector(cc)
 	if err != nil {
 		t.Fatal(err)
 	}

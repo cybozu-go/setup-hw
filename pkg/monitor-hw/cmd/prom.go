@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"bytes"
 	"context"
+	"io"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/cybozu-go/setup-hw/config"
@@ -13,12 +16,25 @@ import (
 )
 
 func startExporter(ac *config.AddressConfig, uc *config.UserConfig, ruleFile string) error {
-	// rfclient, err := redfish.NewRedfish(ac, uc)
-	// if err != nil {
-	// 	return err
-	// }
+	var rule io.Reader
+	if ruleFile != "" {
+		f, err := os.Open(ruleFile) // TODO: use statik
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		rule = f
+	} else {
+		rule = bytes.NewBuffer(nil)
+	}
 
-	collector, err := redfish.NewRedfishCollector(ac, uc, ruleFile)
+	cc := &redfish.RedfishCollectorConfig{
+		AddressConfig: ac,
+		UserConfig:    uc,
+		Rule:          rule,
+	}
+
+	collector, err := redfish.NewRedfishCollector(cc)
 	if err != nil {
 		return err
 	}

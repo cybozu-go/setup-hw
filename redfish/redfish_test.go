@@ -2,8 +2,11 @@ package redfish
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"os"
 	"strings"
 	"testing"
 
@@ -36,10 +39,28 @@ func testUpdate(t *testing.T) {
 	ts := httptest.NewTLSServer(mux)
 	defer ts.Close()
 
-	ac := &config.AddressConfig{IPv4: config.IPv4Config{Address: strings.Split(ts.URL, "/")[2]}}
-	uc := &config.UserConfig{}
-	ruleFile := "../testdata/redfish_metrics.yml"
-	collector, err := NewRedfishCollector(ac, uc, ruleFile)
+	u, err := url.Parse(ts.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	hostAndPort := strings.Split(u.Host, ":")
+	if len(hostAndPort) != 2 {
+		t.Fatal(errors.New("httptest.NewTLSServer() returned URL with host and/or port omitted"))
+	}
+
+	rule, err := os.Open("../testdata/redfish_metrics.yml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rule.Close()
+
+	cc := &RedfishCollectorConfig{
+		AddressConfig: &config.AddressConfig{IPv4: config.IPv4Config{Address: hostAndPort[0]}},
+		Port:          hostAndPort[1],
+		UserConfig:    &config.UserConfig{},
+		Rule:          rule,
+	}
+	collector, err := NewRedfishCollector(cc)
 	if err != nil {
 		t.Fatal(err)
 	}
