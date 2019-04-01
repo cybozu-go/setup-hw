@@ -71,17 +71,17 @@ func testCollect(t *testing.T) {
 	}
 	defer rule.Close()
 
-	cc := &RedfishCollectorConfig{
+	cc := &CollectorConfig{
 		AddressConfig: &config.AddressConfig{IPv4: config.IPv4Config{Address: "1.2.3.4"}},
 		UserConfig:    &config.UserConfig{},
 		Rule:          rule,
 	}
-	collector, err := NewRedfishCollector(cc)
+	collector, err := NewCollector(cc)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	dataMap := make(RedfishDataMap)
+	dataMap := make(dataMap)
 	for _, input := range inputs {
 		data, err := gabs.ParseJSONFile(input.filePath)
 		if err != nil {
@@ -89,7 +89,7 @@ func testCollect(t *testing.T) {
 		}
 		dataMap[input.urlPath] = data
 	}
-	collector.cache.Set(dataMap)
+	collector.cache.set(dataMap)
 
 	ch := make(chan prometheus.Metric)
 	go collector.Collect(ch)

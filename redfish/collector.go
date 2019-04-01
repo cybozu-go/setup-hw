@@ -14,43 +14,47 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-// Namespace is the first part of the metrics name.
-const Namespace = "hw"
+const namespace = "hw"
 
-type RedfishCollector struct {
-	rules    []ConvertRule
-	rfclient *Redfish
-	cache    *Cache
+// Collector implements prometheus.Collector interface.
+type Collector struct {
+	rules  []convertRule
+	client *client
+	cache  *cache
 }
 
-type RedfishCollectorConfig struct {
+// CollectorConfig is a set of configurations for Collector.
+type CollectorConfig struct {
 	AddressConfig *config.AddressConfig
 	Port          string
 	UserConfig    *config.UserConfig
 	Rule          io.Reader
 }
 
-func NewRedfishCollector(cc *RedfishCollectorConfig) (*RedfishCollector, error) {
-	cache := &Cache{dataMap: make(RedfishDataMap)}
-	rfclient, err := NewRedfish(cc, cache)
+// NewCollector returns a new instance of Collector.
+func NewCollector(cc *CollectorConfig) (*Collector, error) {
+	cache := &cache{dataMap: make(dataMap)}
+	client, err := newClient(cc, cache)
 	if err != nil {
 		return nil, err
 	}
 
-	var rules []ConvertRule
+	var rules []convertRule
 	err = yaml.NewDecoder(cc.Rule).Decode(&rules)
 	if err != nil {
 		return nil, err
 	}
 
-	return &RedfishCollector{rules: rules, rfclient: rfclient, cache: cache}, nil
+	return &Collector{rules: rules, client: client, cache: cache}, nil
 }
 
-func (c RedfishCollector) Describe(ch chan<- *prometheus.Desc) {
+// Describe does nothing for now.
+func (c Collector) Describe(ch chan<- *prometheus.Desc) {
 }
 
-func (c RedfishCollector) Collect(ch chan<- prometheus.Metric) {
-	dataMap := c.cache.Get()
+// Collect sends metrics collected from BMCs via Redfish.
+func (c Collector) Collect(ch chan<- prometheus.Metric) {
+	dataMap := c.cache.get()
 
 	for _, rule := range c.rules {
 		for path, parsedJSON := range dataMap {
@@ -71,7 +75,7 @@ func (c RedfishCollector) Collect(ch chan<- prometheus.Metric) {
 						labels[k] = strconv.Itoa(v)
 					}
 					desc := prometheus.NewDesc(
-						prometheus.BuildFQName(Namespace, "", propertyRule.Name),
+						prometheus.BuildFQName(namespace, "", propertyRule.Name),
 						propertyRule.Description, nil, labels)
 					ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, value)
 				}
@@ -80,8 +84,9 @@ func (c RedfishCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
-func (c *RedfishCollector) Update(ctx context.Context, rootPath string) {
-	c.rfclient.Update(ctx, rootPath)
+// Update collects metrics from BMCs via Redfish.
+func (c *Collector) Update(ctx context.Context, rootPath string) {
+	c.client.update(ctx, rootPath)
 }
 
 func matchPath(rulePath, path string) (bool, prometheus.Labels) {
@@ -106,20 +111,20 @@ func matchPath(rulePath, path string) (bool, prometheus.Labels) {
 	return true, labels
 }
 
-type RedfishDataMap map[string]*gabs.Container
+type dataMap map[string]*gabs.Container
 
-type Cache struct {
-	dataMap RedfishDataMap
+type cache struct {
+	dataMap dataMap
 	mux     sync.Mutex
 }
 
-func (c *Cache) Set(dataMap RedfishDataMap) {
+func (c *cache) set(dataMap dataMap) {
 	c.mux.Lock()
 	c.dataMap = dataMap
 	c.mux.Unlock()
 }
 
-func (c *Cache) Get() RedfishDataMap {
+func (c *cache) get() dataMap {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	return c.dataMap

@@ -11,15 +11,13 @@ import (
 	"github.com/cybozu-go/setup-hw/gabs"
 )
 
-// Redfish contains the Endpoint and a Client
-type Redfish struct {
-	Endpoint *url.URL
-	Client   *http.Client
-	cache    *Cache
+type client struct {
+	endpoint   *url.URL
+	httpClient *http.Client
+	cache      *cache
 }
 
-// New returns a new *Redfish
-func NewRedfish(cc *RedfishCollectorConfig, cache *Cache) (*Redfish, error) {
+func newClient(cc *CollectorConfig, cache *cache) (*client, error) {
 	endpoint, err := url.Parse("https://" + cc.AddressConfig.IPv4.Address)
 	if err != nil {
 		return nil, err
@@ -35,17 +33,17 @@ func NewRedfish(cc *RedfishCollectorConfig, cache *Cache) (*Redfish, error) {
 		},
 	}
 
-	return &Redfish{
-		Endpoint: endpoint,
-		Client: &http.Client{
+	return &client{
+		endpoint: endpoint,
+		httpClient: &http.Client{
 			Transport: transport,
 		},
 		cache: cache,
 	}, nil
 }
 
-func (r *Redfish) get(ctx context.Context, path string, dataMap RedfishDataMap) RedfishDataMap {
-	u, err := r.Endpoint.Parse(path)
+func (c *client) get(ctx context.Context, path string, dataMap dataMap) dataMap {
+	u, err := c.endpoint.Parse(path)
 	if err != nil {
 		log.Warn("failed to parse Redfish path", map[string]interface{}{
 			"path":      path,
@@ -69,7 +67,7 @@ func (r *Redfish) get(ctx context.Context, path string, dataMap RedfishDataMap) 
 	}
 	req = req.WithContext(ctx)
 
-	resp, err := r.Client.Do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		log.Warn("failed to GET Redfish data", map[string]interface{}{
 			"url":       u.String(),
@@ -107,10 +105,10 @@ func (r *Redfish) get(ctx context.Context, path string, dataMap RedfishDataMap) 
 	}
 	dataMap[epath] = parsed
 
-	return r.follow(ctx, parsed, dataMap)
+	return c.follow(ctx, parsed, dataMap)
 }
 
-func (r *Redfish) follow(ctx context.Context, parsed *gabs.Container, dataMap RedfishDataMap) RedfishDataMap {
+func (c *client) follow(ctx context.Context, parsed *gabs.Container, dataMap dataMap) dataMap {
 	if childrenMap, err := parsed.ChildrenMap(); err == nil {
 		for k, v := range childrenMap {
 			if k == "@odata.id" {
@@ -121,9 +119,9 @@ func (r *Redfish) follow(ctx context.Context, parsed *gabs.Container, dataMap Re
 					})
 					continue
 				}
-				dataMap = r.get(ctx, path, dataMap)
+				dataMap = c.get(ctx, path, dataMap)
 			} else {
-				dataMap = r.follow(ctx, v, dataMap)
+				dataMap = c.follow(ctx, v, dataMap)
 			}
 		}
 		return dataMap
@@ -131,7 +129,7 @@ func (r *Redfish) follow(ctx context.Context, parsed *gabs.Container, dataMap Re
 
 	if childrenSlice, err := parsed.Children(); err == nil {
 		for _, v := range childrenSlice {
-			dataMap = r.follow(ctx, v, dataMap)
+			dataMap = c.follow(ctx, v, dataMap)
 		}
 		return dataMap
 	}
@@ -139,7 +137,7 @@ func (r *Redfish) follow(ctx context.Context, parsed *gabs.Container, dataMap Re
 	return dataMap
 }
 
-func (r *Redfish) Update(ctx context.Context, rootPath string) {
-	dataMap := r.get(ctx, rootPath, make(RedfishDataMap))
-	r.cache.Set(dataMap)
+func (c *client) update(ctx context.Context, rootPath string) {
+	dataMap := c.get(ctx, rootPath, make(dataMap))
+	c.cache.set(dataMap)
 }

@@ -54,19 +54,19 @@ func testUpdate(t *testing.T) {
 	}
 	defer rule.Close()
 
-	cc := &RedfishCollectorConfig{
+	cc := &CollectorConfig{
 		AddressConfig: &config.AddressConfig{IPv4: config.IPv4Config{Address: hostAndPort[0]}},
 		Port:          hostAndPort[1],
 		UserConfig:    &config.UserConfig{},
 		Rule:          rule,
 	}
-	collector, err := NewRedfishCollector(cc)
+	collector, err := NewCollector(cc)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	collector.Update(context.Background(), inputs[0].urlPath)
-	dataMap := collector.cache.Get()
+	dataMap := collector.cache.get()
 
 	for _, input := range inputs {
 		data, ok := dataMap[input.urlPath]

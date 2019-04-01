@@ -2,21 +2,21 @@ package redfish
 
 import "errors"
 
-type ConvertRule struct {
+type convertRule struct {
 	Path  string                `yaml:"Path"`
-	Rules []ConvertPropertyRule `yaml:"Rules"`
+	Rules []convertPropertyRule `yaml:"Rules"`
 }
 
-type ConvertPropertyRule struct {
+type convertPropertyRule struct {
 	Pointer     string    `yaml:"Pointer"`
 	Name        string    `yaml:"Name"`
 	Description string    `yaml:"Description"`
-	Converter   Converter `yaml:"Type"`
+	Converter   converter `yaml:"Type"`
 }
 
-type Converter func(interface{}) float64
+type converter func(interface{}) float64
 
-func (c *Converter) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (c *converter) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var typeName string
 	err := unmarshal(&typeName)
 	if err != nil {
@@ -32,7 +32,7 @@ func (c *Converter) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	return nil
 }
 
-var typeToConverters = map[string]Converter{
+var typeToConverters = map[string]converter{
 	"health": healthConverter,
 }
 

@@ -28,13 +28,13 @@ func startExporter(ac *config.AddressConfig, uc *config.UserConfig, ruleFile str
 		rule = bytes.NewBuffer(nil)
 	}
 
-	cc := &redfish.RedfishCollectorConfig{
+	cc := &redfish.CollectorConfig{
 		AddressConfig: ac,
 		UserConfig:    uc,
 		Rule:          rule,
 	}
 
-	collector, err := redfish.NewRedfishCollector(cc)
+	collector, err := redfish.NewCollector(cc)
 	if err != nil {
 		return err
 	}
