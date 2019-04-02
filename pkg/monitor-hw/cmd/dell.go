@@ -22,7 +22,6 @@ func monitorDell(ctx context.Context) error {
 			}
 			// TODO: reset iDRAC
 		}
-		return nil
 	})
 
 	env.Stop()

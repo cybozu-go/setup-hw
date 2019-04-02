@@ -44,6 +44,12 @@ func NewCollector(cc *CollectorConfig) (*Collector, error) {
 		return nil, err
 	}
 
+	for _, rule := range rules {
+		if err := rule.Validate(); err != nil {
+			return nil, err
+		}
+	}
+
 	return &Collector{rules: rules, client: client, cache: cache}, nil
 }
 
@@ -63,9 +69,19 @@ func (c Collector) Collect(ch chan<- prometheus.Metric) {
 			}
 
 			for _, propertyRule := range rule.Rules {
-				matchedProperties := matchPointer(propertyRule.Pointer, parsedJSON)
+				matchedProperties := matchPointer(propertyRule.Pointer, parsedJSON, path)
 				for _, matched := range matchedProperties {
-					value := propertyRule.Converter(matched.property)
+					value, err := propertyRule.Converter(matched.property)
+					if err != nil {
+						log.Warn("failed to interpret Redfish data as metric", map[string]interface{}{
+							"path":      path,
+							"pointer":   propertyRule.Pointer,
+							"name":      propertyRule.Name,
+							"value":     matched.property,
+							log.FnError: err,
+						})
+						continue
+					}
 					labels := make(prometheus.Labels)
 					for k, v := range pathLabels {
 						labels[k] = v
@@ -134,14 +150,16 @@ type matchedProperty struct {
 	indexes  map[string]int
 }
 
-func matchPointer(pointer string, parsedJSON *gabs.Container) []matchedProperty {
-	return matchPointerAux(pointer, parsedJSON, pointer)
+func matchPointer(pointer string, parsedJSON *gabs.Container, path string) []matchedProperty {
+	// path is for logging
+	return matchPointerAux(pointer, parsedJSON, path, pointer)
 }
 
-func matchPointerAux(pointer string, parsedJSON *gabs.Container, rootPointer string) []matchedProperty {
+func matchPointerAux(pointer string, parsedJSON *gabs.Container, path, rootPointer string) []matchedProperty {
+	// path and rootPointer are for logging
 	if pointer == "" {
 		return []matchedProperty{
-			matchedProperty{
+			{
 				property: parsedJSON.Data(),
 				indexes:  make(map[string]int),
 			},
@@ -150,6 +168,7 @@ func matchPointerAux(pointer string, parsedJSON *gabs.Container, rootPointer str
 
 	if pointer[0] != '/' {
 		log.Warn("pointer must begin with '/'", map[string]interface{}{
+			"path":    path,
 			"pointer": rootPointer,
 		})
 		return nil
@@ -161,12 +180,13 @@ func matchPointerAux(pointer string, parsedJSON *gabs.Container, rootPointer str
 		v := parsedJSON.Path(p)
 		if v == nil {
 			log.Warn("cannot find pointed value", map[string]interface{}{
+				"path":    path,
 				"pointer": rootPointer,
 			})
 			return nil
 		}
 		return []matchedProperty{
-			matchedProperty{
+			{
 				property: v.Data(),
 				indexes:  make(map[string]int),
 			},
@@ -177,6 +197,7 @@ func matchPointerAux(pointer string, parsedJSON *gabs.Container, rootPointer str
 	v := parsedJSON.Path(p)
 	if v == nil {
 		log.Warn("cannot find pointed value", map[string]interface{}{
+			"path":    path,
 			"pointer": rootPointer,
 		})
 		return nil
@@ -185,6 +206,7 @@ func matchPointerAux(pointer string, parsedJSON *gabs.Container, rootPointer str
 	children, err := v.Children()
 	if err != nil {
 		log.Warn("index pattern is used, but parent is not array", map[string]interface{}{
+			"path":    path,
 			"pointer": rootPointer,
 		})
 		return nil
@@ -192,7 +214,7 @@ func matchPointerAux(pointer string, parsedJSON *gabs.Container, rootPointer str
 
 	var result []matchedProperty
 	for i, child := range children {
-		ms := matchPointerAux(remainder, child, rootPointer)
+		ms := matchPointerAux(remainder, child, path, rootPointer)
 		for _, m := range ms {
 			m.indexes[index] = i
 			result = append(result, m)
@@ -210,7 +232,7 @@ func splitPointer(pointer string) (matched bool, subpath, index, remainder strin
 			subpath = strings.Join(ts[0:i], "/")
 			index = t[1 : len(t)-1]
 			if i != len(ts)-1 {
-				remainder = "/" + strings.Join(ts[i+1:len(ts)], "/")
+				remainder = "/" + strings.Join(ts[i+1:], "/")
 			}
 			return
 		}

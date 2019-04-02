@@ -8,7 +8,7 @@
     },
     "DeepStatusShouldNotMatch": {
         "Status": {
-            "Health": "OK",
+            "Health": "Critical",
             "HealthRollup": "OK",
             "State": "Enabled"
         }
