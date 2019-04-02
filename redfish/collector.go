@@ -2,7 +2,6 @@ package redfish
 
 import (
 	"context"
-	"io"
 	"strconv"
 	"strings"
 	"sync"
@@ -28,7 +27,7 @@ type CollectorConfig struct {
 	AddressConfig *config.AddressConfig
 	Port          string
 	UserConfig    *config.UserConfig
-	Rule          io.Reader
+	Rule          []byte
 }
 
 // NewCollector returns a new instance of Collector.
@@ -40,7 +39,7 @@ func NewCollector(cc *CollectorConfig) (*Collector, error) {
 	}
 
 	var rules []convertRule
-	err = yaml.NewDecoder(cc.Rule).Decode(&rules)
+	err = yaml.Unmarshal(cc.Rule, &rules)
 	if err != nil {
 		return nil, err
 	}

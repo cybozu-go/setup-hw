@@ -3,10 +3,10 @@ package redfish
 import (
 	"context"
 	"errors"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"os"
 	"strings"
 	"testing"
 
@@ -48,11 +48,10 @@ func testUpdate(t *testing.T) {
 		t.Fatal(errors.New("httptest.NewTLSServer() returned URL with host and/or port omitted"))
 	}
 
-	rule, err := os.Open("../testdata/redfish_metrics.yml")
+	rule, err := ioutil.ReadFile("../testdata/redfish_metrics.yml")
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer rule.Close()
 
 	cc := &CollectorConfig{
 		AddressConfig: &config.AddressConfig{IPv4: config.IPv4Config{Address: hostAndPort[0]}},

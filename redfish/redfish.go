@@ -13,6 +13,8 @@ import (
 
 type client struct {
 	endpoint   *url.URL
+	user       string
+	password   string
 	httpClient *http.Client
 	cache      *cache
 }
@@ -22,7 +24,7 @@ func newClient(cc *CollectorConfig, cache *cache) (*client, error) {
 	if err != nil {
 		return nil, err
 	}
-	endpoint.User = url.UserPassword("support", cc.UserConfig.Support.Password.Raw)
+
 	if cc.Port != "" {
 		endpoint.Host = endpoint.Host + ":" + cc.Port
 	}
@@ -35,6 +37,8 @@ func newClient(cc *CollectorConfig, cache *cache) (*client, error) {
 
 	return &client{
 		endpoint: endpoint,
+		user:     "support",
+		password: cc.UserConfig.Support.Password.Raw,
 		httpClient: &http.Client{
 			Transport: transport,
 		},
@@ -42,19 +46,25 @@ func newClient(cc *CollectorConfig, cache *cache) (*client, error) {
 	}, nil
 }
 
-func (c *client) get(ctx context.Context, path string, dataMap dataMap) dataMap {
+func (c *client) update(ctx context.Context, rootPath string) {
+	dataMap := make(dataMap)
+	c.get(ctx, rootPath, dataMap)
+	c.cache.set(dataMap)
+}
+
+func (c *client) get(ctx context.Context, path string, dataMap dataMap) {
 	u, err := c.endpoint.Parse(path)
 	if err != nil {
 		log.Warn("failed to parse Redfish path", map[string]interface{}{
 			"path":      path,
 			log.FnError: err,
 		})
-		return dataMap
+		return
 	}
 
 	epath := u.EscapedPath()
 	if _, ok := dataMap[epath]; ok {
-		return dataMap
+		return
 	}
 
 	req, err := http.NewRequest("GET", u.String(), nil)
@@ -63,8 +73,9 @@ func (c *client) get(ctx context.Context, path string, dataMap dataMap) dataMap 
 			"url":       u.String(),
 			log.FnError: err,
 		})
-		return dataMap
+		return
 	}
+	req.SetBasicAuth(c.user, c.password)
 	req = req.WithContext(ctx)
 
 	resp, err := c.httpClient.Do(req)
@@ -73,7 +84,7 @@ func (c *client) get(ctx context.Context, path string, dataMap dataMap) dataMap 
 			"url":       u.String(),
 			log.FnError: err,
 		})
-		return dataMap
+		return
 	}
 	defer resp.Body.Close()
 
@@ -83,7 +94,7 @@ func (c *client) get(ctx context.Context, path string, dataMap dataMap) dataMap 
 			"status":    resp.StatusCode,
 			log.FnError: err,
 		})
-		return dataMap
+		return
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
@@ -92,7 +103,7 @@ func (c *client) get(ctx context.Context, path string, dataMap dataMap) dataMap 
 			"url":       u.String(),
 			log.FnError: err,
 		})
-		return dataMap
+		return
 	}
 
 	parsed, err := gabs.ParseJSON(body)
@@ -101,14 +112,14 @@ func (c *client) get(ctx context.Context, path string, dataMap dataMap) dataMap 
 			"url":       u.String(),
 			log.FnError: err,
 		})
-		return dataMap
+		return
 	}
 	dataMap[epath] = parsed
 
-	return c.follow(ctx, parsed, dataMap)
+	c.follow(ctx, parsed, dataMap)
 }
 
-func (c *client) follow(ctx context.Context, parsed *gabs.Container, dataMap dataMap) dataMap {
+func (c *client) follow(ctx context.Context, parsed *gabs.Container, dataMap dataMap) {
 	if childrenMap, err := parsed.ChildrenMap(); err == nil {
 		for k, v := range childrenMap {
 			if k == "@odata.id" {
@@ -119,25 +130,18 @@ func (c *client) follow(ctx context.Context, parsed *gabs.Container, dataMap dat
 					})
 					continue
 				}
-				dataMap = c.get(ctx, path, dataMap)
+				c.get(ctx, path, dataMap)
 			} else {
-				dataMap = c.follow(ctx, v, dataMap)
+				c.follow(ctx, v, dataMap)
 			}
 		}
-		return dataMap
+		return
 	}
 
 	if childrenSlice, err := parsed.Children(); err == nil {
 		for _, v := range childrenSlice {
-			dataMap = c.follow(ctx, v, dataMap)
+			c.follow(ctx, v, dataMap)
 		}
-		return dataMap
+		return
 	}
-
-	return dataMap
-}
-
-func (c *client) update(ctx context.Context, rootPath string) {
-	dataMap := c.get(ctx, rootPath, make(dataMap))
-	c.cache.set(dataMap)
 }

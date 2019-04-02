@@ -1,31 +1,34 @@
+//go:generate statik -f -src ../../../redfish/rules -dest=../../../redfish
+
 package cmd
 
 import (
-	"bytes"
 	"context"
-	"io"
+	"io/ioutil"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/setup-hw/redfish"
+	_ "github.com/cybozu-go/setup-hw/redfish/statik"
 	"github.com/cybozu-go/well"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/rakyll/statik/fs"
 )
 
 func startExporter(ac *config.AddressConfig, uc *config.UserConfig, ruleFile string) error {
-	var rule io.Reader
-	if ruleFile != "" {
-		f, err := os.Open(ruleFile) // TODO: use statik
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-		rule = f
-	} else {
-		rule = bytes.NewBuffer(nil)
+	statikFS, err := fs.New()
+	if err != nil {
+		return err
+	}
+	f, err := statikFS.Open(ruleFile)
+	if err != nil {
+		return err
+	}
+	rule, err := ioutil.ReadAll(f)
+	if err != nil {
+		return err
 	}
 
 	cc := &redfish.CollectorConfig{

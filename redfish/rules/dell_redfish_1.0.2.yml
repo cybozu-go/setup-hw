@@ -1,5 +1,5 @@
 - Path: /redfish/v1/Chassis/{chassis}
   Rules: 
     - Pointer: /Status/Health
-    - Name: chassis_status_health
-    - Type: health
+      Name: chassis_status_health
+      Type: health
