@@ -76,7 +76,7 @@ $ docker exec setup-hw idracadm7 ...
 ### Run `setup-hw`
 
 `setup-hw` is a tool to configure BMC and BIOS of the running server.
-See the [document](docs/setup-hw.md) for detail.
+See the [document](docs/setup-hw.md) for details.
 
 
 [BMC]: https://en.wikipedia.org/wiki/Intelligent_Platform_Management_Interface#Baseboard_management_controller

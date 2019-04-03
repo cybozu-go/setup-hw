@@ -67,7 +67,7 @@ Configuration files
 
 `monitor-hw` reads the host and the user information of the BMC from
 the configuration files.
-See the [description of configuration files](config.md) for detail.
+See the [description of configuration files](config.md) for details.
 
 
 [Redfish]: https://www.dmtf.org/standards/redfish
