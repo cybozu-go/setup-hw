@@ -5,7 +5,7 @@ Hardware setup container
 ========================
 
 This repository contains a Dockerfile and associated tools to build a
-container image for configuring server [BMC][] and [BIOS][].
+container image for configuring/monitoring server [BMC][] and [BIOS][].
 
 Specifically, the image bundles `idracadm7` from [OMSA][] for Dell servers.
 
@@ -20,7 +20,7 @@ $ docker build -t setup-hw:latest docker
 
 ### Run as a system service
 
-The container need to be run as a system service before using `idracadm7` or `setup-hw`.
+The container need to be run as a system service before using `idracadm7` or [`setup-hw`](docs/setup-hw.md).
 
 rkt and systemd:
 
@@ -48,6 +48,16 @@ $ docker run -d --name=setup-hw \
   setup-hw:latest
 ```
 
+### Access `monitor-hw`
+
+[`monitor-hw`](docs/monitor-hw.md) is the default command of the container.
+When you run the container, it starts exporting hardware metrics for
+Prometheus.  You can see the metrics from `http://localhost:9105/metrics`
+by default.
+
+You must prepare [configuration files](docs/config.md) before running
+`monitor-hw`.
+
 ### Run idracadm7
 
 rkt:
@@ -63,91 +73,13 @@ Docker:
 $ docker exec setup-hw idracadm7 ...
 ```
 
-Hardware auto configuration
----------------------------
+### Run `setup-hw`
 
-The container image includes a tool `setup-hw` to configure BMC and BIOS of the running server.
-`setup-hw` reads following files:
+`setup-hw` is a tool to configure BMC and BIOS of the running server.
+See the [document](docs/setup-hw.md) for detail.
 
-### `/etc/neco/bmc-address.json`
-
-The contents is a JSON object like this:
-
-```json
-{
-    "ipv4": {
-        "address": "1.2.3.4",
-        "netmask": "255.255.255.0",
-        "gateway": "1.2.3.1"
-    }
-}
-```
-
-BMC network interface will be configured to have the given `address`.
-
-### `/etc/neco/bmc-user.json`
-
-This file contains credentials of BMC users.
-
-BMC users are statically defined in `setup-hw` as follows:
-
-* `root`: The administrator of BMC.
-* `power`: Control power supply.
-* `support`: Read-only account.
-
-Credential types are:
-
-* Raw password
-* Hashed password with salt  
-    For iDRAC, use [`idrac-passwd-hash`](./pkg/idrac-passwd-hash) tool to generate them.
-* Authorized public keys for SSH
-
-Supported credential types varies by BMC types.
-iDRAC, BMC embedded in Dell servers, supports all credential types.
-
-Example:
-
-```json
-{
-    "root": {
-        "password": {
-            "raw": "raw password"
-        },
-        "authorized_keys": [
-            "ssh-rsa ...",
-            ...
-        ]
-    },
-    "power": {
-        "password": {
-            "hash": "hashed_secret",
-            "salt": "salt for hash"
-        }
-    }
-}
-```
-
-### How to run `setup-hw`
-
-1. Run `setup-hw` container as a system service.
-2. Prepare `/etc/neco/bmc-address.json` and `/etc/neco/bmc-user.json`.
-3. Use `rkt enter` or `docker exec` to run `setup-hw` inside the container.
-4. If `setup-hw` exits with status code 10, the server need to be rebooted.
-
-rkt:
-
-```console
-$ sudo rkt enter $POD_UUID setup-hw
-$ if [ $? -eq 10 ]; then sudo reboot; done
-```
-
-Docker:
-
-```console
-$ docker exec setup-hw setup-hw
-$ if [ $? -eq 10 ]; then sudo reboot; done
-```
 
 [BMC]: https://en.wikipedia.org/wiki/Intelligent_Platform_Management_Interface#Baseboard_management_controller
 [BIOS]: https://en.wikipedia.org/wiki/BIOS
 [OMSA]: https://en.wikipedia.org/wiki/OpenManage#OMSA_%E2%80%93_OpenManage_Server_Administrator
+[Prometheus]: https://prometheus.io/

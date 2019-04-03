@@ -29,7 +29,5 @@ func monitorDell(ctx context.Context) error {
 }
 
 func initDell(ctx context.Context) error {
-	// TODO: uncomment this
-	//return well.CommandContext(ctx, "/usr/libexec/instsvcdrv-helper", "start").Run()
-	return nil
+	return well.CommandContext(ctx, "/usr/libexec/instsvcdrv-helper", "start").Run()
 }

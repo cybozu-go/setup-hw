@@ -15,7 +15,7 @@ statik: $(STATIK)
 
 $(STATIK): $(STATIK_SRC)
 	mkdir -p $(dir $(STATIK))
-	go generate ./pkg/...  # this confuses parallel make
+	go generate ./pkg/...
 
 test: $(STATIK)
 	test -z "$$(gofmt -s -l . | grep -v '^vendor' | tee /dev/stderr)"

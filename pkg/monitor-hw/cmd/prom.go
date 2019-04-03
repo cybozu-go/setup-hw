@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/cybozu-go/log"
 	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/setup-hw/redfish"
 	_ "github.com/cybozu-go/setup-hw/redfish/statik" // import for initialization
@@ -16,6 +17,14 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rakyll/statik/fs"
 )
+
+type logger struct{}
+
+func (l logger) Println(v ...interface{}) {
+	log.Error("error in promhttp", map[string]interface{}{
+		log.FnMessage: v,
+	})
+}
 
 func startExporter(ac *config.AddressConfig, uc *config.UserConfig, ruleFile string) error {
 	statikFS, err := fs.New()
@@ -60,7 +69,7 @@ func startExporter(ac *config.AddressConfig, uc *config.UserConfig, ruleFile str
 
 	handler := promhttp.HandlerFor(prometheus.DefaultGatherer,
 		promhttp.HandlerOpts{
-			ErrorLog:      nil, // TODO
+			ErrorLog:      logger{},
 			ErrorHandling: promhttp.ContinueOnError,
 		})
 	mux := http.NewServeMux()

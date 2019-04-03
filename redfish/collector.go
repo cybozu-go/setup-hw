@@ -57,7 +57,7 @@ func NewCollector(cc *CollectorConfig) (*Collector, error) {
 func (c Collector) Describe(ch chan<- *prometheus.Desc) {
 }
 
-// Collect sends metrics collected from BMCs via Redfish.
+// Collect sends metrics collected from BMC via Redfish.
 func (c Collector) Collect(ch chan<- prometheus.Metric) {
 	dataMap := c.cache.get()
 
