@@ -1,14 +1,15 @@
 Monitor hardware
 ================
 
-`monitor-hw` is a monitoring daemon which exports [Redfish][] data.
+`monitor-hw` is a monitoring daemon that exports [Redfish][] data for
+Prometheus.
 
 
 Synopsis
 --------
 
 ```console
-$ monitor-hw [--listen=<port>] [--redfish=<path>] [--interval=<interval>]
+$ monitor-hw [--listen=<address>] [--redfish=<path>] [--interval=<interval>]
   [vendor-specific options...]
 ```
 
@@ -21,8 +22,8 @@ It works as an exporter for [Prometheus][] to monitor hardware metrics.
 
 When `monitor-hw` is invoked, it starts a background routine to gather
 Redfish data of the server where it runs.
-This routine periodically traverses Redfish data which are published by
-the BMC of the server via HTTPS, and stores them into its memory.
+This routine periodically traverses Redfish data from the BMC via HTTPS,
+and stores them in memory.
 
 `monitor-hw` also starts an HTTP server to export data to Prometheus.
 When its `/metrics` path is accessed, it reads the stored Redfish data
@@ -44,22 +45,29 @@ vendors.
 Options
 -------
 
-`--listen=<port>` specifies the TCP port number where `monitor-hw` listens
-for metrics retrieval.  The default is 9105.
+`--listen=<address>` specifies the address, i.e. host and TCP port, where
+`monitor-hw` listens for metrics retrieval.
+This accepts the same forms of `<host>:<port>` and `:<port>` as `Addr` of
+`http.Server`.
+The default is `:9105`.
 
 `--redfish=<path>` specifies the root path of the Redfish HTTPS URL.
 The default is `/redfish/v1`.  Note that the host and the user information
 are read from the configuration files.
 
 `--interval=<interval>` specifies the interval of Redfish data traversal
-in seconds.  The default is 60 seconds.
+in seconds.
+The default is 60 seconds.
+This interval means the time between the end of a certain traversal operation
+and the beginning of the next one, so the observed interval of metrics update
+will be somewhat longer than this interval.
 
 ### Vendor specific options
 
 #### Dell options
 
-`--reset-interval` specifies the interval of resetting iDRAC in seconds.
-The default is 3,600 seconds.
+`--reset-interval` specifies the interval of resetting iDRAC in hours.
+The default is 24 hours.
 
 
 Configuration files
