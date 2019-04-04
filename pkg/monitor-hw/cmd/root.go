@@ -22,7 +22,7 @@ const (
 	defaultPort          = ":9105"
 	defaultRedfishRoot   = "/redfish/v1"
 	defaultInterval      = 60
-	defaultResetInterval = 3600
+	defaultResetInterval = 24
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -86,6 +86,6 @@ func Execute() {
 func init() {
 	rootCmd.Flags().StringVar(&opts.listenAddress, "listen", defaultPort, "listening address and port number")
 	rootCmd.Flags().StringVar(&opts.redfishRoot, "redfish", defaultRedfishRoot, "root path of Redfish data")
-	rootCmd.Flags().IntVar(&opts.interval, "interval", defaultInterval, "interval of collecting metrics")
-	rootCmd.Flags().IntVar(&opts.resetInterval, "reset-interval", defaultResetInterval, "interval of resetting iDRAC (dell servers only)")
+	rootCmd.Flags().IntVar(&opts.interval, "interval", defaultInterval, "interval of collecting metrics in seconds")
+	rootCmd.Flags().IntVar(&opts.resetInterval, "reset-interval", defaultResetInterval, "interval of resetting iDRAC in hours (dell servers only)")
 }
