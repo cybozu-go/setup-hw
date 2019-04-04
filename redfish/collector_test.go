@@ -2,14 +2,11 @@ package redfish
 
 import (
 	"io/ioutil"
-	"strings"
 	"testing"
-	"time"
 
 	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/setup-hw/gabs"
 	"github.com/prometheus/client_golang/prometheus"
-	dto "github.com/prometheus/client_model/go"
 )
 
 func testCollect(t *testing.T) {
@@ -27,10 +24,11 @@ func testCollect(t *testing.T) {
 		},
 	}
 
-	expectedSet := []struct {
-		name   string
-		value  float64
-		labels map[string]string
+	expectedSet := []*struct {
+		matched bool
+		name    string
+		value   float64
+		labels  map[string]string
 	}{
 		{
 			name:  "hw_chassis_status_health",
@@ -90,53 +88,66 @@ func testCollect(t *testing.T) {
 	}
 	collector.cache.set(dataMap)
 
-	ch := make(chan prometheus.Metric)
-	go collector.Collect(ch)
+	registry := prometheus.NewRegistry()
+	err = registry.Register(collector)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// This calls collector.Collect() internally.
+	metricFamilies, err := registry.Gather()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, metricFamily := range metricFamilies {
+		actualMetricName := metricFamily.GetName()
+	ActualLoop:
+		for _, actual := range metricFamily.GetMetric() {
+			if actual.GetGauge() == nil {
+				t.Error("metric type is not Gauge:", actualMetricName)
+				continue
+			}
+
+			actualLabels := make(map[string]string)
+			for _, label := range actual.GetLabel() {
+				actualLabels[label.GetName()] = label.GetValue()
+			}
+
+			for _, expected := range expectedSet {
+				if expected.matched {
+					continue
+				}
+				if actualMetricName == expected.name &&
+					actual.GetGauge().GetValue() == expected.value &&
+					matchLabels(actualLabels, expected.labels) {
+					expected.matched = true
+					continue ActualLoop
+				}
+			}
+			t.Error("unexpected metric; name:", actualMetricName, "value:", actual.GetGauge().GetValue(), "labels:", actualLabels)
+		}
+	}
 
 	for _, expected := range expectedSet {
-		var actual prometheus.Metric
-		select {
-		case actual = <-ch:
-		case <-time.After(1 * time.Second):
-			t.Fatal("timeout to receive metric")
+		if !expected.matched {
+			t.Error("expected but not returned; name:", expected.name, "value:", expected.value, "labels:", expected.labels)
 		}
+	}
+}
 
-		if !strings.Contains(actual.Desc().String(), `"`+expected.name+`"`) {
-			t.Error("wrong metric name; expected:", expected.name, "actual in:", actual.Desc().String())
-		}
+func matchLabels(actual, expected map[string]string) bool {
+	if len(actual) != len(expected) {
+		return false
+	}
 
-		var metric dto.Metric
-		err = actual.Write(&metric)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if metric.Gauge == nil {
-			t.Error("metric type is not Gauge:", expected.name)
-		} else if metric.Gauge.GetValue() != expected.value {
-			t.Error("wrong metric value; metric:", expected.name,
-				"expected:", expected.value, "actual:", metric.Gauge.GetValue())
-		}
-
-		actualLabels := make(map[string]string)
-		for _, label := range metric.Label {
-			actualLabels[label.GetName()] = label.GetValue()
-		}
-		for k, v := range expected.labels {
-			if _, ok := actualLabels[k]; !ok {
-				t.Error("label not found; metric:", expected.name, "key:", k)
-			} else if actualLabels[k] != v {
-				t.Error("wrong label value; metric:", expected.name, "key:", k,
-					"expected:", v, "actual:", actualLabels[k])
-			}
+	for k, v := range expected {
+		if act, ok := actual[k]; !ok || act != v {
+			return false
 		}
 	}
 
-	select {
-	case <-ch:
-		t.Error("collector returned extra metrics")
-	case <-time.After(100 * time.Millisecond):
-	}
+	return true
 }
 
 func TestCollector(t *testing.T) {
