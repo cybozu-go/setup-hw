@@ -4,6 +4,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -21,9 +22,7 @@ import (
 type logger struct{}
 
 func (l logger) Println(v ...interface{}) {
-	log.Error("error in promhttp", map[string]interface{}{
-		log.FnMessage: v,
-	})
+	log.Error(fmt.Sprint(v...), nil)
 }
 
 func startExporter(ac *config.AddressConfig, uc *config.UserConfig, ruleFile string) error {

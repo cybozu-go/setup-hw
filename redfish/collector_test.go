@@ -10,6 +10,8 @@ import (
 )
 
 func testCollect(t *testing.T) {
+	t.Parallel()
+
 	inputs := []struct {
 		urlPath  string
 		filePath string

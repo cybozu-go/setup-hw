@@ -15,6 +15,8 @@ import (
 )
 
 func testUpdate(t *testing.T) {
+	t.Parallel()
+
 	inputs := []struct {
 		urlPath  string
 		filePath string
