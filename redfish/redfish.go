@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"reflect"
 
 	"github.com/cybozu-go/log"
 	"github.com/cybozu-go/setup-hw/gabs"
@@ -122,17 +123,15 @@ func (c *client) get(ctx context.Context, path string, dataMap dataMap) {
 func (c *client) follow(ctx context.Context, parsed *gabs.Container, dataMap dataMap) {
 	if childrenMap, err := parsed.ChildrenMap(); err == nil {
 		for k, v := range childrenMap {
-			if k == "@odata.id" {
-				path, ok := v.Data().(string)
-				if !ok {
-					log.Warn("value of @odata.id is not string", map[string]interface{}{
-						"value": v.String(),
-					})
-					continue
-				}
+			if k != "@odata.id" {
+				c.follow(ctx, v, dataMap)
+			} else if path, ok := v.Data().(string); ok {
 				c.get(ctx, path, dataMap)
 			} else {
-				c.follow(ctx, v, dataMap)
+				log.Warn("value of @odata.id is not string", map[string]interface{}{
+					"typ":   reflect.TypeOf(v.Data()),
+					"value": v.Data(),
+				})
 			}
 		}
 		return
