@@ -31,9 +31,17 @@ var rootCmd = &cobra.Command{
 	Short: "monitor-hw daemon",
 	Long:  `monitor-hw is a daemon to monitor server statuses.`,
 
-	RunE: func(cmd *cobra.Command, args []string) error {
-		well.LogConfig{}.Apply()
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		// Validation of arguments has finished, so disable the usage message.
+		cmd.SilenceUsage = true
 
+		err := well.LogConfig{}.Apply()
+		if err != nil {
+			log.ErrorExit(err)
+		}
+	},
+
+	RunE: func(cmd *cobra.Command, args []string) error {
 		ac, uc, err := config.LoadConfig()
 		if err != nil {
 			return err
