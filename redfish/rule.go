@@ -61,12 +61,12 @@ func (c *converter) UnmarshalYAML(unmarshal func(interface{}) error) error {
 }
 
 var typeToConverters = map[string]converter{
-	"value":  valueConverter,
+	"number": numberConverter,
 	"health": healthConverter,
 	"state":  stateConverter,
 }
 
-func valueConverter(data interface{}) (float64, error) {
+func numberConverter(data interface{}) (float64, error) {
 	value, ok := data.(float64)
 	if !ok {
 		return 0, errors.New("value was not float64")

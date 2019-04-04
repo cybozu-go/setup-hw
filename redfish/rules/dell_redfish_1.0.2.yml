@@ -29,7 +29,7 @@
       Type: health
     - Pointer: /Temperatures/{sensor}/ReadingCelsius
       Name: chassis_temperature_reading
-      Type: value
+      Type: number
 
 - Path: /redfish/v1/Systems/{system}
   Rules:
