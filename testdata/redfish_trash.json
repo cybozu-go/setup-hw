@@ -1,0 +1,8 @@
+{
+    "@odata.id": "/redfish/v1/Chassis/System.Embedded.1/Trashes/0",
+    "Status": {
+        "Health": "OK",
+        "HealthRollup": "OK",
+        "State": "Enabled"
+    }
+}

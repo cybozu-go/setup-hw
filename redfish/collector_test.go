@@ -31,7 +31,7 @@ func testCollect(t *testing.T) {
 			filePath: "../testdata/redfish_chassis.json",
 		},
 		{
-			urlPath:  "/redfish/v1/Chassis/System.Embedded.1/Block/0",
+			urlPath:  "/redfish/v1/Chassis/System.Embedded.1/Blocks/0",
 			filePath: "../testdata/redfish_block.json",
 		},
 	}
@@ -75,7 +75,7 @@ func testCollect(t *testing.T) {
 		},
 	}
 
-	rule, err := ioutil.ReadFile("../testdata/redfish_metrics.yml")
+	rule, err := ioutil.ReadFile("../testdata/redfish_collect.yml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -168,14 +168,22 @@ func testUpdate(t *testing.T) {
 	inputs := []struct {
 		urlPath  string
 		filePath string
+		needed   bool
 	}{
 		{
 			urlPath:  "/redfish/v1/Chassis/System.Embedded.1",
 			filePath: "../testdata/redfish_chassis.json",
+			needed:   true,
 		},
 		{
-			urlPath:  "/redfish/v1/Chassis/System.Embedded.1/Block/0",
+			urlPath:  "/redfish/v1/Chassis/System.Embedded.1/Blocks/0",
 			filePath: "../testdata/redfish_block.json",
+			needed:   true,
+		},
+		{
+			urlPath:  "/redfish/v1/Chassis/System.Embedded.1/Trashes/0",
+			filePath: "../testdata/redfish_trash.json",
+			needed:   false,
 		},
 	}
 
@@ -198,7 +206,7 @@ func testUpdate(t *testing.T) {
 		t.Fatal(errors.New("httptest.NewTLSServer() returned URL with host and/or port omitted"))
 	}
 
-	rule, err := ioutil.ReadFile("../testdata/redfish_metrics.yml")
+	rule, err := ioutil.ReadFile("../testdata/redfish_collect.yml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -214,7 +222,7 @@ func testUpdate(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	collector.Update(context.Background(), inputs[0].urlPath)
+	collector.Update(context.Background())
 	v := collector.dataMap.Load()
 	if v == nil {
 		t.Fatal(errors.New("Update() did not store traversed data"))
@@ -222,9 +230,13 @@ func testUpdate(t *testing.T) {
 	dataMap := v.(dataMap)
 
 	for _, input := range inputs {
+		if !input.needed {
+			continue
+		}
+
 		data, ok := dataMap[input.urlPath]
 		if !ok {
-			t.Error("path not traversed:", input.urlPath)
+			t.Error("path was not traversed:", input.urlPath)
 			continue
 		}
 
@@ -234,13 +246,20 @@ func testUpdate(t *testing.T) {
 		}
 
 		if data.String() != inputData.String() {
-			t.Error("wrong contents loaded:", input.urlPath,
+			t.Error("wrong contents were loaded:", input.urlPath,
 				"\nexpected:", inputData.String(), "\nactual:", data.String())
 			continue
 		}
 	}
-	if len(dataMap) > len(inputs) {
-		t.Error("extra path was traversed")
+
+ActualLoop:
+	for path := range dataMap {
+		for _, input := range inputs {
+			if path == input.urlPath && input.needed {
+				continue ActualLoop
+			}
+		}
+		t.Error("extra path was traversed:", path)
 	}
 }
 

@@ -1,80 +1,108 @@
-- Path: /redfish/v1/Chassis/{chassis}
-  Rules: 
-    - Pointer: /Status/Health
-      Name: chassis_status_health
-      Type: health
+Traverse:
+  Root: /redfish/v1
+  Excludes:
+    # Schemas
+    - /JSONSchemas
+    # Non-metric properties
+    - /Accounts
+    - /Certificates
+    - /Jobs
+    - /Logs
+    - /Registries
+    - /Roles
+    - /Sessions
+    # Services
+    - /AccountService
+    - /EventService
+    - /LogServices
+    - /SessionService
+    - /TaskService
+    - /UpdateService
+    # Sub-metrices included in /Power or /Thermal
+    - /Power/
+    - /Sensors/
+    - /Thermal/
+    # Extra trailing slash.
+    - /redfish/v1/Chassis/$
 
-- Path: /redfish/v1/Chassis/{chassis}/Power
-  Rules:
-    - Pointer: /PowerSupplies/{psu}/Status/Health
-      Name: chassis_psu_status_health
-      Type: health
-    - Pointer: /Redundancy/{set}/Status/Health
-      Name: chassis_psu_redundancy_status_health
-      Type: health
-    - Pointer: /Voltages/{sensor}/Status/Health
-      Name: chassis_voltage_status_health
-      Type: health
+Metrics:
+  - Path: /redfish/v1/Chassis/{chassis}
+    Properties:
+      - Pointer: /Status/Health
+        Name: chassis_status_health
+        Type: health
 
-- Path: /redfish/v1/Chassis/{chassis}/Thermal
-  Rules:
-    - Pointer: /Fans/{fan}/Status/Health
-      Name: chassis_fan_status_health
-      Type: health
-    - Pointer: /Redundancy/{set}/Status/Health
-      Name: chassis_fan_redundancy_status_health
-      Type: health
-    - Pointer: /Temperatures/{sensor}/Status/Health
-      Name: chassis_temperature_status_health
-      Type: health
-    - Pointer: /Temperatures/{sensor}/ReadingCelsius
-      Name: chassis_temperature_reading
-      Type: number
+  - Path: /redfish/v1/Chassis/{chassis}/Power
+    Properties:
+      - Pointer: /PowerSupplies/{psu}/Status/Health
+        Name: chassis_psu_status_health
+        Type: health
+      - Pointer: /Redundancy/{set}/Status/Health
+        Name: chassis_psu_redundancy_status_health
+        Type: health
+      - Pointer: /Voltages/{sensor}/Status/Health
+        Name: chassis_voltage_status_health
+        Type: health
 
-- Path: /redfish/v1/Systems/{system}
-  Rules:
-    - Pointer: /Status/Health
-      Name: system_status_health
-      Type: health
-    - Pointer: /MemorySummary/Status/Health
-      Name: system_memory_summary_status_health
-      Type: health
-    - Pointer: /ProcessorSummary/Status/Health
-      Name: system_processor_summary_status_health
-      Type: health
-    - Pointer: /TrustedModules/{tpm}/Status/State
-      Name: system_tpm_status_state
-      Type: state
+  - Path: /redfish/v1/Chassis/{chassis}/Thermal
+    Properties:
+      - Pointer: /Fans/{fan}/Status/Health
+        Name: chassis_fan_status_health
+        Type: health
+      - Pointer: /Redundancy/{set}/Status/Health
+        Name: chassis_fan_redundancy_status_health
+        Type: health
+      - Pointer: /Temperatures/{sensor}/Status/Health
+        Name: chassis_temperature_status_health
+        Type: health
+      - Pointer: /Temperatures/{sensor}/ReadingCelsius
+        Name: chassis_temperature_reading
+        Type: number
 
-- Path: /redfish/v1/Systems/{system}/EthernetInterfaces/{interface}
-  Rules:
-    - Pointer: /Status/Health
-      Name: network_status_health
-      Type: health
+  - Path: /redfish/v1/Systems/{system}
+    Properties:
+      - Pointer: /Status/Health
+        Name: system_status_health
+        Type: health
+      - Pointer: /MemorySummary/Status/Health
+        Name: system_memory_summary_status_health
+        Type: health
+      - Pointer: /ProcessorSummary/Status/Health
+        Name: system_processor_summary_status_health
+        Type: health
+      - Pointer: /TrustedModules/{tpm}/Status/State
+        Name: system_tpm_status_state
+        Type: state
 
-- Path: /redfish/v1/Systems/{system}/Processors/{processor}
-  Rules:
-    - Pointer: /Status/Health
-      Name: processor_status_health
-      Type: health
+  - Path: /redfish/v1/Systems/{system}/EthernetInterfaces/{interface}
+    Properties:
+      - Pointer: /Status/Health
+        Name: network_status_health
+        Type: health
 
-- Path: /redfish/v1/Systems/{system}/Storage/Controllers/{controller}
-  Rules:
-    - Pointer: /Status/Health
-      Name: storage_controller_status_health
-      Type: health
-    - Pointer: /Devices/{device}/Status/Health
-      Name: storage_device_status_health
-      Type: health
+  - Path: /redfish/v1/Systems/{system}/Processors/{processor}
+    Properties:
+      - Pointer: /Status/Health
+        Name: processor_status_health
+        Type: health
 
-- Path: /redfish/v1/Managers/{manager}
-  Rules:
-    - Pointer: /Status/Health
-      Name: manager_status_health
-      Type: health
+  - Path: /redfish/v1/Systems/{system}/Storage/Controllers/{controller}
+    Properties:
+      - Pointer: /Status/Health
+        Name: storage_controller_status_health
+        Type: health
+      - Pointer: /Devices/{device}/Status/Health
+        Name: storage_device_status_health
+        Type: health
 
-- Path: /redfish/v1/Managers/{manager}/EthernetInterfaces/{interface}
-  Rules:
-    - Pointer: /Status/Health
-      Name: manager_network_status_health
-      Type: health
+  - Path: /redfish/v1/Managers/{manager}
+    Properties:
+      - Pointer: /Status/Health
+        Name: manager_status_health
+        Type: health
+
+  - Path: /redfish/v1/Managers/{manager}/EthernetInterfaces/{interface}
+    Properties:
+      - Pointer: /Status/Health
+        Name: manager_network_status_health
+        Type: health

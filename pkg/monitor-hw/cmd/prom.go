@@ -52,7 +52,7 @@ func startExporter(ac *config.AddressConfig, uc *config.UserConfig, ruleFile str
 
 	well.Go(func(ctx context.Context) error {
 		for {
-			collector.Update(ctx, opts.redfishRoot)
+			collector.Update(ctx)
 			select {
 			case <-time.After(time.Duration(opts.interval) * time.Second):
 			case <-ctx.Done():

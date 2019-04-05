@@ -17,7 +17,7 @@ const namespace = "hw"
 
 // Collector implements prometheus.Collector interface.
 type Collector struct {
-	rules   []convertRule
+	rule    *CollectRule
 	client  *client
 	dataMap atomic.Value
 }
@@ -32,24 +32,22 @@ type CollectorConfig struct {
 
 // NewCollector returns a new instance of Collector.
 func NewCollector(cc *CollectorConfig) (*Collector, error) {
-	client, err := newClient(cc)
+	rule := new(CollectRule)
+	err := yaml.Unmarshal(cc.Rule, rule)
 	if err != nil {
 		return nil, err
 	}
 
-	var rules []convertRule
-	err = yaml.Unmarshal(cc.Rule, &rules)
+	if err := rule.Validate(); err != nil {
+		return nil, err
+	}
+
+	client, err := newClient(cc, rule.TraverseRule)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, rule := range rules {
-		if err := rule.Validate(); err != nil {
-			return nil, err
-		}
-	}
-
-	return &Collector{rules: rules, client: client}, nil
+	return &Collector{rule: rule, client: client}, nil
 }
 
 // Describe does nothing for now.
@@ -64,14 +62,14 @@ func (c Collector) Collect(ch chan<- prometheus.Metric) {
 	}
 	dataMap := v.(dataMap)
 
-	for _, rule := range c.rules {
+	for _, rule := range c.rule.MetricRules {
 		for path, parsedJSON := range dataMap {
 			matched, pathLabels := matchPath(rule.Path, path)
 			if !matched {
 				continue
 			}
 
-			for _, propertyRule := range rule.Rules {
+			for _, propertyRule := range rule.PropertyRules {
 				matchedProperties := matchPointer(propertyRule.Pointer, parsedJSON, path)
 				for _, matched := range matchedProperties {
 					value, err := propertyRule.Converter(matched.property)
@@ -103,8 +101,8 @@ func (c Collector) Collect(ch chan<- prometheus.Metric) {
 }
 
 // Update collects metrics from BMCs via Redfish.
-func (c *Collector) Update(ctx context.Context, rootPath string) {
-	dataMap := c.client.traverse(ctx, rootPath)
+func (c *Collector) Update(ctx context.Context) {
+	dataMap := c.client.traverse(ctx)
 	c.dataMap.Store(dataMap)
 }
 

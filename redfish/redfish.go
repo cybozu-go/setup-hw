@@ -3,7 +3,6 @@ package redfish
 import (
 	"context"
 	"crypto/tls"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -13,13 +12,14 @@ import (
 )
 
 type client struct {
-	endpoint   *url.URL
-	user       string
-	password   string
-	httpClient *http.Client
+	endpoint     *url.URL
+	user         string
+	password     string
+	httpClient   *http.Client
+	traverseRule traverseRule
 }
 
-func newClient(cc *CollectorConfig) (*client, error) {
+func newClient(cc *CollectorConfig, traverseRule traverseRule) (*client, error) {
 	endpoint, err := url.Parse("https://" + cc.AddressConfig.IPv4.Address)
 	if err != nil {
 		return nil, err
@@ -42,16 +42,21 @@ func newClient(cc *CollectorConfig) (*client, error) {
 		httpClient: &http.Client{
 			Transport: transport,
 		},
+		traverseRule: traverseRule,
 	}, nil
 }
 
-func (c *client) traverse(ctx context.Context, rootPath string) dataMap {
+func (c *client) traverse(ctx context.Context) dataMap {
 	dataMap := make(dataMap)
-	c.get(ctx, rootPath, dataMap)
+	c.get(ctx, c.traverseRule.Root, dataMap)
 	return dataMap
 }
 
 func (c *client) get(ctx context.Context, path string, dataMap dataMap) {
+	if c.traverseRule.excludeRegexp != nil && c.traverseRule.excludeRegexp.MatchString(path) {
+		return
+	}
+
 	u, err := c.endpoint.Parse(path)
 	if err != nil {
 		log.Warn("failed to parse Redfish path", map[string]interface{}{
@@ -96,16 +101,7 @@ func (c *client) get(ctx context.Context, path string, dataMap dataMap) {
 		return
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Warn("failed to read Redfish data", map[string]interface{}{
-			"url":       u.String(),
-			log.FnError: err,
-		})
-		return
-	}
-
-	parsed, err := gabs.ParseJSON(body)
+	parsed, err := gabs.ParseJSONBuffer(resp.Body)
 	if err != nil {
 		log.Warn("failed to parse Redfish data", map[string]interface{}{
 			"url":       u.String(),

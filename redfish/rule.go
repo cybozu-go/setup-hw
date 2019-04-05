@@ -1,13 +1,29 @@
 package redfish
 
-import "errors"
+import (
+	"errors"
+	"regexp"
+	"strings"
+)
 
-type convertRule struct {
-	Path  string                `yaml:"Path"`
-	Rules []convertPropertyRule `yaml:"Rules"`
+// CollectRule is a set of rules of traversing and converting Redfish data.
+type CollectRule struct {
+	TraverseRule traverseRule `yaml:"Traverse"`
+	MetricRules  []metricRule `yaml:"Metrics"`
 }
 
-type convertPropertyRule struct {
+type traverseRule struct {
+	Root          string   `yaml:"Root"`
+	ExcludeRules  []string `yaml:"Excludes"`
+	excludeRegexp *regexp.Regexp
+}
+
+type metricRule struct {
+	Path          string         `yaml:"Path"`
+	PropertyRules []propertyRule `yaml:"Properties"`
+}
+
+type propertyRule struct {
 	Pointer     string    `yaml:"Pointer"`
 	Name        string    `yaml:"Name"`
 	Description string    `yaml:"Description"`
@@ -16,13 +32,14 @@ type convertPropertyRule struct {
 
 type converter func(interface{}) (float64, error)
 
-func (cr convertRule) Validate() error {
-	if cr.Path == "" {
-		return errors.New("Path is mandatory for convert rule")
+// Validate checks CollectRule.
+func (cr *CollectRule) Validate() error {
+	if err := cr.TraverseRule.validate(); err != nil {
+		return err
 	}
 
-	for _, propertyRule := range cr.Rules {
-		if err := propertyRule.Validate(); err != nil {
+	for _, metricRule := range cr.MetricRules {
+		if err := metricRule.validate(); err != nil {
 			return err
 		}
 	}
@@ -30,15 +47,47 @@ func (cr convertRule) Validate() error {
 	return nil
 }
 
-func (cpr convertPropertyRule) Validate() error {
-	if cpr.Pointer == "" {
-		return errors.New("Pointer is mandatory for convert property rule")
+func (tr *traverseRule) validate() error {
+	if tr.Root == "" {
+		return errors.New("Root is mandatory for traverse rule")
 	}
-	if cpr.Name == "" {
-		return errors.New("Name is mandatory for convert property rule")
+
+	// TODO: this is not validation; refactor this in removing statik
+	if len(tr.ExcludeRules) > 0 {
+		excludes := strings.Join(tr.ExcludeRules, "|")
+		r, err := regexp.Compile(excludes)
+		if err != nil {
+			return err
+		}
+		tr.excludeRegexp = r
 	}
-	if cpr.Converter == nil {
-		return errors.New("Converter is mandatory for convert property rule")
+
+	return nil
+}
+
+func (mr metricRule) validate() error {
+	if mr.Path == "" {
+		return errors.New("Path is mandatory for metric rule")
+	}
+
+	for _, propertyRule := range mr.PropertyRules {
+		if err := propertyRule.validate(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (pr propertyRule) validate() error {
+	if pr.Pointer == "" {
+		return errors.New("Pointer is mandatory for property rule")
+	}
+	if pr.Name == "" {
+		return errors.New("Name is mandatory for property rule")
+	}
+	if pr.Converter == nil {
+		return errors.New("Converter is mandatory for property rule")
 	}
 
 	return nil
@@ -75,6 +124,9 @@ func numberConverter(data interface{}) (float64, error) {
 }
 
 func healthConverter(data interface{}) (float64, error) {
+	if data == nil {
+		return -1, nil
+	}
 	health, ok := data.(string)
 	if !ok {
 		return -1, errors.New("health value was not string")

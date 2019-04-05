@@ -1,5 +1,5 @@
 {
-    "@odata.id": "/redfish/v1/Chassis/System.Embedded.1/Block/0",
+    "@odata.id": "/redfish/v1/Chassis/System.Embedded.1/Blocks/0",
     "Status": {
         "Health": "Warning",
         "HealthRollup": "OK",

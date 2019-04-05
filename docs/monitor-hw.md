@@ -9,8 +9,7 @@ Synopsis
 --------
 
 ```console
-$ monitor-hw [--listen=<address>] [--redfish=<path>] [--interval=<interval>]
-  [vendor-specific options...]
+$ monitor-hw [--listen=<address>] [--interval=<interval>] [vendor-specific options...]
 ```
 
 
@@ -50,10 +49,6 @@ Options
 This accepts the same forms of `<host>:<port>` and `:<port>` as `Addr` of
 `http.Server`.
 The default is `:9105`.
-
-`--redfish=<path>` specifies the root path of the Redfish HTTPS URL.
-The default is `/redfish/v1`.  Note that the host and the user information
-are read from the configuration files.
 
 `--interval=<interval>` specifies the interval of Redfish data traversal
 in seconds.
