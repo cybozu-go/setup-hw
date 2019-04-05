@@ -3,12 +3,14 @@ package redfish
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/setup-hw/gabs"
@@ -17,6 +19,84 @@ import (
 
 func testDescribe(t *testing.T) {
 	t.Parallel()
+
+	expectedList := []struct {
+		name       string
+		help       string
+		labelNames []string
+	}{
+		{
+			name:       "hw_chassis_status_health",
+			help:       "Health of chassis",
+			labelNames: []string{"chassis"},
+		},
+		{
+			name:       "hw_dummy1",
+			labelNames: []string{"chassis"},
+		},
+		{
+			name:       "hw_chassis_sub_status_health",
+			labelNames: []string{"chassis", "sub"},
+		},
+		{
+			name:       "hw_dummy2",
+			labelNames: []string{},
+		},
+		{
+			name:       "hw_block_status_health",
+			labelNames: []string{"chassis", "block"},
+		},
+		{
+			name:       "hw_trash_status_health",
+			labelNames: []string{"chassis", "trash"},
+		},
+	}
+
+	rule, err := ioutil.ReadFile("../testdata/redfish_collect.yml")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cc := &CollectorConfig{
+		AddressConfig: &config.AddressConfig{IPv4: config.IPv4Config{Address: "1.2.3.4"}},
+		UserConfig:    &config.UserConfig{},
+		Rule:          rule,
+	}
+	collector, err := NewCollector(cc)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ch := make(chan *prometheus.Desc)
+	go collector.Describe(ch)
+
+	for _, expected := range expectedList {
+		var actual *prometheus.Desc
+		select {
+		case actual = <-ch:
+		case <-time.After(100 * time.Millisecond):
+			t.Fatal("timeout to receive description")
+		}
+
+		// We cannot access fields of prometheus.Desc, so take String() for comparison.
+		if !strings.Contains(actual.String(), `"`+expected.name+`"`) {
+			t.Error("wrong name in description; expected:", expected.name, "actual in:", actual.String())
+		}
+
+		if !strings.Contains(actual.String(), `"`+expected.help+`"`) {
+			t.Error("wrong help in description; expected:", expected.help, "actual in:", actual.String())
+		}
+
+		if !strings.Contains(actual.String(), fmt.Sprint(expected.labelNames)) {
+			t.Error("wrong variable label names in description; expected:", expected.labelNames, "actual in:", actual.String())
+		}
+	}
+
+	select {
+	case <-ch:
+		t.Error("collector returned extra descriptions")
+	case <-time.After(100 * time.Millisecond):
+	}
 }
 
 func testCollect(t *testing.T) {
@@ -100,7 +180,7 @@ func testCollect(t *testing.T) {
 	}
 	collector.dataMap.Store(dataMap)
 
-	registry := prometheus.NewRegistry()
+	registry := prometheus.NewPedanticRegistry()
 	err = registry.Register(collector)
 	if err != nil {
 		t.Fatal(err)

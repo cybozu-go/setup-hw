@@ -4,12 +4,14 @@ import (
 	"errors"
 	"regexp"
 	"strings"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 // CollectRule is a set of rules of traversing and converting Redfish data.
 type CollectRule struct {
-	TraverseRule traverseRule `yaml:"Traverse"`
-	MetricRules  []metricRule `yaml:"Metrics"`
+	TraverseRule traverseRule  `yaml:"Traverse"`
+	MetricRules  []*metricRule `yaml:"Metrics"`
 }
 
 type traverseRule struct {
@@ -19,21 +21,22 @@ type traverseRule struct {
 }
 
 type metricRule struct {
-	Path          string         `yaml:"Path"`
-	PropertyRules []propertyRule `yaml:"Properties"`
+	Path          string          `yaml:"Path"`
+	PropertyRules []*propertyRule `yaml:"Properties"`
 }
 
 type propertyRule struct {
-	Pointer     string    `yaml:"Pointer"`
-	Name        string    `yaml:"Name"`
-	Description string    `yaml:"Description"`
-	Converter   converter `yaml:"Type"`
+	Pointer   string    `yaml:"Pointer"`
+	Name      string    `yaml:"Name"`
+	Help      string    `yaml:"Help"`
+	Converter converter `yaml:"Type"`
+	desc      *prometheus.Desc
 }
 
 type converter func(interface{}) (float64, error)
 
-// Validate checks CollectRule.
-func (cr *CollectRule) Validate() error {
+// Validate checks CollectRule and its Descendants.
+func (cr CollectRule) Validate() error {
 	if err := cr.TraverseRule.validate(); err != nil {
 		return err
 	}
@@ -47,12 +50,30 @@ func (cr *CollectRule) Validate() error {
 	return nil
 }
 
-func (tr *traverseRule) validate() error {
+// Compile fills private fields of CollectRule and its descendants.
+func (cr *CollectRule) Compile() error {
+	if err := cr.TraverseRule.compile(); err != nil {
+		return err
+	}
+
+	for _, metricRule := range cr.MetricRules {
+		if err := metricRule.compile(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (tr traverseRule) validate() error {
 	if tr.Root == "" {
 		return errors.New("Root is mandatory for traverse rule")
 	}
 
-	// TODO: this is not validation; refactor this in removing statik
+	return nil
+}
+
+func (tr *traverseRule) compile() error {
 	if len(tr.ExcludeRules) > 0 {
 		excludes := strings.Join(tr.ExcludeRules, "|")
 		r, err := regexp.Compile(excludes)
@@ -79,6 +100,18 @@ func (mr metricRule) validate() error {
 	return nil
 }
 
+func (mr *metricRule) compile() error {
+	labelNames := getLabelNamesInPath(mr.Path)
+
+	for _, propertyRule := range mr.PropertyRules {
+		if err := propertyRule.compile(labelNames); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (pr propertyRule) validate() error {
 	if pr.Pointer == "" {
 		return errors.New("Pointer is mandatory for property rule")
@@ -89,6 +122,17 @@ func (pr propertyRule) validate() error {
 	if pr.Converter == nil {
 		return errors.New("Converter is mandatory for property rule")
 	}
+
+	return nil
+}
+
+func (pr *propertyRule) compile(pathLabelNames []string) error {
+	labelNames := getLabelNamesInPath(pr.Pointer)
+
+	var allLabelNames []string
+	allLabelNames = append(allLabelNames, pathLabelNames...)
+	allLabelNames = append(allLabelNames, labelNames...)
+	pr.desc = prometheus.NewDesc(prometheus.BuildFQName(namespace, "", pr.Name), pr.Help, allLabelNames, nil)
 
 	return nil
 }

@@ -61,12 +61,13 @@ func startExporter(ac *config.AddressConfig, uc *config.UserConfig, ruleFile str
 		}
 	})
 
-	err = prometheus.Register(collector)
+	registry := prometheus.NewRegistry()
+	err = registry.Register(collector)
 	if err != nil {
 		return err
 	}
 
-	handler := promhttp.HandlerFor(prometheus.DefaultGatherer,
+	handler := promhttp.HandlerFor(registry,
 		promhttp.HandlerOpts{
 			ErrorLog:      logger{},
 			ErrorHandling: promhttp.ContinueOnError,

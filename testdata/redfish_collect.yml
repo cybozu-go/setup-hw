@@ -8,9 +8,10 @@ Metrics:
     Properties:
       - Pointer: /Status/Health
         Name: chassis_status_health
+        Help: Health of chassis
         Type: health
       - Pointer: /Absent/Pointer/Should/Not/Block/Processing
-        Name: dummy
+        Name: dummy1
         Type: health
       - Pointer: /Sub/{sub}/Status/Health
         Name: chassis_sub_status_health
@@ -18,7 +19,7 @@ Metrics:
   - Path: /redfish/v1/Absent/Path/Should/Not/Block/Processing
     Properties:
       - Pointer: /Status/Health
-        Name: dummy
+        Name: dummy2
         Type: health
   - Path: /redfish/v1/Chassis/{chassis}/Blocks/{block}
     Properties:

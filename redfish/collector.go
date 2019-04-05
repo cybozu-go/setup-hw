@@ -15,6 +15,8 @@ import (
 
 const namespace = "hw"
 
+type dataMap map[string]*gabs.Container
+
 // Collector implements prometheus.Collector interface.
 type Collector struct {
 	rule    *CollectRule
@@ -42,6 +44,10 @@ func NewCollector(cc *CollectorConfig) (*Collector, error) {
 		return nil, err
 	}
 
+	if err := rule.Compile(); err != nil {
+		return nil, err
+	}
+
 	client, err := newClient(cc, rule.TraverseRule)
 	if err != nil {
 		return nil, err
@@ -50,8 +56,13 @@ func NewCollector(cc *CollectorConfig) (*Collector, error) {
 	return &Collector{rule: rule, client: client}, nil
 }
 
-// Describe does nothing for now.
+// Describe sends descriptions of metrics.
 func (c Collector) Describe(ch chan<- *prometheus.Desc) {
+	for _, rule := range c.rule.MetricRules {
+		for _, propertyRule := range rule.PropertyRules {
+			ch <- propertyRule.desc
+		}
+	}
 }
 
 // Collect sends metrics collected from BMC via Redfish.
@@ -64,7 +75,7 @@ func (c Collector) Collect(ch chan<- prometheus.Metric) {
 
 	for _, rule := range c.rule.MetricRules {
 		for path, parsedJSON := range dataMap {
-			matched, pathLabels := matchPath(rule.Path, path)
+			matched, pathLabelValues := matchPath(rule.Path, path)
 			if !matched {
 				continue
 			}
@@ -83,17 +94,26 @@ func (c Collector) Collect(ch chan<- prometheus.Metric) {
 						})
 						continue
 					}
-					labels := make(prometheus.Labels)
-					for k, v := range pathLabels {
-						labels[k] = v
+
+					var labelValues []string
+					labelValues = append(labelValues, pathLabelValues...)
+					for _, v := range matched.indexes {
+						labelValues = append(labelValues, strconv.Itoa(v))
 					}
-					for k, v := range matched.indexes {
-						labels[k] = strconv.Itoa(v)
+
+					m, err := prometheus.NewConstMetric(propertyRule.desc, prometheus.GaugeValue, value, labelValues...)
+					if err != nil {
+						log.Warn("failed to create metric", map[string]interface{}{
+							"path":      path,
+							"pointer":   propertyRule.Pointer,
+							"name":      propertyRule.Name,
+							"value":     matched.property,
+							log.FnError: err,
+						})
+						continue
 					}
-					desc := prometheus.NewDesc(
-						prometheus.BuildFQName(namespace, "", propertyRule.Name),
-						propertyRule.Description, nil, labels)
-					ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, value)
+
+					ch <- m
 				}
 			}
 		}
@@ -106,7 +126,25 @@ func (c *Collector) Update(ctx context.Context) {
 	c.dataMap.Store(dataMap)
 }
 
-func matchPath(rulePath, path string) (bool, prometheus.Labels) {
+func getLabelName(elem string) (string, bool) {
+	ln := len(elem)
+	if ln >= 3 && elem[0] == '{' && elem[ln-1] == '}' {
+		return elem[1 : ln-1], true
+	}
+	return "", false
+}
+
+func getLabelNamesInPath(path string) []string {
+	var labelNames []string
+	for _, elem := range strings.Split(path, "/") {
+		if name, ok := getLabelName(elem); ok {
+			labelNames = append(labelNames, name)
+		}
+	}
+	return labelNames
+}
+
+func matchPath(rulePath, path string) (bool, []string) {
 	ruleElements := strings.Split(rulePath, "/")
 	pathElements := strings.Split(path, "/")
 
@@ -114,25 +152,21 @@ func matchPath(rulePath, path string) (bool, prometheus.Labels) {
 		return false, nil
 	}
 
-	labels := make(prometheus.Labels)
+	var labelValues []string
 	for i := 0; i < len(ruleElements); i++ {
-		ln := len(ruleElements[i])
-		if ln >= 2 && ruleElements[i][0] == '{' && ruleElements[i][ln-1] == '}' {
-			labelName := ruleElements[i][1 : ln-1]
-			labels[labelName] = pathElements[i]
+		if _, ok := getLabelName(ruleElements[i]); ok {
+			labelValues = append(labelValues, pathElements[i])
 		} else if ruleElements[i] != pathElements[i] {
 			return false, nil
 		}
 	}
 
-	return true, labels
+	return true, labelValues
 }
-
-type dataMap map[string]*gabs.Container
 
 type matchedProperty struct {
 	property interface{}
-	indexes  map[string]int
+	indexes  []int
 }
 
 func matchPointer(pointer string, parsedJSON *gabs.Container, path string) []matchedProperty {
@@ -146,7 +180,7 @@ func matchPointerAux(pointer string, parsedJSON *gabs.Container, path, rootPoint
 		return []matchedProperty{
 			{
 				property: parsedJSON.Data(),
-				indexes:  make(map[string]int),
+				indexes:  nil,
 			},
 		}
 	}
@@ -159,8 +193,8 @@ func matchPointerAux(pointer string, parsedJSON *gabs.Container, path, rootPoint
 		return nil
 	}
 
-	matched, subpath, index, remainder := splitPointer(pointer)
-	if !matched {
+	hasIndexPattern, subpath, remainder := splitPointer(pointer)
+	if !hasIndexPattern {
 		p := strings.ReplaceAll(pointer[1:], "/", ".")
 		v := parsedJSON.Path(p)
 		if v == nil {
@@ -173,7 +207,7 @@ func matchPointerAux(pointer string, parsedJSON *gabs.Container, path, rootPoint
 		return []matchedProperty{
 			{
 				property: v.Data(),
-				indexes:  make(map[string]int),
+				indexes:  nil,
 			},
 		}
 	}
@@ -201,7 +235,7 @@ func matchPointerAux(pointer string, parsedJSON *gabs.Container, path, rootPoint
 	for i, child := range children {
 		ms := matchPointerAux(remainder, child, path, rootPointer)
 		for _, m := range ms {
-			m.indexes[index] = i
+			m.indexes = append([]int{i}, m.indexes...)
 			result = append(result, m)
 		}
 	}
@@ -209,18 +243,17 @@ func matchPointerAux(pointer string, parsedJSON *gabs.Container, path, rootPoint
 	return result
 }
 
-func splitPointer(pointer string) (matched bool, subpath, index, remainder string) {
+func splitPointer(pointer string) (hasIndexPattern bool, subpath, remainder string) {
 	ts := strings.Split(pointer, "/")
 	for i, t := range ts {
-		if len(t) >= 2 && t[0] == '{' && t[len(t)-1] == '}' {
-			matched = true
+		if _, ok := getLabelName(t); ok {
+			hasIndexPattern = true
 			subpath = strings.Join(ts[0:i], "/")
-			index = t[1 : len(t)-1]
 			if i != len(ts)-1 {
 				remainder = "/" + strings.Join(ts[i+1:], "/")
 			}
 			return
 		}
 	}
-	return false, "", "", ""
+	return false, "", ""
 }
