@@ -10,7 +10,6 @@ import (
 	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/setup-hw/gabs"
 	"github.com/prometheus/client_golang/prometheus"
-	yaml "gopkg.in/yaml.v2"
 )
 
 const namespace = "hw"
@@ -29,31 +28,17 @@ type CollectorConfig struct {
 	AddressConfig *config.AddressConfig
 	Port          string
 	UserConfig    *config.UserConfig
-	Rule          []byte
+	Rule          *CollectRule
 }
 
 // NewCollector returns a new instance of Collector.
 func NewCollector(cc *CollectorConfig) (*Collector, error) {
-	rule := new(CollectRule)
-	err := yaml.Unmarshal(cc.Rule, rule)
+	client, err := newClient(cc)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := rule.Validate(); err != nil {
-		return nil, err
-	}
-
-	if err := rule.Compile(); err != nil {
-		return nil, err
-	}
-
-	client, err := newClient(cc, rule.TraverseRule)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Collector{rule: rule, client: client}, nil
+	return &Collector{rule: cc.Rule, client: client}, nil
 }
 
 // Describe sends descriptions of metrics.
@@ -83,7 +68,7 @@ func (c Collector) Collect(ch chan<- prometheus.Metric) {
 			for _, propertyRule := range rule.PropertyRules {
 				matchedProperties := matchPointer(propertyRule.Pointer, parsedJSON, path)
 				for _, matched := range matchedProperties {
-					value, err := propertyRule.Converter(matched.property)
+					value, err := propertyRule.converter(matched.property)
 					if err != nil {
 						log.Warn("failed to interpret Redfish data as metric", map[string]interface{}{
 							"path":      path,

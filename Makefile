@@ -1,30 +1,33 @@
+BIN_PKGS = ./pkg/idrac-passwd-hash ./pkg/setup-hw ./pkg/monitor-hw
+GENERATED = redfish/rendered_rules.go
+GENERATE_SRC = $(shell find redfish/rules)
+
 GOFLAGS = -mod=vendor
 export GOFLAGS
-
-STATIK = redfish/statik/statik.go
-STATIK_SRC = $(shell find redfish/rules)
 
 all:
 	@echo "Specify one of these targets:"
 	@echo
-	@echo "    statik  - generate statik codes."
-	@echo "    test    - run signle host tests."
-	@echo "    setup   - install dependencies."
+	@echo "    generate  - generate codes."
+	@echo "    test      - run signle host tests."
+	@echo "    install   - install binaries."
 
-statik: $(STATIK)
+generate: $(GENERATED)
 
-$(STATIK): $(STATIK_SRC)
-	mkdir -p $(dir $(STATIK))
-	go generate ./pkg/...
+$(GENERATED): $(GENERATE_SRC) pkg/render-rules/main.go
+	go generate ./redfish/...
 
-test: $(STATIK)
+test: generate
 	test -z "$$(gofmt -s -l . | grep -v '^vendor' | tee /dev/stderr)"
 	test -z "$$(golint $$(go list ./... | grep -v /vendor/) | tee /dev/stderr)"
 	go build ./...
 	go test -race -v ./...
 	go vet ./...
 
-setup:
-	GO111MODULE=off go get -u github.com/rakyll/statik
+install: generate
+ifdef GOBIN
+	mkdir -p $(GOBIN)
+endif
+	GOBIN=$(GOBIN) go install $(BIN_PKGS)
 
-.PHONY: all statik test setup
+.PHONY: all generate test install

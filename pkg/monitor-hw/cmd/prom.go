@@ -1,22 +1,18 @@
-//go:generate statik -f -src ../../../redfish/rules -dest=../../../redfish
-
 package cmd
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"time"
 
 	"github.com/cybozu-go/log"
 	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/setup-hw/redfish"
-	_ "github.com/cybozu-go/setup-hw/redfish/statik" // import for initialization
 	"github.com/cybozu-go/well"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/rakyll/statik/fs"
 )
 
 type logger struct{}
@@ -26,17 +22,9 @@ func (l logger) Println(v ...interface{}) {
 }
 
 func startExporter(ac *config.AddressConfig, uc *config.UserConfig, ruleFile string) error {
-	statikFS, err := fs.New()
-	if err != nil {
-		return err
-	}
-	f, err := statikFS.Open(ruleFile)
-	if err != nil {
-		return err
-	}
-	rule, err := ioutil.ReadAll(f)
-	if err != nil {
-		return err
+	rule, ok := redfish.Rules[ruleFile]
+	if !ok {
+		return errors.New("unknown rule file: " + ruleFile)
 	}
 
 	cc := &redfish.CollectorConfig{

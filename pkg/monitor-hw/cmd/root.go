@@ -56,10 +56,10 @@ var rootCmd = &cobra.Command{
 		switch vendor {
 		case lib.QEMU:
 			monitor = monitorQEMU
-			ruleFile = "/qemu.yml"
+			ruleFile = "qemu.yml"
 		case lib.Dell:
 			monitor = monitorDell
-			ruleFile = "/dell_redfish_1.0.2.yml"
+			ruleFile = "dell_redfish_1.0.2.yml"
 		default:
 			return errors.New("unsupported vendor hardware")
 		}

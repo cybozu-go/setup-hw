@@ -10,26 +10,27 @@ import (
 
 // CollectRule is a set of rules of traversing and converting Redfish data.
 type CollectRule struct {
-	TraverseRule traverseRule  `yaml:"Traverse"`
-	MetricRules  []*metricRule `yaml:"Metrics"`
+	TraverseRule traverseRule  `json:"Traverse" yaml:"Traverse"`
+	MetricRules  []*metricRule `json:"Metrics" yaml:"Metrics"`
 }
 
 type traverseRule struct {
-	Root          string   `yaml:"Root"`
-	ExcludeRules  []string `yaml:"Excludes"`
+	Root          string   `json:"Root" yaml:"Root"`
+	ExcludeRules  []string `json:"Excludes" yaml:"Excludes"`
 	excludeRegexp *regexp.Regexp
 }
 
 type metricRule struct {
-	Path          string          `yaml:"Path"`
-	PropertyRules []*propertyRule `yaml:"Properties"`
+	Path          string          `json:"Path" yaml:"Path"`
+	PropertyRules []*propertyRule `json:"Properties" yaml:"Properties"`
 }
 
 type propertyRule struct {
-	Pointer   string    `yaml:"Pointer"`
-	Name      string    `yaml:"Name"`
-	Help      string    `yaml:"Help"`
-	Converter converter `yaml:"Type"`
+	Pointer   string `json:"Pointer" yaml:"Pointer"`
+	Name      string `json:"Name" yaml:"Name"`
+	Help      string `json:"Help" yaml:"Help"`
+	Type      string `json:"Type" yaml:"Type"`
+	converter converter
 	desc      *prometheus.Desc
 }
 
@@ -119,14 +120,20 @@ func (pr propertyRule) validate() error {
 	if pr.Name == "" {
 		return errors.New("Name is mandatory for property rule")
 	}
-	if pr.Converter == nil {
-		return errors.New("Converter is mandatory for property rule")
+	if pr.Type == "" {
+		return errors.New("Type is mandatory for property rule")
+	}
+
+	if _, ok := typeToConverters[pr.Type]; !ok {
+		return errors.New("unknown metric type: " + pr.Type)
 	}
 
 	return nil
 }
 
 func (pr *propertyRule) compile(pathLabelNames []string) error {
+	pr.converter = typeToConverters[pr.Type]
+
 	labelNames := getLabelNamesInPath(pr.Pointer)
 
 	var allLabelNames []string
@@ -134,22 +141,6 @@ func (pr *propertyRule) compile(pathLabelNames []string) error {
 	allLabelNames = append(allLabelNames, labelNames...)
 	pr.desc = prometheus.NewDesc(prometheus.BuildFQName(namespace, "", pr.Name), pr.Help, allLabelNames, nil)
 
-	return nil
-}
-
-func (c *converter) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	var typeName string
-	err := unmarshal(&typeName)
-	if err != nil {
-		return err
-	}
-
-	converter, ok := typeToConverters[typeName]
-	if !ok {
-		return errors.New("unknown metrics type: " + typeName)
-	}
-
-	*c = converter
 	return nil
 }
 

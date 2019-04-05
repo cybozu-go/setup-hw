@@ -6,11 +6,8 @@ jobs:
     working_directory: /work
     steps:
       - checkout
-      - run: make setup
-      - run: make statik
       - run: make test
-      - run: mkdir /tmp/workspace
-      - run: GOBIN=/tmp/workspace go install -mod=vendor ./pkg/...
+      - run: make install GOBIN=/tmp/workspace
       - persist_to_workspace:
           root: /tmp/workspace
           paths:

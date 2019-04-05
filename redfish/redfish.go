@@ -19,7 +19,7 @@ type client struct {
 	traverseRule traverseRule
 }
 
-func newClient(cc *CollectorConfig, traverseRule traverseRule) (*client, error) {
+func newClient(cc *CollectorConfig) (*client, error) {
 	endpoint, err := url.Parse("https://" + cc.AddressConfig.IPv4.Address)
 	if err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func newClient(cc *CollectorConfig, traverseRule traverseRule) (*client, error) 
 		httpClient: &http.Client{
 			Transport: transport,
 		},
-		traverseRule: traverseRule,
+		traverseRule: cc.Rule.TraverseRule,
 	}, nil
 }
 

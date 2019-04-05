@@ -14,8 +14,31 @@ import (
 
 	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/setup-hw/gabs"
+	"github.com/ghodss/yaml"
 	"github.com/prometheus/client_golang/prometheus"
 )
+
+func collectorConfig() (*CollectorConfig, error) {
+	data, err := ioutil.ReadFile("../testdata/redfish_collect.yml")
+	if err != nil {
+		return nil, err
+	}
+
+	rule := new(CollectRule)
+	yaml.Unmarshal(data, rule)
+	if err := rule.Validate(); err != nil {
+		return nil, err
+	}
+	if err := rule.Compile(); err != nil {
+		return nil, err
+	}
+
+	return &CollectorConfig{
+		AddressConfig: &config.AddressConfig{IPv4: config.IPv4Config{Address: "1.2.3.4"}},
+		UserConfig:    &config.UserConfig{},
+		Rule:          rule,
+	}, nil
+}
 
 func testDescribe(t *testing.T) {
 	t.Parallel()
@@ -52,16 +75,11 @@ func testDescribe(t *testing.T) {
 		},
 	}
 
-	rule, err := ioutil.ReadFile("../testdata/redfish_collect.yml")
+	cc, err := collectorConfig()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	cc := &CollectorConfig{
-		AddressConfig: &config.AddressConfig{IPv4: config.IPv4Config{Address: "1.2.3.4"}},
-		UserConfig:    &config.UserConfig{},
-		Rule:          rule,
-	}
 	collector, err := NewCollector(cc)
 	if err != nil {
 		t.Fatal(err)
@@ -155,16 +173,11 @@ func testCollect(t *testing.T) {
 		},
 	}
 
-	rule, err := ioutil.ReadFile("../testdata/redfish_collect.yml")
+	cc, err := collectorConfig()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	cc := &CollectorConfig{
-		AddressConfig: &config.AddressConfig{IPv4: config.IPv4Config{Address: "1.2.3.4"}},
-		UserConfig:    &config.UserConfig{},
-		Rule:          rule,
-	}
 	collector, err := NewCollector(cc)
 	if err != nil {
 		t.Fatal(err)
@@ -286,17 +299,14 @@ func testUpdate(t *testing.T) {
 		t.Fatal(errors.New("httptest.NewTLSServer() returned URL with host and/or port omitted"))
 	}
 
-	rule, err := ioutil.ReadFile("../testdata/redfish_collect.yml")
+	cc, err := collectorConfig()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	cc := &CollectorConfig{
-		AddressConfig: &config.AddressConfig{IPv4: config.IPv4Config{Address: hostAndPort[0]}},
-		Port:          hostAndPort[1],
-		UserConfig:    &config.UserConfig{},
-		Rule:          rule,
-	}
+	cc.AddressConfig = &config.AddressConfig{IPv4: config.IPv4Config{Address: hostAndPort[0]}}
+	cc.Port = hostAndPort[1]
+
 	collector, err := NewCollector(cc)
 	if err != nil {
 		t.Fatal(err)
