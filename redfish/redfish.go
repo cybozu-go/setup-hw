@@ -17,10 +17,9 @@ type client struct {
 	user       string
 	password   string
 	httpClient *http.Client
-	cache      *cache
 }
 
-func newClient(cc *CollectorConfig, cache *cache) (*client, error) {
+func newClient(cc *CollectorConfig) (*client, error) {
 	endpoint, err := url.Parse("https://" + cc.AddressConfig.IPv4.Address)
 	if err != nil {
 		return nil, err
@@ -43,14 +42,13 @@ func newClient(cc *CollectorConfig, cache *cache) (*client, error) {
 		httpClient: &http.Client{
 			Transport: transport,
 		},
-		cache: cache,
 	}, nil
 }
 
-func (c *client) update(ctx context.Context, rootPath string) {
+func (c *client) traverse(ctx context.Context, rootPath string) dataMap {
 	dataMap := make(dataMap)
 	c.get(ctx, rootPath, dataMap)
-	c.cache.set(dataMap)
+	return dataMap
 }
 
 func (c *client) get(ctx context.Context, path string, dataMap dataMap) {

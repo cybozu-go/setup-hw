@@ -88,7 +88,7 @@ func testCollect(t *testing.T) {
 		}
 		dataMap[input.urlPath] = data
 	}
-	collector.cache.set(dataMap)
+	collector.dataMap.Store(dataMap)
 
 	registry := prometheus.NewRegistry()
 	err = registry.Register(collector)

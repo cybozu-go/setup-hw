@@ -67,7 +67,11 @@ func testUpdate(t *testing.T) {
 	}
 
 	collector.Update(context.Background(), inputs[0].urlPath)
-	dataMap := collector.cache.get()
+	v := collector.dataMap.Load()
+	if v == nil {
+		t.Fatal(errors.New("Update() did not store traversed data"))
+	}
+	dataMap := v.(dataMap)
 
 	for _, input := range inputs {
 		data, ok := dataMap[input.urlPath]

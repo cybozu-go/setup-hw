@@ -4,7 +4,7 @@ import (
 	"context"
 	"strconv"
 	"strings"
-	"sync"
+	"sync/atomic"
 
 	"github.com/cybozu-go/log"
 	"github.com/cybozu-go/setup-hw/config"
@@ -17,9 +17,9 @@ const namespace = "hw"
 
 // Collector implements prometheus.Collector interface.
 type Collector struct {
-	rules  []convertRule
-	client *client
-	cache  *cache
+	rules   []convertRule
+	client  *client
+	dataMap atomic.Value
 }
 
 // CollectorConfig is a set of configurations for Collector.
@@ -32,8 +32,7 @@ type CollectorConfig struct {
 
 // NewCollector returns a new instance of Collector.
 func NewCollector(cc *CollectorConfig) (*Collector, error) {
-	cache := &cache{dataMap: make(dataMap)}
-	client, err := newClient(cc, cache)
+	client, err := newClient(cc)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +49,7 @@ func NewCollector(cc *CollectorConfig) (*Collector, error) {
 		}
 	}
 
-	return &Collector{rules: rules, client: client, cache: cache}, nil
+	return &Collector{rules: rules, client: client}, nil
 }
 
 // Describe does nothing for now.
@@ -59,7 +58,11 @@ func (c Collector) Describe(ch chan<- *prometheus.Desc) {
 
 // Collect sends metrics collected from BMC via Redfish.
 func (c Collector) Collect(ch chan<- prometheus.Metric) {
-	dataMap := c.cache.get()
+	v := c.dataMap.Load()
+	if v == nil {
+		return
+	}
+	dataMap := v.(dataMap)
 
 	for _, rule := range c.rules {
 		for path, parsedJSON := range dataMap {
@@ -101,7 +104,8 @@ func (c Collector) Collect(ch chan<- prometheus.Metric) {
 
 // Update collects metrics from BMCs via Redfish.
 func (c *Collector) Update(ctx context.Context, rootPath string) {
-	c.client.update(ctx, rootPath)
+	dataMap := c.client.traverse(ctx, rootPath)
+	c.dataMap.Store(dataMap)
 }
 
 func matchPath(rulePath, path string) (bool, prometheus.Labels) {
@@ -127,23 +131,6 @@ func matchPath(rulePath, path string) (bool, prometheus.Labels) {
 }
 
 type dataMap map[string]*gabs.Container
-
-type cache struct {
-	dataMap dataMap
-	mux     sync.Mutex
-}
-
-func (c *cache) set(dataMap dataMap) {
-	c.mux.Lock()
-	c.dataMap = dataMap
-	c.mux.Unlock()
-}
-
-func (c *cache) get() dataMap {
-	c.mux.Lock()
-	defer c.mux.Unlock()
-	return c.dataMap
-}
 
 type matchedProperty struct {
 	property interface{}
