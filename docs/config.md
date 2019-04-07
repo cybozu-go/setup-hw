@@ -4,7 +4,7 @@ Configuration Files
 `/etc/neco/bmc-address.json`
 ----------------------------
 
-The file contents is a JSON object like this:
+The file contains is a JSON object like this:
 
 ```json
 {
