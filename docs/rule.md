@@ -41,7 +41,7 @@ find meaningful pages from traversed Redfish pages.
 Name       | Required  | Type                   | Description
 ---------- | --------- | ---------------------- | -----------
 Path       | true      | string                 | Path of a Redfish page.  [Patterned path](#patterned-path) can be used.
-Properties | false (*) | array of Property Rule | See [Property Rule](#property-rule)
+Properties | false (*) | array of Property Rule | See [Property Rule](#property-rule).
 
 * Though `Properties` is marked as non-required, a rule with empty `Properties`
 produces no metrics.
@@ -81,7 +81,7 @@ The following are not supported:
 * The following types are supported:
   * `number`
   * `health`
-  * `state
+  * `state`
 
 ### Patterned pointer
 
