@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/cybozu-go/log"
+	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/well"
 	"gopkg.in/ini.v1"
 )
@@ -140,8 +141,8 @@ func iDRACWait(ctx context.Context) error {
 }
 
 type dellConfigurator struct {
-	addressConfig *AddressConfig
-	userConfig    *UserConfig
+	addressConfig *config.AddressConfig
+	userConfig    *config.UserConfig
 	queued        bool
 }
 
@@ -330,7 +331,7 @@ func (dc *dellConfigurator) configIPMI(ctx context.Context) error {
 	return racadmRetry(ctx, "set", key, "1")
 }
 
-func (dc *dellConfigurator) configUser(ctx context.Context, idx, name, priv, ipmiPriv string, cred Credentials) error {
+func (dc *dellConfigurator) configUser(ctx context.Context, idx, name, priv, ipmiPriv string, cred config.Credentials) error {
 	// ipmipriv:
 	// - 1 Callback level
 	// - 2 User level
@@ -401,7 +402,7 @@ func (dc *dellConfigurator) configVirtualConsole(ctx context.Context) error {
 }
 
 // setupDell configures BIOS and iDRAC for Dell servers.
-func setupDell(ac *AddressConfig, uc *UserConfig) (bool, error) {
+func setupDell(ac *config.AddressConfig, uc *config.UserConfig) (bool, error) {
 	_, err := os.Stat(racadmPath)
 	if err != nil {
 		return false, err

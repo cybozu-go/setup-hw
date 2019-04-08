@@ -1,0 +1,53 @@
+{
+    "@odata.id": "/redfish/v1/Chassis/System.Embedded.1",
+    "ExtraPropertyShouldNotMatch": "foobar",
+    "Status": {
+        "Health": "OK",
+        "HealthRollup": "OK",
+        "State": "Enabled"
+    },
+    "DeepStatusShouldNotMatch": {
+        "Status": {
+            "Health": "Critical",
+            "HealthRollup": "OK",
+            "State": "Enabled"
+        }
+    },
+    "Sub": [
+        {
+            "Status": {
+                "Health": "Warning",
+                "HealthRollup": "OK",
+                "State": "Enabled"
+            }
+        },
+        {
+            "Status": {
+                "Health": "Unknown value should not block processing.",
+                "HealthRollup": "OK",
+                "State": "Enabled"
+            }
+        },
+        {
+            "Status": {
+                "Health": "Critical",
+                "HealthRollup": "OK",
+                "State": "Enabled"
+            }
+        }
+    ],
+    "TestTraverse": [
+        {
+            "@odata.id": "/redfish/v1/Absent/Path/Should/Not/Block/Traverse"
+        },
+        {
+            "@odata.id": ["Illegal @odata.id should not block traverse."]
+        },
+        {
+            "@odata.id": "/redfish/v1/Chassis/System.Embedded.1/Blocks/0"
+        },
+	{
+	    "@odata.id": "/redfish/v1/Chassis/System.Embedded.1/Trashes/0"
+	}
+    ]
+}

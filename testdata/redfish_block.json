@@ -1,0 +1,13 @@
+{
+    "@odata.id": "/redfish/v1/Chassis/System.Embedded.1/Blocks/0",
+    "Status": {
+        "Health": "Warning",
+        "HealthRollup": "OK",
+        "State": "Enabled"
+    },
+    "TestCircularReference": [
+        {
+            "@odata.id": "/redfish/v1/Chassis/System.Embedded.1"
+        }
+    ]
+}
