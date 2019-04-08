@@ -23,6 +23,13 @@
         },
         {
             "Status": {
+                "Health": "Unknown value should not block processing.",
+                "HealthRollup": "OK",
+                "State": "Enabled"
+            }
+        },
+        {
+            "Status": {
                 "Health": "Critical",
                 "HealthRollup": "OK",
                 "State": "Enabled"

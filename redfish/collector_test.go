@@ -58,11 +58,19 @@ func testDescribe(t *testing.T) {
 			labelNames: []string{"chassis"},
 		},
 		{
+			name:       "hw_dummy2",
+			labelNames: []string{"chassis", "withIndexPattern"},
+		},
+		{
+			name:       "hw_dummy3",
+			labelNames: []string{"chassis", "isNotArray"},
+		},
+		{
 			name:       "hw_chassis_sub_status_health",
 			labelNames: []string{"chassis", "sub"},
 		},
 		{
-			name:       "hw_dummy2",
+			name:       "hw_dummy4",
 			labelNames: []string{},
 		},
 		{
@@ -160,7 +168,7 @@ func testCollect(t *testing.T) {
 			value: 2, // Critical
 			labels: map[string]string{
 				"chassis": "System.Embedded.1",
-				"sub":     "1",
+				"sub":     "2",
 			},
 		},
 		{

@@ -13,13 +13,19 @@ Metrics:
       - Pointer: /Absent/Pointer/Should/Not/Block/Processing
         Name: dummy1
         Type: health
+      - Pointer: /Absent/Pointer/{withIndexPattern}/Should/Not/Block/Processing
+        Name: dummy2
+        Type: health
+      - Pointer: /Status/{isNotArray}
+        Name: dummy3
+        Type: health
       - Pointer: /Sub/{sub}/Status/Health
         Name: chassis_sub_status_health
         Type: health
   - Path: /redfish/v1/Absent/Path/Should/Not/Block/Processing
     Properties:
       - Pointer: /Status/Health
-        Name: dummy2
+        Name: dummy4
         Type: health
   - Path: /redfish/v1/Chassis/{chassis}/Blocks/{block}
     Properties:
