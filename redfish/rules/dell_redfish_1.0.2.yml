@@ -18,11 +18,11 @@ Traverse:
     - /SessionService
     - /TaskService
     - /UpdateService
-    # Sub-metrices included in /Power or /Thermal
+    # Sub-metrics included in /Power or /Thermal
     - /Power/
     - /Sensors/
     - /Thermal/
-    # Extra trailing slash.
+    # Redundant page with extra trailing slash
     - /redfish/v1/Chassis/$
 
 Metrics:

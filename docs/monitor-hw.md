@@ -73,5 +73,16 @@ the configuration files.
 See the [description of configuration files](config.md) for details.
 
 
+Internals
+---------
+
+`monitor-hw` first detects the hardware type of the server where it runs.
+It traverses and interprets Redfish data according to the collection rule
+for that hardware type.
+Collection rules are compiled from YAML files under
+[redfish/rules](../redfish/rules).
+See the [description of collection rules](rule.md) for details.
+
+
 [Redfish]: https://www.dmtf.org/standards/redfish
 [Prometheus]: https://prometheus.io/
