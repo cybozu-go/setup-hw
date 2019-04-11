@@ -13,7 +13,7 @@ jobs:
           paths:
             - setup-hw
             - monitor-hw
-  deploy:
+  build-image:
     working_directory: /app
     docker:
       - image: docker:stable
@@ -28,39 +28,42 @@ jobs:
             cp /tmp/workspace/monitor-hw docker
       - setup_remote_docker
       - run:
-          name: Install tools
-          command: |
-            apk add --no-cache curl jq
-      - run:
-          name: Check repository tag
-          command: |
-            if [ "$(./tag_exists setup-hw)" = ng ]; then
-                touch .build
-            fi
-      - run:
           name: Build images
           command: |
-            if [ ! -f .build ]; then
-                echo "nothing to build."
-                exit 0
-            fi
             docker build -t quay.io/cybozu/setup-hw:latest --target stage1 docker
             docker build -t quay.io/cybozu/setup-hw-secret:latest docker
-      - deploy:
-          name: Push Docker image to Quay.io
+      - run:
+          name: Save images
           command: |
-            if [ "${CIRCLE_BRANCH}" != "master" ]; then
-                exit 0
-            fi
-            if [ ! -f .build ]; then
-                exit 0
-            fi
+            mkdir -p /tmp/docker
+            docker save quay.io/cybozu/setup-hw:latest -o /tmp/docker/setup-hw-image
+            docker save quay.io/cybozu/setup-hw-secret:latest -o /tmp/docker/setup-hw-secret-image
+      - persist_to_workspace:
+          root: /tmp/docker
+          paths:
+            - setup-hw-image
+            - setup-hw-secret-image
+  push-image:
+    docker:
+      - image: docker:stable
+    steps:
+      - attach_workspace:
+          at: /tmp/docker
+      - setup_remote_docker
+      - run:
+          name: Load images
+          command: |
+            docker load -i /tmp/docker/setup-hw-image
+            docker load -i /tmp/docker/setup-hw-secret-image
+      - run:
+          name: Push images to Quay.io
+          command: |
             docker login -u $QUAY_USER -p $QUAY_PASSWORD quay.io
-            TAG=$(cat TAG)
+            TAG=$(echo $CIRCLE_TAG | cut -c 2-)
             for name in setup-hw setup-hw-secret; do
-                echo "pushing $name ..."
+                echo "pushing ${name} ..."
+                docker tag quay.io/cybozu/${name}:latest quay.io/cybozu/${name}:$TAG
                 docker push quay.io/cybozu/${name}:latest
-                docker tag  quay.io/cybozu/${name}:latest quay.io/cybozu/${name}:$TAG
                 docker push quay.io/cybozu/${name}:$TAG
             done
 
@@ -69,6 +72,30 @@ workflows:
   main:
     jobs:
       - build
-      - deploy:
+      - build-image:
           requires:
             - build
+  release:
+    jobs:
+      - build:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+      - build-image:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+      - push-image:
+          requires:
+            - build-image
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
