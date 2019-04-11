@@ -60,14 +60,11 @@ jobs:
           command: |
             docker login -u $QUAY_USER -p $QUAY_PASSWORD quay.io
             TAG=$(echo $CIRCLE_TAG | cut -c 2-)
-            BRANCH=$(echo $TAG | cut -d "." -f 1-2)
             for name in setup-hw setup-hw-secret; do
-              echo "pushing ${name} ..."
-              docker tag quay.io/cybozu/${name}:latest quay.io/cybozu/${name}:$TAG
-              docker tag quay.io/cybozu/${name}:latest quay.io/cybozu/${name}:$BRANCH
-              docker push quay.io/cybozu/${name}:latest
-              docker push quay.io/cybozu/${name}:$TAG
-              docker push quay.io/cybozu/${name}:$BRANCH
+                echo "pushing ${name} ..."
+                docker tag quay.io/cybozu/${name}:latest quay.io/cybozu/${name}:$TAG
+                docker push quay.io/cybozu/${name}:latest
+                docker push quay.io/cybozu/${name}:$TAG
             done
 
 workflows:
