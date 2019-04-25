@@ -12,11 +12,12 @@ import (
 )
 
 type client struct {
-	endpoint     *url.URL
-	user         string
-	password     string
-	httpClient   *http.Client
-	traverseRule traverseRule
+	redfishVersion string
+	endpoint       *url.URL
+	user           string
+	password       string
+	httpClient     *http.Client
+	traverseRule   traverseRule
 }
 
 func newClient(cc *CollectorConfig) (*client, error) {
@@ -80,6 +81,7 @@ func (c *client) get(ctx context.Context, path string, dataMap dataMap) {
 		return
 	}
 	req.SetBasicAuth(c.user, c.password)
+	req.Header.Set("Accept", "application/json")
 	req = req.WithContext(ctx)
 
 	resp, err := c.httpClient.Do(req)
@@ -92,7 +94,15 @@ func (c *client) get(ctx context.Context, path string, dataMap dataMap) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	switch resp.StatusCode {
+	case http.StatusOK:
+	case http.StatusNotFound:
+		log.Warn("Redfish answered NotFound", map[string]interface{}{
+			"url":       u.String(),
+			"status":    resp.StatusCode,
+			log.FnError: err,
+		})
+	default:
 		log.Warn("Redfish answered non-OK", map[string]interface{}{
 			"url":       u.String(),
 			"status":    resp.StatusCode,

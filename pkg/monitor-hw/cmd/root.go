@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/cybozu-go/log"
 	"github.com/cybozu-go/setup-hw/config"
@@ -59,7 +60,11 @@ var rootCmd = &cobra.Command{
 			ruleFile = "qemu.yml"
 		case lib.Dell:
 			monitor = monitorDell
-			ruleFile = "dell_redfish_1.0.2.yml"
+			version, err := lib.DetectRedfishVersion(ac, uc)
+			if err != nil {
+				return err
+			}
+			ruleFile = fmt.Sprintf("dell_redfish_%s.yml", version)
 		default:
 			return errors.New("unsupported vendor hardware")
 		}
