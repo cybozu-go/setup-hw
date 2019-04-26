@@ -91,7 +91,10 @@ Metrics:
       - Pointer: /Status/Health
         Name: storage_controller_status_health
         Type: health
-      - Pointer: /Drives/{device}/Status/Health
+
+  - Path: /redfish/v1/Systems/{system}/Storage/Drives/{device}
+    Properties:
+      - Pointer: /Status/Health
         Name: storage_device_status_health
         Type: health
 

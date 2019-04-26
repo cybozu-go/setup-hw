@@ -344,8 +344,13 @@ var Rules = map[string]*CollectRule{
 						Help:    "",
 						Type:    "health",
 					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/{system}/Storage/Drives/{device}",
+				PropertyRules: []*propertyRule{
 					{
-						Pointer: "/Drives/{device}/Status/Health",
+						Pointer: "/Status/Health",
 						Name:    "storage_device_status_health",
 						Help:    "",
 						Type:    "health",

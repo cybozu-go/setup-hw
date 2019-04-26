@@ -30,4 +30,13 @@ ifdef GOBIN
 endif
 	GOBIN=$(GOBIN) go install $(BIN_PKGS)
 
-.PHONY: all generate test install
+build-image: install
+ifdef GOBIN
+	mkdir -p $(GOBIN)
+	cp $(GOBIN)/setup-hw $(GOBIN)/monitor-hw ./docker/
+else
+	cp $(GOPATH)/bin/setup-hw $(GOPATH)/bin/monitor-hw ./docker/
+endif
+	cd docker && docker build -t quay.io/cybozu/setup-hw:dev .
+
+.PHONY: all generate test install build-image
