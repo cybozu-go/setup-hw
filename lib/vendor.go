@@ -55,7 +55,8 @@ func DetectRedfishVersion(ac *config.AddressConfig, uc *config.UserConfig) (stri
 		},
 	}
 
-	req, err := http.NewRequest("GET", path.Join(endpoint.String(), "/redfish/v1/"), nil)
+	endpoint.Path = path.Join(endpoint.Path, "/redfish/v1/")
+	req, err := http.NewRequest("GET", endpoint.String(), nil)
 	req.SetBasicAuth("support", uc.Support.Password.Raw)
 	req.Header.Set("Accept", "application/json")
 	resp, err := httpClient.Do(req)
