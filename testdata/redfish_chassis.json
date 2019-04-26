@@ -41,13 +41,15 @@
             "@odata.id": "/redfish/v1/Absent/Path/Should/Not/Block/Traverse"
         },
         {
-            "@odata.id": ["Illegal @odata.id should not block traverse."]
+            "@odata.id": [
+                "Illegal @odata.id should not block traverse."
+            ]
         },
         {
             "@odata.id": "/redfish/v1/Chassis/System.Embedded.1/Blocks/0"
         },
-	{
-	    "@odata.id": "/redfish/v1/Chassis/System.Embedded.1/Trashes/0"
-	}
+        {
+            "@odata.id": "/redfish/v1/Chassis/System.Embedded.1/Trashes/0"
+        }
     ]
 }

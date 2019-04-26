@@ -1,9 +1,16 @@
 package lib
 
 import (
+	"crypto/tls"
+	"encoding/json"
 	"errors"
 	"io/ioutil"
+	"net/http"
+	"net/url"
+	"path"
 	"strings"
+
+	"github.com/cybozu-go/setup-hw/config"
 )
 
 // Vendor represents server hardware vendor.
@@ -33,4 +40,37 @@ func DetectVendor() (Vendor, error) {
 	}
 
 	return Unknown, errors.New("unknown vendor: " + vendor)
+}
+
+// DetectRedfishVersion fetches Redfish version from web API
+func DetectRedfishVersion(endpoint *url.URL, uc *config.UserConfig) (string, error) {
+	httpClient := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		},
+	}
+
+	endpoint.Path = path.Join(endpoint.Path, "/redfish/v1/")
+	req, err := http.NewRequest("GET", endpoint.String(), nil)
+	req.SetBasicAuth("support", uc.Support.Password.Raw)
+	req.Header.Set("Accept", "application/json")
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	var version struct {
+		RedfishVersion string `json:"RedfishVersion"`
+	}
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	err = json.Unmarshal(data, &version)
+	if err != nil {
+		return "", err
+	}
+	return version.RedfishVersion, nil
 }

@@ -74,7 +74,7 @@ func (cr *CollectRule) Compile() error {
 
 func (tr traverseRule) validate() error {
 	if tr.Root == "" {
-		return errors.New("Root is mandatory for traverse rule")
+		return errors.New("`Root` is mandatory for traverse rule")
 	}
 
 	return nil
@@ -95,7 +95,7 @@ func (tr *traverseRule) compile() error {
 
 func (mr metricRule) validate() error {
 	if mr.Path == "" {
-		return errors.New("Path is mandatory for metric rule")
+		return errors.New("`Path` is mandatory for metric rule")
 	}
 
 	for _, propertyRule := range mr.PropertyRules {
@@ -165,16 +165,16 @@ func (mr metricRule) matchData(parsedJSON *gabs.Container, pathLabelValues []str
 
 func (pr propertyRule) validate() error {
 	if pr.Pointer == "" {
-		return errors.New("Pointer is mandatory for property rule")
+		return errors.New("`Pointer` is mandatory for property rule")
 	}
 	if pr.Pointer[0] != '/' {
-		return errors.New("Pointer must begin with '/'")
+		return errors.New("`Pointer` must begin with '/'")
 	}
 	if pr.Name == "" {
-		return errors.New("Name is mandatory for property rule")
+		return errors.New("`Name` is mandatory for property rule")
 	}
 	if pr.Type == "" {
-		return errors.New("Type is mandatory for property rule")
+		return errors.New("`Type` is mandatory for property rule")
 	}
 
 	if _, ok := typeToConverters[pr.Type]; !ok {
