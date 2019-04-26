@@ -11,7 +11,9 @@ FROM stage1
 
 ARG DSU_VERSION=19.01.00
 
-RUN (curl -sf http://linux.dell.com/repo/hardware/DSU_${DSU_VERSION}/bootstrap.cgi | bash) \
+RUN curl -sf -o bootstrap.cgi http://linux.dell.com/repo/hardware/DSU_${DSU_VERSION}/bootstrap.cgi \
+    && bash bootstrap.cgi \
+    && rm bootstrap.cgi \
     && yum update -y \
     && yum install -y syscfg srvadmin-idracadm7 dmidecode \
     && yum clean all
