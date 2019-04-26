@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/url"
 
 	"github.com/cybozu-go/log"
 	"github.com/cybozu-go/setup-hw/config"
@@ -60,7 +61,12 @@ var rootCmd = &cobra.Command{
 			ruleFile = "qemu.yml"
 		case lib.Dell:
 			monitor = monitorDell
-			version, err := lib.DetectRedfishVersion(ac, uc)
+			endpoint, err := url.Parse("https://" + ac.IPv4.Address)
+			if err != nil {
+				return err
+			}
+
+			version, err := lib.DetectRedfishVersion(endpoint, uc)
 			if err != nil {
 				return err
 			}

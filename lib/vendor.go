@@ -4,12 +4,13 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"errors"
-	"github.com/cybozu-go/setup-hw/config"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"path"
 	"strings"
+
+	"github.com/cybozu-go/setup-hw/config"
 )
 
 // Vendor represents server hardware vendor.
@@ -42,11 +43,7 @@ func DetectVendor() (Vendor, error) {
 }
 
 // DetectRedfishVersion fetches Redfish version from web API
-func DetectRedfishVersion(ac *config.AddressConfig, uc *config.UserConfig) (string, error) {
-	endpoint, err := url.Parse("https://" + ac.IPv4.Address)
-	if err != nil {
-		return "", err
-	}
+func DetectRedfishVersion(endpoint *url.URL, uc *config.UserConfig) (string, error) {
 	httpClient := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
