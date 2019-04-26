@@ -94,15 +94,7 @@ func (c *client) get(ctx context.Context, path string, dataMap dataMap) {
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-	case http.StatusNotFound:
-		log.Warn("Redfish answered NotFound", map[string]interface{}{
-			"url":       u.String(),
-			"status":    resp.StatusCode,
-			log.FnError: err,
-		})
-	default:
+	if resp.StatusCode != http.StatusOK {
 		log.Warn("Redfish answered non-OK", map[string]interface{}{
 			"url":       u.String(),
 			"status":    resp.StatusCode,
