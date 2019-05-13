@@ -2,13 +2,11 @@ package cmd
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/cybozu-go/log"
-	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/setup-hw/redfish"
 	"github.com/cybozu-go/well"
 	"github.com/prometheus/client_golang/prometheus"
@@ -21,19 +19,8 @@ func (l logger) Println(v ...interface{}) {
 	log.Error(fmt.Sprint(v...), nil)
 }
 
-func startExporter(ac *config.AddressConfig, uc *config.UserConfig, ruleFile string) error {
-	rule, ok := redfish.Rules[ruleFile]
-	if !ok {
-		return errors.New("unknown rule file: " + ruleFile)
-	}
-
-	cc := &redfish.CollectorConfig{
-		AddressConfig: ac,
-		UserConfig:    uc,
-		Rule:          rule,
-	}
-
-	collector, err := redfish.NewCollector(cc)
+func startExporter(rule *redfish.CollectRule, client redfish.Client) error {
+	collector, err := redfish.NewCollector(rule, client)
 	if err != nil {
 		return err
 	}

@@ -38,8 +38,11 @@ vendors.
 
 `monitor-hw` starts `instsvcdrv-helper`.
 
-`monitor-hw` periodically resets iDRAC because it occasinally hangs.
+`monitor-hw` periodically resets iDRAC because it occasionally hangs.
 
+#### QEMU actions
+
+`monitor-hw` behaves as a mock server.
 
 Options
 -------

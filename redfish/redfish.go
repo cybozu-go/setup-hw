@@ -8,10 +8,11 @@ import (
 	"reflect"
 
 	"github.com/cybozu-go/log"
+	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/setup-hw/gabs"
 )
 
-type client struct {
+type redfishClient struct {
 	redfishVersion string
 	endpoint       *url.URL
 	user           string
@@ -20,7 +21,16 @@ type client struct {
 	traverseRule   traverseRule
 }
 
-func newClient(cc *CollectorConfig) (*client, error) {
+// ClientConfig is a set of configurations for redfishClient.
+type ClientConfig struct {
+	AddressConfig *config.AddressConfig
+	Port          string
+	UserConfig    *config.UserConfig
+	Rule          *CollectRule
+}
+
+// NewRedfishClient create a client for Redfish API
+func NewRedfishClient(cc *ClientConfig) (Client, error) {
 	endpoint, err := url.Parse("https://" + cc.AddressConfig.IPv4.Address)
 	if err != nil {
 		return nil, err
@@ -36,7 +46,7 @@ func newClient(cc *CollectorConfig) (*client, error) {
 		},
 	}
 
-	return &client{
+	return &redfishClient{
 		endpoint: endpoint,
 		user:     "support",
 		password: cc.UserConfig.Support.Password.Raw,
@@ -47,13 +57,13 @@ func newClient(cc *CollectorConfig) (*client, error) {
 	}, nil
 }
 
-func (c *client) traverse(ctx context.Context) dataMap {
+func (c *redfishClient) traverse(ctx context.Context) dataMap {
 	dataMap := make(dataMap)
 	c.get(ctx, c.traverseRule.Root, dataMap)
 	return dataMap
 }
 
-func (c *client) get(ctx context.Context, path string, dataMap dataMap) {
+func (c *redfishClient) get(ctx context.Context, path string, dataMap dataMap) {
 	if c.traverseRule.excludeRegexp != nil && c.traverseRule.excludeRegexp.MatchString(path) {
 		return
 	}
@@ -116,7 +126,7 @@ func (c *client) get(ctx context.Context, path string, dataMap dataMap) {
 	c.follow(ctx, parsed, dataMap)
 }
 
-func (c *client) follow(ctx context.Context, parsed *gabs.Container, dataMap dataMap) {
+func (c *redfishClient) follow(ctx context.Context, parsed *gabs.Container, dataMap dataMap) {
 	if childrenMap, err := parsed.ChildrenMap(); err == nil {
 		for k, v := range childrenMap {
 			if k != "@odata.id" {
