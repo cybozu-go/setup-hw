@@ -5,8 +5,6 @@
       "@odata.id": "/redfish/v1/Systems/System.Embedded.1/Processors/CPU.Socket.1",
       "Status": {
         "Health": "OK",
-        "HealthRollup": "OK",
-        "State": "Enabled"
       }
     }
   },
@@ -16,8 +14,6 @@
       "@odata.id": "/redfish/v1/Systems/System.Embedded.1/Processors/CPU.Socket.2",
       "Status": {
         "Health": "Warning",
-        "HealthRollup": "OK",
-        "State": "Enabled"
       }
     }
   },
@@ -27,8 +23,6 @@
       "@odata.id": "/redfish/v1/Systems/System.Embedded.1/Storage/AHCI.Slot.1-1",
       "Status": {
         "Health": "OK",
-        "HealthRollup": "OK",
-        "State": "Enabled"
       }
     }
   },
@@ -38,8 +32,6 @@
       "@odata.id": "/redfish/v1/Systems/System.Embedded.1/Storage/PCIeSSD.Slot.2-C",
       "Status": {
         "Health": "Warning",
-        "HealthRollup": "OK",
-        "State": "Enabled"
       }
     }
   },
@@ -49,8 +41,6 @@
       "@odata.id": "/redfish/v1/Systems/System.Embedded.1/Storage/PCIeSSD.Slot.3-C",
       "Status": {
         "Health": "Critical",
-        "HealthRollup": "OK",
-        "State": "Enabled"
       }
     }
   }
