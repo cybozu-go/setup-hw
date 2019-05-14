@@ -18,8 +18,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-func collectorConfig() (*CollectorConfig, error) {
-	data, err := ioutil.ReadFile("../testdata/redfish_collect.yml")
+func collectRule(filename string) (*CollectRule, error) {
+	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
@@ -32,8 +32,16 @@ func collectorConfig() (*CollectorConfig, error) {
 	if err := rule.Compile(); err != nil {
 		return nil, err
 	}
+	return rule, nil
+}
 
-	return &CollectorConfig{
+func clientConfig() (*ClientConfig, error) {
+	rule, err := collectRule("../testdata/redfish_collect.yml")
+	if err != nil {
+		return nil, err
+	}
+
+	return &ClientConfig{
 		AddressConfig: &config.AddressConfig{IPv4: config.IPv4Config{Address: "1.2.3.4"}},
 		UserConfig:    &config.UserConfig{},
 		Rule:          rule,
@@ -83,12 +91,17 @@ func testDescribe(t *testing.T) {
 		},
 	}
 
-	cc, err := collectorConfig()
+	cc, err := clientConfig()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	collector, err := NewCollector(cc)
+	client, err := NewRedfishClient(cc)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	collector, err := NewCollector(cc.Rule, client)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -181,12 +194,17 @@ func testCollect(t *testing.T) {
 		},
 	}
 
-	cc, err := collectorConfig()
+	cc, err := clientConfig()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	collector, err := NewCollector(cc)
+	client, err := NewRedfishClient(cc)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	collector, err := NewCollector(cc.Rule, client)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -307,7 +325,7 @@ func testUpdate(t *testing.T) {
 		t.Fatal(errors.New("httptest.NewTLSServer() returned URL with host and/or port omitted"))
 	}
 
-	cc, err := collectorConfig()
+	cc, err := clientConfig()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -315,7 +333,12 @@ func testUpdate(t *testing.T) {
 	cc.AddressConfig = &config.AddressConfig{IPv4: config.IPv4Config{Address: hostAndPort[0]}}
 	cc.Port = hostAndPort[1]
 
-	collector, err := NewCollector(cc)
+	client, err := NewRedfishClient(cc)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	collector, err := NewCollector(cc.Rule, client)
 	if err != nil {
 		t.Fatal(err)
 	}

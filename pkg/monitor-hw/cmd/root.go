@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/cybozu-go/setup-hw/redfish"
 	"net/url"
 
 	"github.com/cybozu-go/log"
@@ -54,28 +55,57 @@ var rootCmd = &cobra.Command{
 		}
 
 		var monitor func(context.Context) error
-		var ruleFile string
-		switch vendor {
-		case lib.QEMU:
-			monitor = monitorQEMU
-			ruleFile = "qemu.yml"
-		case lib.Dell:
-			monitor = monitorDell
-			endpoint, err := url.Parse("https://" + ac.IPv4.Address)
-			if err != nil {
-				return err
-			}
+		rule, client, err := func(vendor lib.Vendor) (*redfish.CollectRule, redfish.Client, error) {
+			switch vendor {
+			case lib.QEMU:
+				monitor = monitorQEMU
+				ruleFile := "qemu.yml"
+				rule, ok := redfish.Rules[ruleFile]
+				if !ok {
+					return nil, nil, errors.New("unknown rule file: " + ruleFile)
+				}
 
-			version, err := lib.DetectRedfishVersion(endpoint, uc)
-			if err != nil {
-				return err
+				client := redfish.NewMockClient(redfish.DummyRedfishFile)
+
+				return rule, client, nil
+			case lib.Dell:
+				monitor = monitorDell
+				endpoint, err := url.Parse("https://" + ac.IPv4.Address)
+				if err != nil {
+					return nil, nil, err
+				}
+
+				version, err := lib.DetectRedfishVersion(endpoint, uc)
+				if err != nil {
+					return nil, nil, err
+				}
+				ruleFile := fmt.Sprintf("dell_redfish_%s.yml", version)
+				rule, ok := redfish.Rules[ruleFile]
+				if !ok {
+					return nil, nil, errors.New("unknown rule file: " + ruleFile)
+				}
+
+				cc := &redfish.ClientConfig{
+					AddressConfig: ac,
+					UserConfig:    uc,
+					Rule:          rule,
+				}
+
+				client, err := redfish.NewRedfishClient(cc)
+				if err != nil {
+					return nil, nil, err
+				}
+
+				return rule, client, nil
+			default:
+				return nil, nil, errors.New("unsupported vendor hardware")
 			}
-			ruleFile = fmt.Sprintf("dell_redfish_%s.yml", version)
-		default:
-			return errors.New("unsupported vendor hardware")
+		}(vendor)
+		if err != nil {
+			return err
 		}
 
-		err = startExporter(ac, uc, ruleFile)
+		err = startExporter(rule, client)
 		if err != nil {
 			return err
 		}

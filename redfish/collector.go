@@ -4,38 +4,29 @@ import (
 	"context"
 	"sync/atomic"
 
-	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/setup-hw/gabs"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 const namespace = "hw"
 
+// Client is an interface of a client for Redfish API.
+type Client interface {
+	traverse(ctx context.Context) dataMap
+}
+
 type dataMap map[string]*gabs.Container
 
 // Collector implements prometheus.Collector interface.
 type Collector struct {
 	rule    *CollectRule
-	client  *client
+	client  Client
 	dataMap atomic.Value
 }
 
-// CollectorConfig is a set of configurations for Collector.
-type CollectorConfig struct {
-	AddressConfig *config.AddressConfig
-	Port          string
-	UserConfig    *config.UserConfig
-	Rule          *CollectRule
-}
-
 // NewCollector returns a new instance of Collector.
-func NewCollector(cc *CollectorConfig) (*Collector, error) {
-	client, err := newClient(cc)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Collector{rule: cc.Rule, client: client}, nil
+func NewCollector(rule *CollectRule, client Client) (*Collector, error) {
+	return &Collector{rule: rule, client: client}, nil
 }
 
 // Describe sends descriptions of metrics.
