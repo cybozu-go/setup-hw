@@ -2,11 +2,12 @@ package redfish
 
 import (
 	"context"
-	"github.com/prometheus/client_golang/prometheus"
 	"testing"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
-func TestTraverse(t *testing.T) {
+func TestMockClient(t *testing.T) {
 	t.Parallel()
 
 	expectedSet := []*struct {
