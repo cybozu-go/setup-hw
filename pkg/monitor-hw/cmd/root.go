@@ -65,7 +65,7 @@ var rootCmd = &cobra.Command{
 					return nil, nil, errors.New("unknown rule file: " + ruleFile)
 				}
 
-				client := redfish.NewMockClient()
+				client := redfish.NewMockClient(redfish.DummyRedfishFile)
 
 				return rule, client, nil
 			case lib.Dell:

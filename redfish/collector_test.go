@@ -18,8 +18,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-func clientConfig() (*ClientConfig, error) {
-	data, err := ioutil.ReadFile("../testdata/redfish_collect.yml")
+func collectRule(filename string) (*CollectRule, error) {
+	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
@@ -30,6 +30,14 @@ func clientConfig() (*ClientConfig, error) {
 		return nil, err
 	}
 	if err := rule.Compile(); err != nil {
+		return nil, err
+	}
+	return rule, nil
+}
+
+func clientConfig() (*ClientConfig, error) {
+	rule, err := collectRule("../testdata/redfish_collect.yml")
+	if err != nil {
 		return nil, err
 	}
 

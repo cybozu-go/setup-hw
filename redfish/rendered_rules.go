@@ -571,6 +571,29 @@ var Rules = map[string]*CollectRule{
 			Root:         "/redfish/v1",
 			ExcludeRules: []string{},
 		},
-		MetricRules: []*metricRule{},
+		MetricRules: []*metricRule{
+			{
+				Path: "/redfish/v1/Systems/{system}/Processors/{processor}",
+				PropertyRules: []*propertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "processor_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/{system}/Storage/{controller}",
+				PropertyRules: []*propertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "storage_controller_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+				},
+			},
+		},
 	},
 }
