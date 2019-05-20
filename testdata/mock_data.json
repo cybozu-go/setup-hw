@@ -2,7 +2,6 @@
   {
     "path": "/redfish/v1/Systems/System.Embedded.1/Processors/CPU.Socket.1",
     "data": {
-      "@odata.id": "/redfish/v1/Systems/System.Embedded.1/Processors/CPU.Socket.1",
       "Status": {
         "Health": "OK"
       }
@@ -11,7 +10,6 @@
   {
     "path": "/redfish/v1/Systems/System.Embedded.1/Processors/CPU.Socket.2",
     "data": {
-      "@odata.id": "/redfish/v1/Systems/System.Embedded.1/Processors/CPU.Socket.2",
       "Status": {
         "Health": "Warning"
       }
@@ -20,7 +18,6 @@
   {
     "path": "/redfish/v1/Systems/System.Embedded.1/Storage/AHCI.Slot.1-1",
     "data": {
-      "@odata.id": "/redfish/v1/Systems/System.Embedded.1/Storage/AHCI.Slot.1-1",
       "Status": {
         "Health": "OK"
       }
@@ -29,7 +26,6 @@
   {
     "path": "/redfish/v1/Systems/System.Embedded.1/Storage/PCIeSSD.Slot.2-C",
     "data": {
-      "@odata.id": "/redfish/v1/Systems/System.Embedded.1/Storage/PCIeSSD.Slot.2-C",
       "Status": {
         "Health": "Warning"
       }
@@ -38,7 +34,6 @@
   {
     "path": "/redfish/v1/Systems/System.Embedded.1/Storage/PCIeSSD.Slot.3-C",
     "data": {
-      "@odata.id": "/redfish/v1/Systems/System.Embedded.1/Storage/PCIeSSD.Slot.3-C",
       "Status": {
         "Health": "Critical"
       }

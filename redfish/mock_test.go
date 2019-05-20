@@ -7,15 +7,17 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+type expected struct {
+	matched bool
+	name    string
+	value   float64
+	labels  map[string]string
+}
+
 func TestMockClient(t *testing.T) {
 	t.Parallel()
 
-	expectedSet := []*struct {
-		matched bool
-		name    string
-		value   float64
-		labels  map[string]string
-	}{
+	expectedSet := []*expected{
 		{
 			name:  "hw_processor_status_health",
 			value: 0, // OK
@@ -65,6 +67,61 @@ func TestMockClient(t *testing.T) {
 
 	client := NewMockClient("../testdata/mock_data.json")
 
+	checkResult(t, rule, client, expectedSet)
+}
+
+func TestMockClientDefaultData(t *testing.T) {
+	t.Parallel()
+
+	expectedSet := []*expected{
+		{
+			name:  "hw_processor_status_health",
+			value: 0, // OK
+			labels: map[string]string{
+				"system":    "System.Embedded.1",
+				"processor": "CPU.Socket.1",
+			},
+		},
+		{
+			name:  "hw_processor_status_health",
+			value: 0, // OK
+			labels: map[string]string{
+				"system":    "System.Embedded.1",
+				"processor": "CPU.Socket.2",
+			},
+		},
+		{
+			name:  "hw_storage_controller_status_health",
+			value: 0, // OK
+			labels: map[string]string{
+				"system":     "System.Embedded.1",
+				"controller": "AHCI.Slot.1-1",
+			},
+		},
+		{
+			name:  "hw_storage_controller_status_health",
+			value: 0, // OK
+			labels: map[string]string{
+				"system":     "System.Embedded.1",
+				"controller": "PCIeSSD.Slot.2-C",
+			},
+		},
+		{
+			name:  "hw_storage_controller_status_health",
+			value: 0, // OK
+			labels: map[string]string{
+				"system":     "System.Embedded.1",
+				"controller": "PCIeSSD.Slot.3-C",
+			},
+		},
+	}
+
+	client := NewMockClient("../testdata/no_exist_file")
+
+	checkResult(t, Rules["qemu.yml"], client, expectedSet)
+}
+
+func checkResult(t *testing.T, rule *CollectRule, client Client, expectedSet []*expected) {
 	collector, err := NewCollector(rule, client)
 	if err != nil {
 		t.Fatal(err)
