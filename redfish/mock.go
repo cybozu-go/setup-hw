@@ -11,6 +11,49 @@ import (
 const (
 	// DummyRedfishFile is the filename of dummy data for Redfish API.
 	DummyRedfishFile = "/etc/neco/dummy_redfish_data.json"
+	defaultDummyData = `
+[
+  {
+    "path": "/redfish/v1/Systems/System.Embedded.1/Processors/CPU.Socket.1",
+    "data": {
+      "Status": {
+        "Health": "OK"
+      }
+    }
+  },
+  {
+    "path": "/redfish/v1/Systems/System.Embedded.1/Processors/CPU.Socket.2",
+    "data": {
+      "Status": {
+        "Health": "OK"
+      }
+    }
+  },
+  {
+    "path": "/redfish/v1/Systems/System.Embedded.1/Storage/AHCI.Slot.1-1",
+    "data": {
+      "Status": {
+        "Health": "OK"
+      }
+    }
+  },
+  {
+    "path": "/redfish/v1/Systems/System.Embedded.1/Storage/PCIeSSD.Slot.2-C",
+    "data": {
+      "Status": {
+        "Health": "OK"
+      }
+    }
+  },
+  {
+    "path": "/redfish/v1/Systems/System.Embedded.1/Storage/PCIeSSD.Slot.3-C",
+    "data": {
+      "Status": {
+        "Health": "OK"
+      }
+    }
+  }
+]`
 )
 
 type dummyData struct {
@@ -19,28 +62,24 @@ type dummyData struct {
 }
 
 type mockClient struct {
-	filename string
+	filename    string
+	defaultData dataMap
 }
 
 // NewMockClient create a mock client mock.
 func NewMockClient(filename string) Client {
-	return &mockClient{filename: filename}
+	return &mockClient{
+		filename:    filename,
+		defaultData: makeDataMap([]byte(defaultDummyData)),
+	}
 }
 
-func (c *mockClient) traverse(ctx context.Context) dataMap {
+func makeDataMap(data []byte) dataMap {
 	dataMap := make(dataMap)
 	var dummyMetrics []dummyData
 
-	cBytes, err := ioutil.ReadFile(c.filename)
-	if err != nil {
-		log.Error("cannot open dummy data file: "+c.filename, map[string]interface{}{
-			log.FnError: err,
-		})
-		return dataMap
-	}
-
-	if err := json.Unmarshal(cBytes, &dummyMetrics); err != nil {
-		log.Error("cannot unmarshal dummy data file: "+c.filename, map[string]interface{}{
+	if err := json.Unmarshal(data, &dummyMetrics); err != nil {
+		log.Error("cannot unmarshal dummy data", map[string]interface{}{
 			log.FnError: err,
 		})
 		return dataMap
@@ -49,7 +88,7 @@ func (c *mockClient) traverse(ctx context.Context) dataMap {
 	for _, dummy := range dummyMetrics {
 		container, err := gabs.Consume(dummy.Data)
 		if err != nil {
-			log.Error("failed to consume: "+dummy.Path, map[string]interface{}{
+			log.Error("failed to consume", map[string]interface{}{
 				log.FnError: err,
 			})
 			continue
@@ -57,4 +96,16 @@ func (c *mockClient) traverse(ctx context.Context) dataMap {
 		dataMap[dummy.Path] = container
 	}
 	return dataMap
+}
+
+func (c *mockClient) traverse(ctx context.Context) dataMap {
+	cBytes, err := ioutil.ReadFile(c.filename)
+	if err != nil {
+		log.Error("cannot open dummy data file: "+c.filename, map[string]interface{}{
+			log.FnError: err,
+		})
+		return c.defaultData
+	}
+
+	return makeDataMap(cBytes)
 }
