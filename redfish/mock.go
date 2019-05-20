@@ -3,9 +3,10 @@ package redfish
 import (
 	"context"
 	"encoding/json"
+	"io/ioutil"
+
 	"github.com/cybozu-go/log"
 	"github.com/cybozu-go/setup-hw/gabs"
-	"io/ioutil"
 )
 
 const (
