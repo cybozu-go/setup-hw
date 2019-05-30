@@ -75,9 +75,11 @@ func (c Collector) Collect(ch chan<- prometheus.Metric) {
 
 // Update collects metrics from BMCs via Redfish.
 func (c *Collector) Update(ctx context.Context) {
+	log.Info("start update", nil)
 	ctx1, cancel := context.WithTimeout(ctx, 10*time.Minute)
 	defer cancel()
 	dataMap := c.client.traverse(ctx1)
 	c.dataMap.Store(dataMap)
 	c.lastUpdate = time.Now()
+	log.Info("finish update", nil)
 }
