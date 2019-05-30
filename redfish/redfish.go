@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"time"
 
 	"github.com/cybozu-go/log"
 	"github.com/cybozu-go/setup-hw/config"
@@ -52,6 +53,7 @@ func NewRedfishClient(cc *ClientConfig) (Client, error) {
 		password: cc.UserConfig.Support.Password.Raw,
 		httpClient: &http.Client{
 			Transport: transport,
+			Timeout:   5 * time.Second,
 		},
 		traverseRule: cc.Rule.TraverseRule,
 	}, nil

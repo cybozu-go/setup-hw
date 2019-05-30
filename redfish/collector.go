@@ -3,6 +3,7 @@ package redfish
 import (
 	"context"
 	"sync/atomic"
+	"time"
 
 	"github.com/cybozu-go/setup-hw/gabs"
 	"github.com/prometheus/client_golang/prometheus"
@@ -56,6 +57,8 @@ func (c Collector) Collect(ch chan<- prometheus.Metric) {
 
 // Update collects metrics from BMCs via Redfish.
 func (c *Collector) Update(ctx context.Context) {
-	dataMap := c.client.traverse(ctx)
+	ctx1, cancel := context.WithTimeout(ctx, 10*time.Minute)
+	defer cancel()
+	dataMap := c.client.traverse(ctx1)
 	c.dataMap.Store(dataMap)
 }
