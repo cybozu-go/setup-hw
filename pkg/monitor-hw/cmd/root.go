@@ -4,12 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/cybozu-go/setup-hw/redfish"
 	"net/url"
 
 	"github.com/cybozu-go/log"
 	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/setup-hw/lib"
+	"github.com/cybozu-go/setup-hw/redfish"
 	"github.com/cybozu-go/well"
 	"github.com/spf13/cobra"
 )
