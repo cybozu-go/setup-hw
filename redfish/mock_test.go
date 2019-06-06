@@ -2,14 +2,17 @@ package redfish
 
 import (
 	"context"
+	"math"
 	"testing"
 
 	"github.com/prometheus/client_golang/prometheus"
+	prommodel "github.com/prometheus/client_model/go"
 )
 
 type expected struct {
 	matched bool
 	name    string
+	typ     prommodel.MetricType
 	value   float64
 	labels  map[string]string
 }
@@ -20,6 +23,7 @@ func TestMockClient(t *testing.T) {
 	expectedSet := []*expected{
 		{
 			name:  "hw_processor_status_health",
+			typ:   prommodel.MetricType_GAUGE,
 			value: 0, // OK
 			labels: map[string]string{
 				"system":    "System.Embedded.1",
@@ -28,6 +32,7 @@ func TestMockClient(t *testing.T) {
 		},
 		{
 			name:  "hw_processor_status_health",
+			typ:   prommodel.MetricType_GAUGE,
 			value: 1, // Warning
 			labels: map[string]string{
 				"system":    "System.Embedded.1",
@@ -36,6 +41,7 @@ func TestMockClient(t *testing.T) {
 		},
 		{
 			name:  "hw_storage_controller_status_health",
+			typ:   prommodel.MetricType_GAUGE,
 			value: 0, // OK
 			labels: map[string]string{
 				"system":     "System.Embedded.1",
@@ -44,6 +50,7 @@ func TestMockClient(t *testing.T) {
 		},
 		{
 			name:  "hw_storage_controller_status_health",
+			typ:   prommodel.MetricType_GAUGE,
 			value: 1, // Warning
 			labels: map[string]string{
 				"system":     "System.Embedded.1",
@@ -52,11 +59,24 @@ func TestMockClient(t *testing.T) {
 		},
 		{
 			name:  "hw_storage_controller_status_health",
+			typ:   prommodel.MetricType_GAUGE,
 			value: 2, // Critical
 			labels: map[string]string{
 				"system":     "System.Embedded.1",
 				"controller": "PCIeSSD.Slot.3-C",
 			},
+		},
+		{
+			name:   "hw_last_update",
+			typ:    prommodel.MetricType_COUNTER,
+			value:  math.NaN(), // don't care
+			labels: map[string]string{},
+		},
+		{
+			name:   "hw_last_update_duration_minutes",
+			typ:    prommodel.MetricType_GAUGE,
+			value:  math.NaN(), // don't care
+			labels: map[string]string{},
 		},
 	}
 
@@ -76,6 +96,7 @@ func TestMockClientDefaultData(t *testing.T) {
 	expectedSet := []*expected{
 		{
 			name:  "hw_processor_status_health",
+			typ:   prommodel.MetricType_GAUGE,
 			value: 0, // OK
 			labels: map[string]string{
 				"system":    "System.Embedded.1",
@@ -84,6 +105,7 @@ func TestMockClientDefaultData(t *testing.T) {
 		},
 		{
 			name:  "hw_processor_status_health",
+			typ:   prommodel.MetricType_GAUGE,
 			value: 0, // OK
 			labels: map[string]string{
 				"system":    "System.Embedded.1",
@@ -92,6 +114,7 @@ func TestMockClientDefaultData(t *testing.T) {
 		},
 		{
 			name:  "hw_storage_controller_status_health",
+			typ:   prommodel.MetricType_GAUGE,
 			value: 0, // OK
 			labels: map[string]string{
 				"system":     "System.Embedded.1",
@@ -100,6 +123,7 @@ func TestMockClientDefaultData(t *testing.T) {
 		},
 		{
 			name:  "hw_storage_controller_status_health",
+			typ:   prommodel.MetricType_GAUGE,
 			value: 0, // OK
 			labels: map[string]string{
 				"system":     "System.Embedded.1",
@@ -108,11 +132,24 @@ func TestMockClientDefaultData(t *testing.T) {
 		},
 		{
 			name:  "hw_storage_controller_status_health",
+			typ:   prommodel.MetricType_GAUGE,
 			value: 0, // OK
 			labels: map[string]string{
 				"system":     "System.Embedded.1",
 				"controller": "PCIeSSD.Slot.3-C",
 			},
+		},
+		{
+			name:   "hw_last_update",
+			typ:    prommodel.MetricType_COUNTER,
+			value:  math.NaN(), // don't care
+			labels: map[string]string{},
+		},
+		{
+			name:   "hw_last_update_duration_minutes",
+			typ:    prommodel.MetricType_GAUGE,
+			value:  math.NaN(), // don't care
+			labels: map[string]string{},
 		},
 	}
 
@@ -146,11 +183,6 @@ func checkResult(t *testing.T, rule *CollectRule, client Client, expectedSet []*
 		actualMetricName := metricFamily.GetName()
 	ActualLoop:
 		for _, actual := range metricFamily.GetMetric() {
-			if actual.GetGauge() == nil {
-				t.Error("metric type is not Gauge:", actualMetricName)
-				continue
-			}
-
 			actualLabels := make(map[string]string)
 			for _, label := range actual.GetLabel() {
 				actualLabels[label.GetName()] = label.GetValue()
@@ -160,8 +192,20 @@ func checkResult(t *testing.T, rule *CollectRule, client Client, expectedSet []*
 				if expected.matched {
 					continue
 				}
+				if expected.typ != *metricFamily.Type {
+					continue
+				}
+				var val float64
+				switch *metricFamily.Type {
+				case prommodel.MetricType_GAUGE:
+					val = actual.GetGauge().GetValue()
+				case prommodel.MetricType_COUNTER:
+					val = actual.GetCounter().GetValue()
+				default:
+					t.Fatalf("unknown type: ")
+				}
 				if actualMetricName == expected.name &&
-					actual.GetGauge().GetValue() == expected.value &&
+					(math.IsNaN(expected.value) || val == expected.value) &&
 					matchLabels(actualLabels, expected.labels) {
 					expected.matched = true
 					continue ActualLoop

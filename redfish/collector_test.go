@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"math"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -16,6 +17,7 @@ import (
 	"github.com/cybozu-go/setup-hw/gabs"
 	"github.com/ghodss/yaml"
 	"github.com/prometheus/client_golang/prometheus"
+	prommodel "github.com/prometheus/client_model/go"
 )
 
 func collectRule(filename string) (*CollectRule, error) {
@@ -89,6 +91,14 @@ func testDescribe(t *testing.T) {
 			name:       "hw_trash_status_health",
 			labelNames: []string{"chassis", "trash"},
 		},
+		{
+			name:       "hw_last_update",
+			labelNames: []string{},
+		},
+		{
+			name:       "hw_last_update_duration_minutes",
+			labelNames: []string{},
+		},
 	}
 
 	cc, err := clientConfig()
@@ -158,11 +168,13 @@ func testCollect(t *testing.T) {
 	expectedSet := []*struct {
 		matched bool
 		name    string
+		typ     prommodel.MetricType
 		value   float64
 		labels  map[string]string
 	}{
 		{
 			name:  "hw_chassis_status_health",
+			typ:   prommodel.MetricType_GAUGE,
 			value: 0, // OK
 			labels: map[string]string{
 				"chassis": "System.Embedded.1",
@@ -170,6 +182,7 @@ func testCollect(t *testing.T) {
 		},
 		{
 			name:  "hw_chassis_sub_status_health",
+			typ:   prommodel.MetricType_GAUGE,
 			value: 1, // Warning
 			labels: map[string]string{
 				"chassis": "System.Embedded.1",
@@ -178,6 +191,7 @@ func testCollect(t *testing.T) {
 		},
 		{
 			name:  "hw_chassis_sub_status_health",
+			typ:   prommodel.MetricType_GAUGE,
 			value: 2, // Critical
 			labels: map[string]string{
 				"chassis": "System.Embedded.1",
@@ -186,11 +200,24 @@ func testCollect(t *testing.T) {
 		},
 		{
 			name:  "hw_block_status_health",
+			typ:   prommodel.MetricType_GAUGE,
 			value: 1, // Warning
 			labels: map[string]string{
 				"chassis": "System.Embedded.1",
 				"block":   "0",
 			},
+		},
+		{
+			name:   "hw_last_update",
+			typ:    prommodel.MetricType_COUNTER,
+			value:  math.NaN(), // don't care
+			labels: map[string]string{},
+		},
+		{
+			name:   "hw_last_update_duration_minutes",
+			typ:    prommodel.MetricType_GAUGE,
+			value:  math.NaN(), // don't care
+			labels: map[string]string{},
 		},
 	}
 
@@ -235,10 +262,6 @@ func testCollect(t *testing.T) {
 		actualMetricName := metricFamily.GetName()
 	ActualLoop:
 		for _, actual := range metricFamily.GetMetric() {
-			if actual.GetGauge() == nil {
-				t.Error("metric type is not Gauge:", actualMetricName)
-				continue
-			}
 
 			actualLabels := make(map[string]string)
 			for _, label := range actual.GetLabel() {
@@ -249,8 +272,20 @@ func testCollect(t *testing.T) {
 				if expected.matched {
 					continue
 				}
+				if expected.typ != *metricFamily.Type {
+					continue
+				}
+				var val float64
+				switch *metricFamily.Type {
+				case prommodel.MetricType_GAUGE:
+					val = actual.GetGauge().GetValue()
+				case prommodel.MetricType_COUNTER:
+					val = actual.GetCounter().GetValue()
+				default:
+					t.Fatalf("unknown type: ")
+				}
 				if actualMetricName == expected.name &&
-					actual.GetGauge().GetValue() == expected.value &&
+					(math.IsNaN(expected.value) || val == expected.value) &&
 					matchLabels(actualLabels, expected.labels) {
 					expected.matched = true
 					continue ActualLoop
