@@ -17,6 +17,9 @@ type CollectRule struct {
 	MetricRules  []*metricRule `json:"Metrics" yaml:"Metrics"`
 }
 
+// RuleGetter is the type to obtain dynamic rules
+type RuleGetter func() (*CollectRule, error)
+
 type traverseRule struct {
 	Root          string   `json:"Root" yaml:"Root"`
 	ExcludeRules  []string `json:"Excludes" yaml:"Excludes"`
@@ -119,10 +122,10 @@ func (mr *metricRule) compile() error {
 	return nil
 }
 
-func (mr metricRule) matchDataMap(dataMap dataMap) []prometheus.Metric {
+func (mr metricRule) matchDataMap(cl collected) []prometheus.Metric {
 	var results []prometheus.Metric
 
-	for path, parsedJSON := range dataMap {
+	for path, parsedJSON := range cl.data {
 		if matched, pathLabelValues := mr.matchPath(path); matched {
 			metrics := mr.matchData(parsedJSON, pathLabelValues, path)
 			results = append(results, metrics...)

@@ -159,7 +159,9 @@ func TestMockClientDefaultData(t *testing.T) {
 }
 
 func checkResult(t *testing.T, rule *CollectRule, client Client, expectedSet []*expected) {
-	collector, err := NewCollector(rule, client)
+	collector, err := NewCollector(func() (*CollectRule, error) {
+		return rule, nil
+	}, client)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -167,7 +169,7 @@ func checkResult(t *testing.T, rule *CollectRule, client Client, expectedSet []*
 	ctx := context.Background()
 	collector.Update(ctx)
 
-	registry := prometheus.NewPedanticRegistry()
+	registry := prometheus.NewRegistry()
 	err = registry.Register(collector)
 	if err != nil {
 		t.Fatal(err)
