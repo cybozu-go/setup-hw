@@ -59,39 +59,6 @@ func testDescribe(t *testing.T) {
 		labelNames []string
 	}{
 		{
-			name:       "hw_chassis_status_health",
-			help:       "Health of chassis",
-			labelNames: []string{"chassis"},
-		},
-		{
-			name:       "hw_dummy1",
-			labelNames: []string{"chassis"},
-		},
-		{
-			name:       "hw_dummy2",
-			labelNames: []string{"chassis", "withIndexPattern"},
-		},
-		{
-			name:       "hw_dummy3",
-			labelNames: []string{"chassis", "isNotArray"},
-		},
-		{
-			name:       "hw_chassis_sub_status_health",
-			labelNames: []string{"chassis", "sub"},
-		},
-		{
-			name:       "hw_dummy4",
-			labelNames: []string{},
-		},
-		{
-			name:       "hw_block_status_health",
-			labelNames: []string{"chassis", "block"},
-		},
-		{
-			name:       "hw_trash_status_health",
-			labelNames: []string{"chassis", "trash"},
-		},
-		{
 			name:       "hw_last_update",
 			labelNames: []string{},
 		},
@@ -111,7 +78,9 @@ func testDescribe(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	collector, err := NewCollector(cc.Rule, client)
+	collector, err := NewCollector(func() (*CollectRule, error) {
+		return cc.Rule, nil
+	}, client)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -231,7 +200,9 @@ func testCollect(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	collector, err := NewCollector(cc.Rule, client)
+	collector, err := NewCollector(func() (*CollectRule, error) {
+		return cc.Rule, nil
+	}, client)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -244,9 +215,9 @@ func testCollect(t *testing.T) {
 		}
 		dataMap[input.urlPath] = data
 	}
-	collector.dataMap.Store(dataMap)
+	collector.collected.Store(collected{data: dataMap, rule: cc.Rule})
 
-	registry := prometheus.NewPedanticRegistry()
+	registry := prometheus.NewRegistry()
 	err = registry.Register(collector)
 	if err != nil {
 		t.Fatal(err)
@@ -373,24 +344,26 @@ func testUpdate(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	collector, err := NewCollector(cc.Rule, client)
+	collector, err := NewCollector(func() (*CollectRule, error) {
+		return cc.Rule, nil
+	}, client)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	collector.Update(context.Background())
-	v := collector.dataMap.Load()
+	v := collector.collected.Load()
 	if v == nil {
 		t.Fatal(errors.New("Update() did not store traversed data"))
 	}
-	dataMap := v.(dataMap)
+	cl := v.(collected)
 
 	for _, input := range inputs {
 		if !input.needed {
 			continue
 		}
 
-		data, ok := dataMap[input.urlPath]
+		data, ok := cl.data[input.urlPath]
 		if !ok {
 			t.Error("path was not traversed:", input.urlPath)
 			continue
@@ -409,7 +382,7 @@ func testUpdate(t *testing.T) {
 	}
 
 ActualLoop:
-	for path := range dataMap {
+	for path := range cl.data {
 		for _, input := range inputs {
 			if path == input.urlPath && input.needed {
 				continue ActualLoop

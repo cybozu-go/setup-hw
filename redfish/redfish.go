@@ -19,7 +19,6 @@ type redfishClient struct {
 	user           string
 	password       string
 	httpClient     *http.Client
-	traverseRule   traverseRule
 }
 
 // ClientConfig is a set of configurations for redfishClient.
@@ -55,18 +54,17 @@ func NewRedfishClient(cc *ClientConfig) (Client, error) {
 			Transport: transport,
 			Timeout:   5 * time.Second,
 		},
-		traverseRule: cc.Rule.TraverseRule,
 	}, nil
 }
 
-func (c *redfishClient) traverse(ctx context.Context) dataMap {
-	dataMap := make(dataMap)
-	c.get(ctx, c.traverseRule.Root, dataMap)
-	return dataMap
+func (c *redfishClient) traverse(ctx context.Context, rule *CollectRule) collected {
+	cl := collected{data: make(map[string]*gabs.Container), rule: rule}
+	c.get(ctx, rule.TraverseRule.Root, cl)
+	return cl
 }
 
-func (c *redfishClient) get(ctx context.Context, path string, dataMap dataMap) {
-	if c.traverseRule.excludeRegexp != nil && c.traverseRule.excludeRegexp.MatchString(path) {
+func (c *redfishClient) get(ctx context.Context, path string, cl collected) {
+	if cl.rule.TraverseRule.excludeRegexp != nil && cl.rule.TraverseRule.excludeRegexp.MatchString(path) {
 		return
 	}
 
@@ -80,7 +78,7 @@ func (c *redfishClient) get(ctx context.Context, path string, dataMap dataMap) {
 	}
 
 	epath := u.EscapedPath()
-	if _, ok := dataMap[epath]; ok {
+	if _, ok := cl.data[epath]; ok {
 		return
 	}
 
@@ -123,18 +121,18 @@ func (c *redfishClient) get(ctx context.Context, path string, dataMap dataMap) {
 		})
 		return
 	}
-	dataMap[epath] = parsed
+	cl.data[epath] = parsed
 
-	c.follow(ctx, parsed, dataMap)
+	c.follow(ctx, parsed, cl)
 }
 
-func (c *redfishClient) follow(ctx context.Context, parsed *gabs.Container, dataMap dataMap) {
+func (c *redfishClient) follow(ctx context.Context, parsed *gabs.Container, cl collected) {
 	if childrenMap, err := parsed.ChildrenMap(); err == nil {
 		for k, v := range childrenMap {
 			if k != "@odata.id" {
-				c.follow(ctx, v, dataMap)
+				c.follow(ctx, v, cl)
 			} else if path, ok := v.Data().(string); ok {
-				c.get(ctx, path, dataMap)
+				c.get(ctx, path, cl)
 			} else {
 				log.Warn("value of @odata.id is not string", map[string]interface{}{
 					"typ":   reflect.TypeOf(v.Data()),
@@ -147,7 +145,7 @@ func (c *redfishClient) follow(ctx context.Context, parsed *gabs.Container, data
 
 	if childrenSlice, err := parsed.Children(); err == nil {
 		for _, v := range childrenSlice {
-			c.follow(ctx, v, dataMap)
+			c.follow(ctx, v, cl)
 		}
 		return
 	}

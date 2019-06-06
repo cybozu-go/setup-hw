@@ -62,6 +62,8 @@ type dummyData struct {
 	Data interface{} `json:"data"`
 }
 
+type dataMap = map[string]*gabs.Container
+
 type mockClient struct {
 	filename    string
 	defaultData dataMap
@@ -99,14 +101,14 @@ func makeDataMap(data []byte) dataMap {
 	return dataMap
 }
 
-func (c *mockClient) traverse(ctx context.Context) dataMap {
+func (c *mockClient) traverse(ctx context.Context, rule *CollectRule) collected {
 	cBytes, err := ioutil.ReadFile(c.filename)
 	if err != nil {
 		log.Error("cannot open dummy data file: "+c.filename, map[string]interface{}{
 			log.FnError: err,
 		})
-		return c.defaultData
+		return collected{data: c.defaultData, rule: rule}
 	}
 
-	return makeDataMap(cBytes)
+	return collected{data: makeDataMap(cBytes), rule: rule}
 }

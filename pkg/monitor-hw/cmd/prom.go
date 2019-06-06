@@ -19,8 +19,8 @@ func (l logger) Println(v ...interface{}) {
 	log.Error(fmt.Sprint(v...), nil)
 }
 
-func startExporter(rule *redfish.CollectRule, client redfish.Client) error {
-	collector, err := redfish.NewCollector(rule, client)
+func startExporter(ruleGetter redfish.RuleGetter, client redfish.Client) error {
+	collector, err := redfish.NewCollector(ruleGetter, client)
 	if err != nil {
 		return err
 	}

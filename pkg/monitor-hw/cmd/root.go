@@ -55,7 +55,7 @@ var rootCmd = &cobra.Command{
 		}
 
 		var monitor func(context.Context) error
-		rule, client, err := func(vendor lib.Vendor) (*redfish.CollectRule, redfish.Client, error) {
+		ruleGetter, client, err := func(vendor lib.Vendor) (redfish.RuleGetter, redfish.Client, error) {
 			switch vendor {
 			case lib.QEMU:
 				monitor = monitorQEMU
@@ -67,7 +67,9 @@ var rootCmd = &cobra.Command{
 
 				client := redfish.NewMockClient(redfish.DummyRedfishFile)
 
-				return rule, client, nil
+				return func() (*redfish.CollectRule, error) {
+					return rule, nil
+				}, client, nil
 			case lib.Dell:
 				monitor = monitorDell
 				endpoint, err := url.Parse("https://" + ac.IPv4.Address)
@@ -75,20 +77,22 @@ var rootCmd = &cobra.Command{
 					return nil, nil, err
 				}
 
-				version, err := lib.DetectRedfishVersion(endpoint, uc)
-				if err != nil {
-					return nil, nil, err
-				}
-				ruleFile := fmt.Sprintf("dell_redfish_%s.yml", version)
-				rule, ok := redfish.Rules[ruleFile]
-				if !ok {
-					return nil, nil, errors.New("unknown rule file: " + ruleFile)
+				ruleGetter := func() (*redfish.CollectRule, error) {
+					version, err := lib.DetectRedfishVersion(endpoint, uc)
+					if err != nil {
+						return nil, err
+					}
+					ruleFile := fmt.Sprintf("dell_redfish_%s.yml", version)
+					rule, ok := redfish.Rules[ruleFile]
+					if !ok {
+						return nil, errors.New("unknown rule file: " + ruleFile)
+					}
+					return rule, nil
 				}
 
 				cc := &redfish.ClientConfig{
 					AddressConfig: ac,
 					UserConfig:    uc,
-					Rule:          rule,
 				}
 
 				client, err := redfish.NewRedfishClient(cc)
@@ -96,7 +100,7 @@ var rootCmd = &cobra.Command{
 					return nil, nil, err
 				}
 
-				return rule, client, nil
+				return ruleGetter, client, nil
 			default:
 				return nil, nil, errors.New("unsupported vendor hardware")
 			}
@@ -105,7 +109,7 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
-		err = startExporter(rule, client)
+		err = startExporter(ruleGetter, client)
 		if err != nil {
 			return err
 		}

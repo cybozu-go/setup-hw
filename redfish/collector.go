@@ -14,72 +14,73 @@ const namespace = "hw"
 
 // Client is an interface of a client for Redfish API.
 type Client interface {
-	traverse(ctx context.Context) dataMap
+	traverse(ctx context.Context, rule *CollectRule) collected
 }
 
-type dataMap map[string]*gabs.Container
+type collected struct {
+	data map[string]*gabs.Container
+	rule *CollectRule
+}
 
 // Collector implements prometheus.Collector interface.
 type Collector struct {
-	rule                          *CollectRule
+	ruleGetter                    RuleGetter
 	client                        Client
-	dataMap                       atomic.Value
+	collected                     atomic.Value
 	lastUpdate                    time.Time
 	lastUpdateDesc                *prometheus.Desc
 	lastUpdateDurationMinutesDesc *prometheus.Desc
 }
 
 // NewCollector returns a new instance of Collector.
-func NewCollector(rule *CollectRule, client Client) (*Collector, error) {
+func NewCollector(ruleGetter RuleGetter, client Client) (*Collector, error) {
 	desc1 := prometheus.NewDesc(prometheus.BuildFQName(namespace, "", "last_update"), "", nil, nil)
 	desc2 := prometheus.NewDesc(prometheus.BuildFQName(namespace, "", "last_update_duration_minutes"), "", nil, nil)
-	return &Collector{rule: rule, client: client, lastUpdateDesc: desc1, lastUpdateDurationMinutesDesc: desc2}, nil
+	return &Collector{ruleGetter: ruleGetter, client: client, lastUpdateDesc: desc1, lastUpdateDurationMinutesDesc: desc2}, nil
 }
 
 // Describe sends descriptions of metrics.
 func (c Collector) Describe(ch chan<- *prometheus.Desc) {
-	for _, rule := range c.rule.MetricRules {
-		for _, propertyRule := range rule.PropertyRules {
-			ch <- propertyRule.desc
-		}
-	}
 	ch <- c.lastUpdateDesc
 	ch <- c.lastUpdateDurationMinutesDesc
 }
 
 // Collect sends metrics collected from BMC via Redfish.
 func (c Collector) Collect(ch chan<- prometheus.Metric) {
-	v := c.dataMap.Load()
+	m := prometheus.MustNewConstMetric(c.lastUpdateDesc, prometheus.CounterValue, float64(c.lastUpdate.Unix()))
+	ch <- m
+	m = prometheus.MustNewConstMetric(c.lastUpdateDurationMinutesDesc, prometheus.GaugeValue, time.Now().Sub(c.lastUpdate).Minutes())
+	ch <- m
+
+	v := c.collected.Load()
 	if v == nil {
 		return
 	}
-	dataMap := v.(dataMap)
+	cl := v.(collected)
 
-	for _, rule := range c.rule.MetricRules {
-		metrics := rule.matchDataMap(dataMap)
+	for _, rule := range cl.rule.MetricRules {
+		metrics := rule.matchDataMap(cl)
 		for _, m := range metrics {
 			ch <- m
 		}
 	}
-	m, err := prometheus.NewConstMetric(c.lastUpdateDesc, prometheus.CounterValue, float64(c.lastUpdate.Unix()))
-	if err != nil {
-		log.Error("failed to register last_update", map[string]interface{}{log.FnError: err})
-	}
-	ch <- m
-	m, err = prometheus.NewConstMetric(c.lastUpdateDurationMinutesDesc, prometheus.GaugeValue, time.Now().Sub(c.lastUpdate).Minutes())
-	if err != nil {
-		log.Error("failed to register last_update_duration_minutes", map[string]interface{}{log.FnError: err})
-	}
-	ch <- m
 }
 
 // Update collects metrics from BMCs via Redfish.
 func (c *Collector) Update(ctx context.Context) {
+	log.Info("getting rule", nil)
+	rule, err := c.ruleGetter()
+	if err != nil {
+		log.Error("failed to get rule", map[string]interface{}{
+			log.FnError: err,
+		})
+		return
+	}
 	log.Info("start update", nil)
 	ctx1, cancel := context.WithTimeout(ctx, 10*time.Minute)
 	defer cancel()
-	dataMap := c.client.traverse(ctx1)
-	c.dataMap.Store(dataMap)
+	cl := c.client.traverse(ctx1, rule)
+	c.collected.Store(cl)
 	c.lastUpdate = time.Now()
 	log.Info("finish update", nil)
 }
