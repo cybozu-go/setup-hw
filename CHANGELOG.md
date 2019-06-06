@@ -5,6 +5,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.6.0] - 2019-06-06
+
+### Changed
+- Introduce timeouts for RedFish traversal (#16)
+- Dynamically detect RedFish version (#17)
+
 ## [1.5.0] - 2019-05-20
 
 ### Added
@@ -20,7 +26,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 (#12)
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/cybozu-go/setup-hw/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/cybozu-go/setup-hw/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/cybozu-go/setup-hw/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/cybozu-go/setup-hw/compare/e370989b320534a6af5b9b83d921f6312af40b42...v1.3.0
