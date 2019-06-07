@@ -55,58 +55,51 @@ var rootCmd = &cobra.Command{
 		}
 
 		var monitor func(context.Context) error
-		ruleGetter, client, err := func(vendor lib.Vendor) (redfish.RuleGetter, redfish.Client, error) {
-			switch vendor {
-			case lib.QEMU:
-				monitor = monitorQEMU
-				ruleFile := "qemu.yml"
+		var client redfish.Client
+		var ruleGetter redfish.RuleGetter
+		switch vendor {
+		case lib.QEMU:
+			monitor = monitorQEMU
+			client = redfish.NewMockClient(redfish.DummyRedfishFile)
+			ruleFile := "qemu.yml"
+			rule, ok := redfish.Rules[ruleFile]
+			if !ok {
+				return errors.New("unknown rule file: " + ruleFile)
+			}
+			ruleGetter = func() (*redfish.CollectRule, error) {
+				return rule, nil
+			}
+
+		case lib.Dell:
+			monitor = monitorDell
+			cc := &redfish.ClientConfig{
+				AddressConfig: ac,
+				UserConfig:    uc,
+			}
+			cl, err := redfish.NewRedfishClient(cc)
+			if err != nil {
+				return err
+			}
+			client = cl
+			endpoint, err := url.Parse("https://" + ac.IPv4.Address)
+			if err != nil {
+				return err
+			}
+			ruleGetter = func() (*redfish.CollectRule, error) {
+				version, err := lib.DetectRedfishVersion(endpoint, uc)
+				if err != nil {
+					return nil, err
+				}
+				ruleFile := fmt.Sprintf("dell_redfish_%s.yml", version)
 				rule, ok := redfish.Rules[ruleFile]
 				if !ok {
-					return nil, nil, errors.New("unknown rule file: " + ruleFile)
+					return nil, errors.New("unknown rule file: " + ruleFile)
 				}
-
-				client := redfish.NewMockClient(redfish.DummyRedfishFile)
-
-				return func() (*redfish.CollectRule, error) {
-					return rule, nil
-				}, client, nil
-			case lib.Dell:
-				monitor = monitorDell
-				endpoint, err := url.Parse("https://" + ac.IPv4.Address)
-				if err != nil {
-					return nil, nil, err
-				}
-
-				ruleGetter := func() (*redfish.CollectRule, error) {
-					version, err := lib.DetectRedfishVersion(endpoint, uc)
-					if err != nil {
-						return nil, err
-					}
-					ruleFile := fmt.Sprintf("dell_redfish_%s.yml", version)
-					rule, ok := redfish.Rules[ruleFile]
-					if !ok {
-						return nil, errors.New("unknown rule file: " + ruleFile)
-					}
-					return rule, nil
-				}
-
-				cc := &redfish.ClientConfig{
-					AddressConfig: ac,
-					UserConfig:    uc,
-				}
-
-				client, err := redfish.NewRedfishClient(cc)
-				if err != nil {
-					return nil, nil, err
-				}
-
-				return ruleGetter, client, nil
-			default:
-				return nil, nil, errors.New("unsupported vendor hardware")
+				return rule, nil
 			}
-		}(vendor)
-		if err != nil {
-			return err
+
+		default:
+			return errors.New("unsupported vendor hardware")
 		}
 
 		err = startExporter(ruleGetter, client)
@@ -114,10 +107,7 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
-		well.Go(func(ctx context.Context) error {
-			return monitor(ctx)
-		})
-
+		well.Go(monitor)
 		well.Stop()
 		err = well.Wait()
 		if err != nil && !well.IsSignaled(err) {
