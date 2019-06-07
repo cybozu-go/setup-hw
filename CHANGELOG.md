@@ -5,6 +5,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.6.1] - 2019-06-07
+
+### Changed
+- Fix connection leaks introcued in 1.6.0 (#18)
+
 ## [1.6.0] - 2019-06-06
 
 ### Changed
@@ -26,7 +31,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 (#12)
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.6.1...HEAD
+[1.6.1]: https://github.com/cybozu-go/setup-hw/compare/v1.6.0...v1.6.1
 [1.6.0]: https://github.com/cybozu-go/setup-hw/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/cybozu-go/setup-hw/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/cybozu-go/setup-hw/compare/v1.3.0...v1.4.0
