@@ -159,7 +159,7 @@ func TestMockClientDefaultData(t *testing.T) {
 }
 
 func checkResult(t *testing.T, rule *CollectRule, client Client, expectedSet []*expected) {
-	collector, err := NewCollector(func() (*CollectRule, error) {
+	collector, err := NewCollector(func(context.Context) (*CollectRule, error) {
 		return rule, nil
 	}, client)
 	if err != nil {

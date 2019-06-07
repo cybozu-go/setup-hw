@@ -101,14 +101,18 @@ func makeDataMap(data []byte) dataMap {
 	return dataMap
 }
 
-func (c *mockClient) traverse(ctx context.Context, rule *CollectRule) collected {
+func (c *mockClient) Traverse(ctx context.Context, rule *CollectRule) Collected {
 	cBytes, err := ioutil.ReadFile(c.filename)
 	if err != nil {
 		log.Error("cannot open dummy data file: "+c.filename, map[string]interface{}{
 			log.FnError: err,
 		})
-		return collected{data: c.defaultData, rule: rule}
+		return Collected{data: c.defaultData, rule: rule}
 	}
 
-	return collected{data: makeDataMap(cBytes), rule: rule}
+	return Collected{data: makeDataMap(cBytes), rule: rule}
+}
+
+func (c *mockClient) GetVersion(ctx context.Context) (string, error) {
+	return "1.0.0", nil
 }
