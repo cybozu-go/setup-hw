@@ -1,6 +1,7 @@
 package redfish
 
 import (
+	"context"
 	"errors"
 	"regexp"
 	"strconv"
@@ -18,7 +19,7 @@ type CollectRule struct {
 }
 
 // RuleGetter is the type to obtain dynamic rules
-type RuleGetter func() (*CollectRule, error)
+type RuleGetter func(context.Context) (*CollectRule, error)
 
 type traverseRule struct {
 	Root          string   `json:"Root" yaml:"Root"`
@@ -122,7 +123,7 @@ func (mr *metricRule) compile() error {
 	return nil
 }
 
-func (mr metricRule) matchDataMap(cl collected) []prometheus.Metric {
+func (mr metricRule) matchDataMap(cl Collected) []prometheus.Metric {
 	var results []prometheus.Metric
 
 	for path, parsedJSON := range cl.data {

@@ -14,10 +14,12 @@ const namespace = "hw"
 
 // Client is an interface of a client for Redfish API.
 type Client interface {
-	traverse(ctx context.Context, rule *CollectRule) collected
+	Traverse(ctx context.Context, rule *CollectRule) Collected
+	GetVersion(ctx context.Context) (string, error)
 }
 
-type collected struct {
+// Collected represents the collected data from Redfish
+type Collected struct {
 	data map[string]*gabs.Container
 	rule *CollectRule
 }
@@ -45,7 +47,7 @@ func (c Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.lastUpdateDurationMinutesDesc
 }
 
-// Collect sends metrics collected from BMC via Redfish.
+// Collect sends metrics Collected from BMC via Redfish.
 func (c Collector) Collect(ch chan<- prometheus.Metric) {
 	m := prometheus.MustNewConstMetric(c.lastUpdateDesc, prometheus.CounterValue, float64(c.lastUpdate.Unix()))
 	ch <- m
@@ -56,7 +58,7 @@ func (c Collector) Collect(ch chan<- prometheus.Metric) {
 	if v == nil {
 		return
 	}
-	cl := v.(collected)
+	cl := v.(Collected)
 
 	for _, rule := range cl.rule.MetricRules {
 		metrics := rule.matchDataMap(cl)
@@ -69,7 +71,7 @@ func (c Collector) Collect(ch chan<- prometheus.Metric) {
 // Update collects metrics from BMCs via Redfish.
 func (c *Collector) Update(ctx context.Context) {
 	log.Info("getting rule", nil)
-	rule, err := c.ruleGetter()
+	rule, err := c.ruleGetter(ctx)
 	if err != nil {
 		log.Error("failed to get rule", map[string]interface{}{
 			log.FnError: err,
@@ -79,7 +81,7 @@ func (c *Collector) Update(ctx context.Context) {
 	log.Info("start update", nil)
 	ctx1, cancel := context.WithTimeout(ctx, 10*time.Minute)
 	defer cancel()
-	cl := c.client.traverse(ctx1, rule)
+	cl := c.client.Traverse(ctx1, rule)
 	c.collected.Store(cl)
 	c.lastUpdate = time.Now()
 	log.Info("finish update", nil)

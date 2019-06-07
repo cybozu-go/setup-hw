@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net/url"
 
 	"github.com/cybozu-go/log"
 	"github.com/cybozu-go/setup-hw/config"
@@ -66,7 +65,7 @@ var rootCmd = &cobra.Command{
 			if !ok {
 				return errors.New("unknown rule file: " + ruleFile)
 			}
-			ruleGetter = func() (*redfish.CollectRule, error) {
+			ruleGetter = func(context.Context) (*redfish.CollectRule, error) {
 				return rule, nil
 			}
 
@@ -81,12 +80,8 @@ var rootCmd = &cobra.Command{
 				return err
 			}
 			client = cl
-			endpoint, err := url.Parse("https://" + ac.IPv4.Address)
-			if err != nil {
-				return err
-			}
-			ruleGetter = func() (*redfish.CollectRule, error) {
-				version, err := lib.DetectRedfishVersion(endpoint, uc)
+			ruleGetter = func(ctx context.Context) (*redfish.CollectRule, error) {
+				version, err := cl.GetVersion(ctx)
 				if err != nil {
 					return nil, err
 				}

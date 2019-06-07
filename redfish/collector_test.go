@@ -78,7 +78,7 @@ func testDescribe(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	collector, err := NewCollector(func() (*CollectRule, error) {
+	collector, err := NewCollector(func(context.Context) (*CollectRule, error) {
 		return cc.Rule, nil
 	}, client)
 	if err != nil {
@@ -200,7 +200,7 @@ func testCollect(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	collector, err := NewCollector(func() (*CollectRule, error) {
+	collector, err := NewCollector(func(context.Context) (*CollectRule, error) {
 		return cc.Rule, nil
 	}, client)
 	if err != nil {
@@ -215,7 +215,7 @@ func testCollect(t *testing.T) {
 		}
 		dataMap[input.urlPath] = data
 	}
-	collector.collected.Store(collected{data: dataMap, rule: cc.Rule})
+	collector.collected.Store(Collected{data: dataMap, rule: cc.Rule})
 
 	registry := prometheus.NewRegistry()
 	err = registry.Register(collector)
@@ -344,7 +344,7 @@ func testUpdate(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	collector, err := NewCollector(func() (*CollectRule, error) {
+	collector, err := NewCollector(func(context.Context) (*CollectRule, error) {
 		return cc.Rule, nil
 	}, client)
 	if err != nil {
@@ -356,7 +356,7 @@ func testUpdate(t *testing.T) {
 	if v == nil {
 		t.Fatal(errors.New("Update() did not store traversed data"))
 	}
-	cl := v.(collected)
+	cl := v.(Collected)
 
 	for _, input := range inputs {
 		if !input.needed {

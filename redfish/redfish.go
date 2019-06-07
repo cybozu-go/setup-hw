@@ -3,6 +3,8 @@ package redfish
 import (
 	"context"
 	"crypto/tls"
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -57,47 +59,55 @@ func NewRedfishClient(cc *ClientConfig) (Client, error) {
 	}, nil
 }
 
-func (c *redfishClient) traverse(ctx context.Context, rule *CollectRule) collected {
-	cl := collected{data: make(map[string]*gabs.Container), rule: rule}
+func (c *redfishClient) Traverse(ctx context.Context, rule *CollectRule) Collected {
+	cl := Collected{data: make(map[string]*gabs.Container), rule: rule}
 	c.get(ctx, rule.TraverseRule.Root, cl)
 	return cl
 }
 
-func (c *redfishClient) get(ctx context.Context, path string, cl collected) {
+func (c *redfishClient) GetVersion(ctx context.Context) (string, error) {
+	req := c.newRequest(ctx, "/redfish/v1/")
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		log.Warn("failed to GET Redfish data", map[string]interface{}{
+			"url":       req.URL.String(),
+			log.FnError: err,
+		})
+		return "", err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		log.Warn("Redfish answered non-OK", map[string]interface{}{
+			"url":       req.URL.String(),
+			"status":    resp.StatusCode,
+			log.FnError: err,
+		})
+		return "", fmt.Errorf("%d: %s", resp.StatusCode, req.URL.String())
+	}
+
+	var result struct {
+		RedifishVersion string
+	}
+	err = json.NewDecoder(resp.Body).Decode(&result)
+
+	return result.RedifishVersion, err
+}
+
+func (c *redfishClient) get(ctx context.Context, path string, cl Collected) {
 	if cl.rule.TraverseRule.excludeRegexp != nil && cl.rule.TraverseRule.excludeRegexp.MatchString(path) {
 		return
 	}
 
-	u, err := c.endpoint.Parse(path)
-	if err != nil {
-		log.Warn("failed to parse Redfish path", map[string]interface{}{
-			"path":      path,
-			log.FnError: err,
-		})
+	if _, ok := cl.data[path]; ok {
 		return
 	}
 
-	epath := u.EscapedPath()
-	if _, ok := cl.data[epath]; ok {
-		return
-	}
-
-	req, err := http.NewRequest("GET", u.String(), nil)
-	if err != nil {
-		log.Warn("failed to create GET request", map[string]interface{}{
-			"url":       u.String(),
-			log.FnError: err,
-		})
-		return
-	}
-	req.SetBasicAuth(c.user, c.password)
-	req.Header.Set("Accept", "application/json")
-	req = req.WithContext(ctx)
+	req := c.newRequest(ctx, path)
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		log.Warn("failed to GET Redfish data", map[string]interface{}{
-			"url":       u.String(),
+			"url":       req.URL.String(),
 			log.FnError: err,
 		})
 		return
@@ -106,7 +116,7 @@ func (c *redfishClient) get(ctx context.Context, path string, cl collected) {
 
 	if resp.StatusCode != http.StatusOK {
 		log.Warn("Redfish answered non-OK", map[string]interface{}{
-			"url":       u.String(),
+			"url":       req.URL.String(),
 			"status":    resp.StatusCode,
 			log.FnError: err,
 		})
@@ -116,17 +126,32 @@ func (c *redfishClient) get(ctx context.Context, path string, cl collected) {
 	parsed, err := gabs.ParseJSONBuffer(resp.Body)
 	if err != nil {
 		log.Warn("failed to parse Redfish data", map[string]interface{}{
-			"url":       u.String(),
+			"url":       req.URL.String(),
 			log.FnError: err,
 		})
 		return
 	}
-	cl.data[epath] = parsed
+	cl.data[path] = parsed
 
 	c.follow(ctx, parsed, cl)
 }
 
-func (c *redfishClient) follow(ctx context.Context, parsed *gabs.Container, cl collected) {
+func (c *redfishClient) newRequest(ctx context.Context, path string) *http.Request {
+	u := *c.endpoint
+	u.Path = path
+
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		panic(err)
+	}
+	req.SetBasicAuth(c.user, c.password)
+	req.Header.Set("Accept", "application/json")
+	req = req.WithContext(ctx)
+
+	return req
+}
+
+func (c *redfishClient) follow(ctx context.Context, parsed *gabs.Container, cl Collected) {
 	if childrenMap, err := parsed.ChildrenMap(); err == nil {
 		for k, v := range childrenMap {
 			if k != "@odata.id" {
