@@ -74,6 +74,7 @@ var rootCmd = &cobra.Command{
 			cc := &redfish.ClientConfig{
 				AddressConfig: ac,
 				UserConfig:    uc,
+				NoEscape:      true,
 			}
 			cl, err := redfish.NewRedfishClient(cc)
 			if err != nil {
