@@ -21,6 +21,7 @@ type redfishClient struct {
 	user           string
 	password       string
 	httpClient     *http.Client
+	noEscape       bool
 }
 
 // ClientConfig is a set of configurations for redfishClient.
@@ -29,6 +30,7 @@ type ClientConfig struct {
 	Port          string
 	UserConfig    *config.UserConfig
 	Rule          *CollectRule
+	NoEscape      bool
 }
 
 // NewRedfishClient create a client for Redfish API
@@ -56,6 +58,7 @@ func NewRedfishClient(cc *ClientConfig) (Client, error) {
 			Transport: transport,
 			Timeout:   5 * time.Second,
 		},
+		noEscape: cc.NoEscape,
 	}, nil
 }
 
@@ -66,7 +69,11 @@ func (c *redfishClient) Traverse(ctx context.Context, rule *CollectRule) Collect
 }
 
 func (c *redfishClient) GetVersion(ctx context.Context) (string, error) {
-	req := c.newRequest(ctx, "/redfish/v1/")
+	req, err := c.newRequest(ctx, "/redfish/v1/")
+	if err != nil {
+		panic(err)
+	}
+
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		log.Warn("failed to GET Redfish data", map[string]interface{}{
@@ -102,7 +109,14 @@ func (c *redfishClient) get(ctx context.Context, path string, cl Collected) {
 		return
 	}
 
-	req := c.newRequest(ctx, path)
+	req, err := c.newRequest(ctx, path)
+	if err != nil {
+		log.Warn("failed to create request", map[string]interface{}{
+			"path":      path,
+			log.FnError: err,
+		})
+		return
+	}
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
@@ -136,19 +150,25 @@ func (c *redfishClient) get(ctx context.Context, path string, cl Collected) {
 	c.follow(ctx, parsed, cl)
 }
 
-func (c *redfishClient) newRequest(ctx context.Context, path string) *http.Request {
-	u := *c.endpoint
-	u.Path = path
+func (c *redfishClient) newRequest(ctx context.Context, path string) (*http.Request, error) {
+	p := path
+	if !c.noEscape {
+		p = url.PathEscape(p)
+	}
+	u, err := c.endpoint.Parse(p)
+	if err != nil {
+		return nil, err
+	}
 
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	req.SetBasicAuth(c.user, c.password)
 	req.Header.Set("Accept", "application/json")
 	req = req.WithContext(ctx)
 
-	return req
+	return req, nil
 }
 
 func (c *redfishClient) follow(ctx context.Context, parsed *gabs.Container, cl Collected) {
