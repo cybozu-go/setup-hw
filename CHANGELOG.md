@@ -5,6 +5,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.6.3] - 2019-06-10
+
+### Changed
+- Fix Redfish API version detection again (#20)
+
 ## [1.6.2] - 2019-06-07
 
 ### Changed
@@ -36,7 +41,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 (#12)
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.6.2...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.6.3...HEAD
+[1.6.3]: https://github.com/cybozu-go/setup-hw/compare/v1.6.2...v1.6.3
 [1.6.2]: https://github.com/cybozu-go/setup-hw/compare/v1.6.1...v1.6.2
 [1.6.1]: https://github.com/cybozu-go/setup-hw/compare/v1.6.0...v1.6.1
 [1.6.0]: https://github.com/cybozu-go/setup-hw/compare/v1.5.0...v1.6.0
