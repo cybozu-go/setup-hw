@@ -86,11 +86,11 @@ func (c *redfishClient) GetVersion(ctx context.Context) (string, error) {
 	}
 
 	var result struct {
-		RedifishVersion string
+		RedfishVersion string
 	}
 	err = json.NewDecoder(resp.Body).Decode(&result)
 
-	return result.RedifishVersion, err
+	return result.RedfishVersion, err
 }
 
 func (c *redfishClient) get(ctx context.Context, path string, cl Collected) {
