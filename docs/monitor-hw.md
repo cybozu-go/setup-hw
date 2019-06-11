@@ -9,7 +9,7 @@ Synopsis
 --------
 
 ```console
-$ monitor-hw [--listen=<address>] [--interval=<interval>] [vendor-specific options...]
+$ monitor-hw [--listen=<address>] [--interval=<interval>] [vendor-specific options...] ROLE
 ```
 
 
@@ -31,6 +31,10 @@ and reports them as the metrics of the server for Prometheus.
 As `monitor-hw` uses the standard API of Redfish instead of dedicated tools
 like `omreport`, it can support multiple types of servers from multiple
 vendors.
+
+`monitor-hw` requires `ROLE` argument to specify the role of the machine 
+such as boot server, compute server or storage server.
+This argument is used to decide what behavior monitor-hw will do.
 
 ### Vendor specific actions
 
