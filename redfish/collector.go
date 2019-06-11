@@ -24,6 +24,11 @@ type Collected struct {
 	rule *CollectRule
 }
 
+// Data returns the collected data.
+func (c Collected) Data() map[string]*gabs.Container {
+	return c.data
+}
+
 // Collector implements prometheus.Collector interface.
 type Collector struct {
 	ruleGetter                    RuleGetter

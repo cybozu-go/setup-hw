@@ -14,14 +14,15 @@ import (
 
 // CollectRule is a set of rules of traversing and converting Redfish data.
 type CollectRule struct {
-	TraverseRule traverseRule  `json:"Traverse" yaml:"Traverse"`
+	TraverseRule TraverseRule  `json:"Traverse" yaml:"Traverse"`
 	MetricRules  []*metricRule `json:"Metrics" yaml:"Metrics"`
 }
 
 // RuleGetter is the type to obtain dynamic rules
 type RuleGetter func(context.Context) (*CollectRule, error)
 
-type traverseRule struct {
+// TraverseRule is a set of rules of traversing Redfish data.
+type TraverseRule struct {
 	Root          string   `json:"Root" yaml:"Root"`
 	ExcludeRules  []string `json:"Excludes" yaml:"Excludes"`
 	excludeRegexp *regexp.Regexp
@@ -76,7 +77,7 @@ func (cr *CollectRule) Compile() error {
 	return nil
 }
 
-func (tr traverseRule) validate() error {
+func (tr TraverseRule) validate() error {
 	if tr.Root == "" {
 		return errors.New("`Root` is mandatory for traverse rule")
 	}
@@ -84,7 +85,7 @@ func (tr traverseRule) validate() error {
 	return nil
 }
 
-func (tr *traverseRule) compile() error {
+func (tr *TraverseRule) compile() error {
 	if len(tr.ExcludeRules) > 0 {
 		excludes := strings.Join(tr.ExcludeRules, "|")
 		r, err := regexp.Compile(excludes)

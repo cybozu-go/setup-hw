@@ -94,7 +94,7 @@ func init() {
 var Rules = map[string]*CollectRule{
 	{{- range $key, $value := . }}
 	{{ printf "%q" $key }}: {
-		TraverseRule: traverseRule{
+		TraverseRule: TraverseRule{
 			Root: {{ printf "%q" $value.TraverseRule.Root }},
 			ExcludeRules: []string{
 				{{- range $value.TraverseRule.ExcludeRules }}

@@ -17,7 +17,7 @@ func init() {
 
 var Rules = map[string]*CollectRule{
 	"dell_redfish_1.0.2.yml": {
-		TraverseRule: traverseRule{
+		TraverseRule: TraverseRule{
 			Root: "/redfish/v1",
 			ExcludeRules: []string{
 				"/JSONSchemas",
@@ -197,7 +197,7 @@ var Rules = map[string]*CollectRule{
 		},
 	},
 	"dell_redfish_1.2.0.yml": {
-		TraverseRule: traverseRule{
+		TraverseRule: TraverseRule{
 			Root: "/redfish/v1",
 			ExcludeRules: []string{
 				"/JSONSchemas",
@@ -382,7 +382,7 @@ var Rules = map[string]*CollectRule{
 		},
 	},
 	"dell_redfish_1.4.0.yml": {
-		TraverseRule: traverseRule{
+		TraverseRule: TraverseRule{
 			Root: "/redfish/v1",
 			ExcludeRules: []string{
 				"/JSONSchemas",
@@ -567,7 +567,7 @@ var Rules = map[string]*CollectRule{
 		},
 	},
 	"qemu.yml": {
-		TraverseRule: traverseRule{
+		TraverseRule: TraverseRule{
 			Root:         "/redfish/v1",
 			ExcludeRules: []string{},
 		},
