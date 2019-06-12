@@ -102,11 +102,11 @@ var Rules = map[string]*CollectRule{
 				{{- end }}
 			},
 		},
-		MetricRules: []*metricRule{
+		MetricRules: []*MetricRule{
 			{{- range $value.MetricRules }}
 			{
 				Path: {{ printf "%q" .Path }},
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{{- range .PropertyRules }}
 					{
 						Pointer: {{ printf "%q" .Pointer }},

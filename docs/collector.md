@@ -9,7 +9,7 @@ Synopsis
 ```console
 $ collector show [--input-file=<file>]
 $ collector list-status [--input-file=<file>]
-$ collector generate-rule [--input-file=<file>] [--key=<key>...]
+$ collector generate-rule [--input-file=<file>] [--key=<key>:<type>...]
 ```
 
 Description
@@ -44,7 +44,7 @@ The output is formatted as a JSON object whose keys are URL paths and whose valu
 it just lists all page paths.
 
 `collector generate-rule` summarizes keys if they are in a list.
-It generates `Pointer` of `/foo/{TBD}/Status` if it finds `Status` keys in the list at `/foo`.
+It generates `Pointer` of `/foo/{TBD}/Status` if it finds a `Status` key in the first item of the list at `/foo`.
 This is based on [patterns](rule.md#patterned-pointer) in a collection rule.
 
 Options
@@ -54,7 +54,7 @@ Options
 `collector` accesses Redfish on the local machine without this option.
 The format of the input data file is same as that of the output of `collector show`.
 
-`--key=<key>` specifies the key to find in generating a rule file.
+`--key=<key>:<type>` specifies the property key to be searched in generating a rule file, followed by the type of the property.
 This can be specified in the `generate-rule` mode only.
 This option can be specified multiple times.
 

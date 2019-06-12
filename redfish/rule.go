@@ -15,7 +15,7 @@ import (
 // CollectRule is a set of rules of traversing and converting Redfish data.
 type CollectRule struct {
 	TraverseRule TraverseRule  `json:"Traverse" yaml:"Traverse"`
-	MetricRules  []*metricRule `json:"Metrics" yaml:"Metrics"`
+	MetricRules  []*MetricRule `json:"Metrics" yaml:"Metrics"`
 }
 
 // RuleGetter is the type to obtain dynamic rules
@@ -28,12 +28,14 @@ type TraverseRule struct {
 	excludeRegexp *regexp.Regexp
 }
 
-type metricRule struct {
+// MetricRule is a set of rules of converting Redfish data for one URL path or patterned-path.
+type MetricRule struct {
 	Path          string          `json:"Path" yaml:"Path"`
-	PropertyRules []*propertyRule `json:"Properties" yaml:"Properties"`
+	PropertyRules []*PropertyRule `json:"Properties" yaml:"Properties"`
 }
 
-type propertyRule struct {
+// PropertyRule is a rule of converting Redfish data into a Prometheus metric.
+type PropertyRule struct {
 	Pointer   string `json:"Pointer" yaml:"Pointer"`
 	Name      string `json:"Name" yaml:"Name"`
 	Help      string `json:"Help" yaml:"Help"`
@@ -98,7 +100,7 @@ func (tr *TraverseRule) compile() error {
 	return nil
 }
 
-func (mr metricRule) validate() error {
+func (mr MetricRule) validate() error {
 	if mr.Path == "" {
 		return errors.New("`Path` is mandatory for metric rule")
 	}
@@ -112,7 +114,7 @@ func (mr metricRule) validate() error {
 	return nil
 }
 
-func (mr *metricRule) compile() error {
+func (mr *MetricRule) compile() error {
 	labelNames := getLabelNamesInPath(mr.Path)
 
 	for _, propertyRule := range mr.PropertyRules {
@@ -124,7 +126,7 @@ func (mr *metricRule) compile() error {
 	return nil
 }
 
-func (mr metricRule) matchDataMap(cl Collected) []prometheus.Metric {
+func (mr MetricRule) matchDataMap(cl Collected) []prometheus.Metric {
 	var results []prometheus.Metric
 
 	for path, parsedJSON := range cl.data {
@@ -137,7 +139,7 @@ func (mr metricRule) matchDataMap(cl Collected) []prometheus.Metric {
 	return results
 }
 
-func (mr metricRule) matchPath(path string) (bool, []string) {
+func (mr MetricRule) matchPath(path string) (bool, []string) {
 	ruleElements := strings.Split(mr.Path, "/")
 	pathElements := strings.Split(path, "/")
 
@@ -157,7 +159,7 @@ func (mr metricRule) matchPath(path string) (bool, []string) {
 	return true, labelValues
 }
 
-func (mr metricRule) matchData(parsedJSON *gabs.Container, pathLabelValues []string, loggedPath string) []prometheus.Metric {
+func (mr MetricRule) matchData(parsedJSON *gabs.Container, pathLabelValues []string, loggedPath string) []prometheus.Metric {
 	var results []prometheus.Metric
 
 	for _, propertyRule := range mr.PropertyRules {
@@ -168,7 +170,7 @@ func (mr metricRule) matchData(parsedJSON *gabs.Container, pathLabelValues []str
 	return results
 }
 
-func (pr propertyRule) validate() error {
+func (pr PropertyRule) validate() error {
 	if pr.Pointer == "" {
 		return errors.New("`Pointer` is mandatory for property rule")
 	}
@@ -189,7 +191,7 @@ func (pr propertyRule) validate() error {
 	return nil
 }
 
-func (pr *propertyRule) compile(pathLabelNames []string) error {
+func (pr *PropertyRule) compile(pathLabelNames []string) error {
 	pr.converter = typeToConverters[pr.Type]
 
 	labelNames := getLabelNamesInPath(pr.Pointer)
@@ -199,7 +201,7 @@ func (pr *propertyRule) compile(pathLabelNames []string) error {
 	return nil
 }
 
-func (pr propertyRule) matchPointer(parsedJSON *gabs.Container, pathLabelValues []string, loggedPath string) []prometheus.Metric {
+func (pr PropertyRule) matchPointer(parsedJSON *gabs.Container, pathLabelValues []string, loggedPath string) []prometheus.Metric {
 	var results []prometheus.Metric
 
 	matchedProperties := pr.matchPointerAux(pr.Pointer, parsedJSON, loggedPath)
@@ -223,7 +225,7 @@ func (pr propertyRule) matchPointer(parsedJSON *gabs.Container, pathLabelValues 
 	return results
 }
 
-func (pr propertyRule) matchPointerAux(pointer string, parsedJSON *gabs.Container, loggedPath string) []matchedProperty {
+func (pr PropertyRule) matchPointerAux(pointer string, parsedJSON *gabs.Container, loggedPath string) []matchedProperty {
 	hasIndexPattern, subPointer, remainder := pr.splitPointer(pointer)
 	if !hasIndexPattern {
 		v := pr.matchPlainPointer(pointer, parsedJSON)
@@ -285,7 +287,7 @@ func (pr propertyRule) matchPointerAux(pointer string, parsedJSON *gabs.Containe
 	return result
 }
 
-func (pr propertyRule) splitPointer(pointer string) (hasIndexPattern bool, subPointer, remainder string) {
+func (pr PropertyRule) splitPointer(pointer string) (hasIndexPattern bool, subPointer, remainder string) {
 	ts := strings.Split(pointer, "/")
 	for i, t := range ts {
 		if _, ok := getLabelName(t); ok {
@@ -300,7 +302,7 @@ func (pr propertyRule) splitPointer(pointer string) (hasIndexPattern bool, subPo
 	return false, "", ""
 }
 
-func (pr propertyRule) matchPlainPointer(pointer string, parsedJSON *gabs.Container) *gabs.Container {
+func (pr PropertyRule) matchPlainPointer(pointer string, parsedJSON *gabs.Container) *gabs.Container {
 	p := strings.ReplaceAll(pointer[1:], "/", ".")
 	return parsedJSON.Path(p)
 }

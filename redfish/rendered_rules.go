@@ -40,10 +40,10 @@ var Rules = map[string]*CollectRule{
 				"/redfish/v1/Chassis/$",
 			},
 		},
-		MetricRules: []*metricRule{
+		MetricRules: []*MetricRule{
 			{
 				Path: "/redfish/v1/Chassis/{chassis}",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
 						Name:    "chassis_status_health",
@@ -54,7 +54,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Chassis/{chassis}/Power",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/PowerSupplies/{psu}/Status/Health",
 						Name:    "chassis_psu_status_health",
@@ -77,7 +77,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Chassis/{chassis}/Thermal",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Fans/{fan}/Status/Health",
 						Name:    "chassis_fan_status_health",
@@ -106,7 +106,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Systems/{system}",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
 						Name:    "system_status_health",
@@ -135,7 +135,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Systems/{system}/EthernetInterfaces/{interface}",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
 						Name:    "network_status_health",
@@ -146,7 +146,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Systems/{system}/Processors/{processor}",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
 						Name:    "processor_status_health",
@@ -157,7 +157,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Systems/{system}/Storage/Controllers/{controller}",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
 						Name:    "storage_controller_status_health",
@@ -174,7 +174,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Managers/{manager}",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
 						Name:    "manager_status_health",
@@ -185,7 +185,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Managers/{manager}/EthernetInterfaces/{interface}",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
 						Name:    "manager_network_status_health",
@@ -220,10 +220,10 @@ var Rules = map[string]*CollectRule{
 				"/redfish/v1/Chassis/$",
 			},
 		},
-		MetricRules: []*metricRule{
+		MetricRules: []*MetricRule{
 			{
 				Path: "/redfish/v1/Chassis/{chassis}",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
 						Name:    "chassis_status_health",
@@ -234,7 +234,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Chassis/{chassis}/Power",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/PowerSupplies/{psu}/Status/Health",
 						Name:    "chassis_psu_status_health",
@@ -257,7 +257,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Chassis/{chassis}/Thermal",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Fans/{fan}/Status/Health",
 						Name:    "chassis_fan_status_health",
@@ -286,7 +286,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Systems/{system}",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
 						Name:    "system_status_health",
@@ -315,7 +315,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Systems/{system}/EthernetInterfaces/{interface}",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
 						Name:    "network_status_health",
@@ -326,7 +326,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Systems/{system}/Processors/{processor}",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
 						Name:    "processor_status_health",
@@ -337,7 +337,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Systems/{system}/Storage/{controller}",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
 						Name:    "storage_controller_status_health",
@@ -348,7 +348,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Systems/{system}/Storage/Drives/{device}",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
 						Name:    "storage_device_status_health",
@@ -359,7 +359,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Managers/{manager}",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
 						Name:    "manager_status_health",
@@ -370,7 +370,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Managers/{manager}/EthernetInterfaces/{interface}",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
 						Name:    "manager_network_status_health",
@@ -405,10 +405,10 @@ var Rules = map[string]*CollectRule{
 				"/redfish/v1/Chassis/$",
 			},
 		},
-		MetricRules: []*metricRule{
+		MetricRules: []*MetricRule{
 			{
 				Path: "/redfish/v1/Chassis/{chassis}",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
 						Name:    "chassis_status_health",
@@ -419,7 +419,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Chassis/{chassis}/Power",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/PowerSupplies/{psu}/Status/Health",
 						Name:    "chassis_psu_status_health",
@@ -442,7 +442,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Chassis/{chassis}/Thermal",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Fans/{fan}/Status/Health",
 						Name:    "chassis_fan_status_health",
@@ -471,7 +471,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Systems/{system}",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
 						Name:    "system_status_health",
@@ -500,7 +500,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Systems/{system}/EthernetInterfaces/{interface}",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
 						Name:    "network_status_health",
@@ -511,7 +511,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Systems/{system}/Processors/{processor}",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
 						Name:    "processor_status_health",
@@ -522,7 +522,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Systems/{system}/Storage/{controller}",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
 						Name:    "storage_controller_status_health",
@@ -533,7 +533,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Systems/{system}/Storage/Drives/{device}",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
 						Name:    "storage_device_status_health",
@@ -544,7 +544,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Managers/{manager}",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
 						Name:    "manager_status_health",
@@ -555,7 +555,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Managers/{manager}/EthernetInterfaces/{interface}",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
 						Name:    "manager_network_status_health",
@@ -571,10 +571,10 @@ var Rules = map[string]*CollectRule{
 			Root:         "/redfish/v1",
 			ExcludeRules: []string{},
 		},
-		MetricRules: []*metricRule{
+		MetricRules: []*MetricRule{
 			{
 				Path: "/redfish/v1/Systems/{system}/Processors/{processor}",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
 						Name:    "processor_status_health",
@@ -585,7 +585,7 @@ var Rules = map[string]*CollectRule{
 			},
 			{
 				Path: "/redfish/v1/Systems/{system}/Storage/{controller}",
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
 						Name:    "storage_controller_status_health",

@@ -11,6 +11,8 @@ How to update rule
 1. List up keys that you want to collect metrics. Such as `Status`, `ReadingCelsius`.
 1. Run `collector generate-rule` with the keys on nodes by hardware type.
 1. Edit the generated rule file.
+    1. Add `Traverse` and its descendants fields.
+
     1. Combine rules with similar path.
     
         You will get a generated rules like the following.
