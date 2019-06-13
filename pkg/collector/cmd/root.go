@@ -13,6 +13,8 @@ const defaultRootPath = "/redfish/v1"
 
 var rootConfig struct {
 	inputFile string
+	excludes  []string
+	rootPath  string
 }
 
 // rootCmd represents the base command when called without any subcommands
@@ -47,4 +49,6 @@ func Execute() {
 
 func init() {
 	rootCmd.PersistentFlags().StringVar(&rootConfig.inputFile, "input-file", "", "pre-collected Redfish data")
+	rootCmd.PersistentFlags().StringVar(&rootConfig.rootPath, "root", defaultRootPath, "Redfish API root path")
+	rootCmd.PersistentFlags().StringSliceVar(&rootConfig.excludes, "exclude", nil, "path pattern excluded in traverse")
 }

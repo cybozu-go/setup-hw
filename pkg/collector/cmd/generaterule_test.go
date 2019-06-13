@@ -107,7 +107,7 @@ func TestGenerateRule(t *testing.T) {
 			key: "LineInputVoltage",
 			typ: "number",
 		},
-	})
+	}, defaultRootPath)
 
 	if !reflect.DeepEqual(result, expected) {
 		expectedOut, err := yaml.Marshal(expected)

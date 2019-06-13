@@ -36,10 +36,10 @@ type MetricRule struct {
 
 // PropertyRule is a rule of converting Redfish data into a Prometheus metric.
 type PropertyRule struct {
-	Pointer   string `json:"Pointer" yaml:"Pointer"`
-	Name      string `json:"Name" yaml:"Name"`
-	Help      string `json:"Help" yaml:"Help"`
-	Type      string `json:"Type" yaml:"Type"`
+	Pointer   string `json:"Pointer"        yaml:"Pointer"`
+	Name      string `json:"Name"           yaml:"Name"`
+	Help      string `json:"Help,omitempty" yaml:"Help,omitempty"`
+	Type      string `json:"Type"           yaml:"Type"`
 	converter converter
 	desc      *prometheus.Desc
 }
@@ -85,6 +85,13 @@ func (tr TraverseRule) validate() error {
 	}
 
 	return nil
+}
+
+func (tr TraverseRule) NeedTraverse(path string) bool {
+	if tr.excludeRegexp != nil && tr.excludeRegexp.MatchString(path) {
+		return false
+	}
+	return true
 }
 
 func (tr *TraverseRule) compile() error {

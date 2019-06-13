@@ -10,7 +10,18 @@ import (
 	"github.com/cybozu-go/setup-hw/redfish"
 )
 
-func collectOrLoad(ctx context.Context, inputFile string, rootPath string) (map[string]*gabs.Container, error) {
+func collectOrLoad(ctx context.Context, inputFile string, rootPath string, excludes []string) (map[string]*gabs.Container, error) {
+	rule := &redfish.CollectRule{
+		TraverseRule: redfish.TraverseRule{
+			Root:         rootPath,
+			ExcludeRules: excludes,
+		},
+	}
+	err := rule.Compile()
+	if err != nil {
+		return nil, err
+	}
+
 	if len(inputFile) == 0 {
 		ac, uc, err := config.LoadConfig()
 		if err != nil {
@@ -25,12 +36,6 @@ func collectOrLoad(ctx context.Context, inputFile string, rootPath string) (map[
 		client, err := redfish.NewRedfishClient(cc)
 		if err != nil {
 			return nil, err
-		}
-
-		rule := &redfish.CollectRule{
-			TraverseRule: redfish.TraverseRule{
-				Root: rootPath,
-			},
 		}
 
 		collected := client.Traverse(ctx, rule)
@@ -50,6 +55,9 @@ func collectOrLoad(ctx context.Context, inputFile string, rootPath string) (map[
 
 	data := make(map[string]*gabs.Container)
 	for k, v := range input {
+		if !rule.TraverseRule.NeedTraverse(k) {
+			continue
+		}
 		c, err := gabs.Consume(v)
 		if err != nil {
 			return nil, err

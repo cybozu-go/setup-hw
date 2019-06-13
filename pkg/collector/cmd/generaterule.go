@@ -15,8 +15,7 @@ import (
 )
 
 var generateRuleConfig struct {
-	keys     []string
-	rootPath string
+	keys []string
 }
 
 type keyType struct {
@@ -44,15 +43,16 @@ var generateRuleCmd = &cobra.Command{
 		}
 
 		well.Go(func(ctx context.Context) error {
-			data, err := collectOrLoad(ctx, rootConfig.inputFile, generateRuleConfig.rootPath)
+			data, err := collectOrLoad(ctx, rootConfig.inputFile, rootConfig.rootPath, rootConfig.excludes)
 			if err != nil {
 				return err
 			}
 
-			rules := generateRule(data, keyTypes, generateRuleConfig.rootPath)
+			rules := generateRule(data, keyTypes, rootConfig.rootPath)
 			collectRule := &redfish.CollectRule{
 				TraverseRule: redfish.TraverseRule{
-					Root: generateRuleConfig.rootPath,
+					Root:         rootConfig.rootPath,
+					ExcludeRules: rootConfig.excludes,
 				},
 				MetricRules: rules,
 			}
@@ -154,5 +154,4 @@ func init() {
 	rootCmd.AddCommand(generateRuleCmd)
 
 	generateRuleCmd.Flags().StringSliceVar(&generateRuleConfig.keys, "key", nil, "Redfish data key to find")
-	generateRuleCmd.Flags().StringVar(&generateRuleConfig.rootPath, "root", defaultRootPath, "Redfish API root path")
 }

@@ -9,10 +9,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var showConfig struct {
-	rootPath string
-}
-
 // showCmd represents the show command
 var showCmd = &cobra.Command{
 	Use:   "show",
@@ -21,7 +17,7 @@ var showCmd = &cobra.Command{
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		well.Go(func(ctx context.Context) error {
-			data, err := collectOrLoad(ctx, rootConfig.inputFile, showConfig.rootPath)
+			data, err := collectOrLoad(ctx, rootConfig.inputFile, rootConfig.rootPath, rootConfig.excludes)
 			if err != nil {
 				return err
 			}
@@ -53,5 +49,4 @@ var showCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(showCmd)
-	showCmd.Flags().StringVar(&showConfig.rootPath, "root", defaultRootPath, "Redfish API root path")
 }
