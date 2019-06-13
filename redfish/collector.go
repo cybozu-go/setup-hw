@@ -18,15 +18,28 @@ type Client interface {
 	GetVersion(ctx context.Context) (string, error)
 }
 
+// NewCollected creates a new Collected instance
+func NewCollected(data map[string]*gabs.Container, rule *CollectRule) *Collected {
+	return &Collected{
+		data: data,
+		rule: rule,
+	}
+}
+
 // Collected represents the collected data from Redfish
 type Collected struct {
 	data map[string]*gabs.Container
 	rule *CollectRule
 }
 
-// Data returns the collected data.
+// Data returns the collected data
 func (c Collected) Data() map[string]*gabs.Container {
 	return c.data
+}
+
+// Rule returns the rul.
+func (c Collected) Rule() *CollectRule {
+	return c.rule
 }
 
 // Collector implements prometheus.Collector interface.

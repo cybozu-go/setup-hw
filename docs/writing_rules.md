@@ -8,6 +8,9 @@ How to update rule
 ------------------
 
 1. Run `collector show`.
+   ```console
+   ./collector show --no-dup=true --ignore-field=Attributes --ignore-field="@odata.*" --omitempty --base-rule=base-rule.yaml
+   ```
 1. List up keys that you want to collect metrics. Such as `Status`, `ReadingCelsius`.
 1. Run `collector generate-rule` with the keys on nodes by hardware type.
 1. Edit the generated rule file.

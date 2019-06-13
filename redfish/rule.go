@@ -87,6 +87,7 @@ func (tr TraverseRule) validate() error {
 	return nil
 }
 
+// NeedTraverse returns whether the path need to be traverse
 func (tr TraverseRule) NeedTraverse(path string) bool {
 	if tr.excludeRegexp != nil && tr.excludeRegexp.MatchString(path) {
 		return false
@@ -137,7 +138,7 @@ func (mr MetricRule) matchDataMap(cl Collected) []prometheus.Metric {
 	var results []prometheus.Metric
 
 	for path, parsedJSON := range cl.data {
-		if matched, pathLabelValues := mr.matchPath(path); matched {
+		if matched, pathLabelValues := mr.MatchPath(path); matched {
 			metrics := mr.matchData(parsedJSON, pathLabelValues, path)
 			results = append(results, metrics...)
 		}
@@ -146,7 +147,8 @@ func (mr MetricRule) matchDataMap(cl Collected) []prometheus.Metric {
 	return results
 }
 
-func (mr MetricRule) matchPath(path string) (bool, []string) {
+// MatchPath returns whether the path matches the rule
+func (mr MetricRule) MatchPath(path string) (bool, []string) {
 	ruleElements := strings.Split(mr.Path, "/")
 	pathElements := strings.Split(path, "/")
 

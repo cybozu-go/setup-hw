@@ -43,12 +43,12 @@ var generateRuleCmd = &cobra.Command{
 		}
 
 		well.Go(func(ctx context.Context) error {
-			data, err := collectOrLoad(ctx, rootConfig.inputFile, rootConfig.rootPath, rootConfig.excludes)
+			collected, err := collectOrLoad(ctx, rootConfig.inputFile, rootConfig.baseRules)
 			if err != nil {
 				return err
 			}
 
-			rules := generateRule(data, keyTypes, rootConfig.rootPath)
+			rules := generateRule(collected.Data(), keyTypes, rootConfig.rootPath)
 			collectRule := &redfish.CollectRule{
 				TraverseRule: redfish.TraverseRule{
 					Root:         rootConfig.rootPath,

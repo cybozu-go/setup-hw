@@ -3,22 +3,38 @@ package cmd
 import (
 	"context"
 	"encoding/json"
+	"io/ioutil"
 	"os"
 
 	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/setup-hw/gabs"
 	"github.com/cybozu-go/setup-hw/redfish"
+	"github.com/ghodss/yaml"
 )
 
-func collectOrLoad(ctx context.Context, inputFile string, rootPath string, excludes []string) (map[string]*gabs.Container, error) {
-	rule := &redfish.CollectRule{
-		TraverseRule: redfish.TraverseRule{
-			Root:         rootPath,
-			ExcludeRules: excludes,
-		},
+func collectOrLoad(ctx context.Context, inputFile string, baseRule string) (*redfish.Collected, error) {
+	var rule *redfish.CollectRule
+	if len(baseRule) != 0 {
+		data, err := ioutil.ReadFile(baseRule)
+		if err != nil {
+			return nil, err
+		}
+		rule = new(redfish.CollectRule)
+		err = yaml.Unmarshal(data, rule)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		rule = &redfish.CollectRule{
+			TraverseRule: redfish.TraverseRule{
+				Root: defaultRootPath,
+			},
+		}
 	}
-	err := rule.Compile()
-	if err != nil {
+	if err := rule.Validate(); err != nil {
+		return nil, err
+	}
+	if err := rule.Compile(); err != nil {
 		return nil, err
 	}
 
@@ -39,7 +55,7 @@ func collectOrLoad(ctx context.Context, inputFile string, rootPath string, exclu
 		}
 
 		collected := client.Traverse(ctx, rule)
-		return collected.Data(), nil
+		return &collected, nil
 	}
 
 	f, err := os.Open(inputFile)
@@ -64,5 +80,5 @@ func collectOrLoad(ctx context.Context, inputFile string, rootPath string, exclu
 		}
 		data[k] = c
 	}
-	return data, nil
+	return redfish.NewCollected(data, rule), nil
 }
