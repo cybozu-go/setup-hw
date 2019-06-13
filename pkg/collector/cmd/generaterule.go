@@ -14,8 +14,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var keys []string
-var keyTypes []*keyType
+var generateRuleConfig struct {
+	keys     []string
+	rootPath string
+}
 
 type keyType struct {
 	key string
@@ -29,8 +31,8 @@ var generateRuleCmd = &cobra.Command{
 	Long:  `output a collection rule to collect specified keys as metrics.`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
-		keyTypes = make([]*keyType, len(keys))
-		for i, k := range keys {
+		keyTypes := make([]*keyType, len(generateRuleConfig.keys))
+		for i, k := range generateRuleConfig.keys {
 			ks := strings.Split(k, ":")
 			if len(ks) != 2 {
 				return fmt.Errorf("key must be given as 'key:type': %s", k)
@@ -42,14 +44,20 @@ var generateRuleCmd = &cobra.Command{
 		}
 
 		well.Go(func(ctx context.Context) error {
-			data, err := collectOrLoad(ctx, inputFile)
+			data, err := collectOrLoad(ctx, rootConfig.inputFile, generateRuleConfig.rootPath)
 			if err != nil {
 				return err
 			}
 
-			rules := generateRule(data, keyTypes)
+			rules := generateRule(data, keyTypes, generateRuleConfig.rootPath)
+			collectRule := &redfish.CollectRule{
+				TraverseRule: redfish.TraverseRule{
+					Root: generateRuleConfig.rootPath,
+				},
+				MetricRules: rules,
+			}
 
-			out, err := yaml.Marshal(rules)
+			out, err := yaml.Marshal(collectRule)
 			if err != nil {
 				return err
 			}
@@ -69,17 +77,11 @@ var generateRuleCmd = &cobra.Command{
 	},
 }
 
-func init() {
-	rootCmd.AddCommand(generateRuleCmd)
-
-	generateRuleCmd.Flags().StringSliceVar(&keys, "key", nil, "Redfish data key to find")
-}
-
-func generateRule(data map[string]*gabs.Container, keyTypes []*keyType) []*redfish.MetricRule {
+func generateRule(data map[string]*gabs.Container, keyTypes []*keyType, rootPath string) []*redfish.MetricRule {
 	var rules []*redfish.MetricRule
 
 	for path, parsedJSON := range data {
-		prefix := normalize(strings.ReplaceAll(path[len("/redfish/v1"):], "/", "_"))
+		prefix := normalize(strings.ReplaceAll(path[len(rootPath):], "/", "_"))
 		propertyRules := generateRuleAux(parsedJSON, keyTypes, "", prefix, []*redfish.PropertyRule{})
 
 		if len(propertyRules) > 0 {
@@ -146,4 +148,11 @@ func normalize(key string) string {
 		}
 		return -1
 	}, key)
+}
+
+func init() {
+	rootCmd.AddCommand(generateRuleCmd)
+
+	generateRuleCmd.Flags().StringSliceVar(&generateRuleConfig.keys, "key", nil, "Redfish data key to find")
+	generateRuleCmd.Flags().StringVar(&generateRuleConfig.rootPath, "root", defaultRootPath, "Redfish API root path")
 }

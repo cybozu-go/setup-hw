@@ -10,7 +10,7 @@ import (
 	"github.com/cybozu-go/setup-hw/redfish"
 )
 
-func collectOrLoad(ctx context.Context, inputFile string) (map[string]*gabs.Container, error) {
+func collectOrLoad(ctx context.Context, inputFile string, rootPath string) (map[string]*gabs.Container, error) {
 	if len(inputFile) == 0 {
 		ac, uc, err := config.LoadConfig()
 		if err != nil {
@@ -29,7 +29,7 @@ func collectOrLoad(ctx context.Context, inputFile string) (map[string]*gabs.Cont
 
 		rule := &redfish.CollectRule{
 			TraverseRule: redfish.TraverseRule{
-				Root: "/redfish/v1",
+				Root: rootPath,
 			},
 		}
 

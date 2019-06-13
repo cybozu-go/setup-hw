@@ -9,7 +9,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var inputFile string
+const defaultRootPath = "/redfish/v1"
+
+var rootConfig struct {
+	inputFile string
+}
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -42,5 +46,5 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVar(&inputFile, "input-file", "", "precollected Redfish data")
+	rootCmd.PersistentFlags().StringVar(&rootConfig.inputFile, "input-file", "", "pre-collected Redfish data")
 }
