@@ -126,7 +126,7 @@ func leaveFirstItem(ctx context.Context, parsed *gabs.Container) int {
 	if childrenMap, err := parsed.ChildrenMap(); err == nil {
 		for k, v := range childrenMap {
 			count := leaveFirstItem(ctx, v)
-			for i := count; i > 0; i-- {
+			for i := count - 1; i > 0; i-- {
 				err = parsed.ArrayRemove(i, k)
 				if err != nil {
 					log.Warn("failed to remove", map[string]interface{}{
@@ -143,7 +143,7 @@ func leaveFirstItem(ctx context.Context, parsed *gabs.Container) int {
 	if children, err := parsed.Children(); err == nil {
 		if len(children) > 0 {
 			count := leaveFirstItem(ctx, children[0])
-			for i := count; i > 0; i-- {
+			for i := count - 1; i > 0; i-- {
 				err = parsed.ArrayRemove(i)
 				if err != nil {
 					log.Warn("failed to remove", map[string]interface{}{
