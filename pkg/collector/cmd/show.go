@@ -51,7 +51,9 @@ var showCmd = &cobra.Command{
 					pickup(ctx, v, showConfig.ignoreRegexp, showConfig.noDup)
 				}
 				if showConfig.omitempty {
-					omitEmpty(ctx, v)
+					if omitEmpty(ctx, v) {
+						delete(collected.Data(), k)
+					}
 				}
 				if showConfig.keysOnly {
 					result[k] = struct{}{}
@@ -129,66 +131,53 @@ func pickup(ctx context.Context, parsed *gabs.Container, ignorePattern *regexp.R
 	}
 }
 
-func omitEmpty(ctx context.Context, parsed *gabs.Container) {
-	if childrenMap, err := parsed.ChildrenMap(); err == nil {
+func omitEmpty(ctx context.Context, current *gabs.Container) bool {
+	if childrenMap, err := current.ChildrenMap(); err == nil {
 		for k, v := range childrenMap {
-			omitEmpty(ctx, v)
-			if chMap, err := v.ChildrenMap(); err == nil {
-				if len(chMap) == 0 {
-					err = parsed.Delete(k)
-					if err != nil {
-						log.Warn("failed to delete", map[string]interface{}{
-							log.FnError: err,
-							"key":       k,
-						})
-					}
-					continue
-				}
-			}
-			if chArray, err := v.Children(); err == nil {
-				if len(chArray) == 0 {
-					err = parsed.Delete(k)
-					if err != nil {
-						log.Warn("failed to delete", map[string]interface{}{
-							log.FnError: err,
-							"key":       k,
-						})
-					}
-					continue
+			if omitEmpty(ctx, v) {
+				log.Warn("delete", map[string]interface{}{
+					log.FnError: err,
+					"key":       k,
+				})
+				err = current.Delete(k)
+				if err != nil {
+					log.Warn("failed to delete", map[string]interface{}{
+						log.FnError: err,
+						"key":       k,
+					})
 				}
 			}
 		}
+		childrenMap, err = current.ChildrenMap()
+		if err != nil {
+			panic(err)
+		}
+		return len(childrenMap) == 0
 	}
-	if child, err := parsed.Children(); err == nil {
-		for i := len(child) - 1; i >= 0; i-- {
-			v := child[i]
-			omitEmpty(ctx, v)
-			if chMap, err := v.ChildrenMap(); err == nil {
-				if len(chMap) == 0 {
-					err = parsed.ArrayRemove(i)
-					if err != nil {
-						log.Warn("failed to remove", map[string]interface{}{
-							log.FnError: err,
-							"index":     i,
-						})
-					}
-					continue
-				}
-			}
-			if chArray, err := v.Children(); err == nil {
-				if len(chArray) == 0 {
-					err = parsed.ArrayRemove(i)
-					if err != nil {
-						log.Warn("failed to remove", map[string]interface{}{
-							log.FnError: err,
-							"index":     i,
-						})
-					}
-					continue
+	if children, err := current.Children(); err == nil {
+		for i := len(children) - 1; i >= 0; i-- {
+			v := children[i]
+			if omitEmpty(ctx, v) {
+				err = current.ArrayRemove(i)
+				log.Warn("remove", map[string]interface{}{
+					log.FnError: err,
+					"key":       i,
+				})
+				if err != nil {
+					log.Warn("failed to remove", map[string]interface{}{
+						log.FnError: err,
+						"index":     i,
+					})
 				}
 			}
 		}
+		children, err = current.Children()
+		if err != nil {
+			panic(err)
+		}
+		return len(children) == 0
 	}
+	return false
 }
 
 func init() {
