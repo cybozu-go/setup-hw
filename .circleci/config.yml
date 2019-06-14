@@ -13,6 +13,7 @@ jobs:
           paths:
             - setup-hw
             - monitor-hw
+            - collector
   build-image:
     working_directory: /app
     docker:
@@ -26,6 +27,7 @@ jobs:
           command: |
             cp /tmp/workspace/setup-hw docker
             cp /tmp/workspace/monitor-hw docker
+            cp /tmp/workspace/collector docker
       - setup_remote_docker
       - run:
           name: Build images
