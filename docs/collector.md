@@ -7,34 +7,36 @@ Synopsis
 --------
 
 ```console
-$ collector show [--input-file=<file>]
-$ collector list-status [--input-file=<file>]
-$ collector generate-rule [--input-file=<file>] [--key=<key>:<type>...]
+$ collector show [--input-file=<file>] [--base-rule=<file>] [--keys-only] [--omitempty] [--no-dup] [--ignore-field=<field>...] [--required-field=<field>...]
+$ collector generate-rule [--input-file=<file>] [--base-rule=<file>] [--key=<key>:<type>...]
 ```
 
 Description
 -----------
 
 `collector` is a command-line tool that collects and processes [Redfish][] data.
-It shows the whole data, lists paths which hold statuses, or generates a rule files.
+It shows the whole data, or generates a rule files.
 
 In any mode, `collector` uses pre-collected Redfish data if `--input-file` is specified,
 or collects Redfish data by accessing Redfish API if `--input-file` is not specified.
+
+If `--base-rule` is specified, `collector` will exclude data included in `Traverse.Excludes`
+And path will be unified according to pattern specified in `Metrics.Path`.
 
 #### show whole data
 
 `collector show` outputs Redfish data in the format described below.
 
-#### list status paths
+Options
+-------
 
-`collector list-status` outputs Redfish data locations where `Status` keys are returned.
-The output is formatted as a JSON object whose keys are URL paths and whose values are lists of JSON Pointers each of which points `Status`.
+If `--keys-only` is specified, `collector show` shows only path.
 
-```json
-{
-  "/redfish/v1/Chassis/Chassis1/Power": ["/Status", "/Voltages/0/Status", "/Voltages/1/Status"]
-}
-```
+If `--omitempty` is specified, `collector show` will not show an empty array or an empty map.
+
+If `--ignore-field` is specified, `collector show` will not show the field that matches the specified name.
+
+If `--required-field` is specified, `collector show` will show the JSON object that has the specified field.
 
 #### generate a rule file
 

@@ -48,13 +48,10 @@ var generateRuleCmd = &cobra.Command{
 				return err
 			}
 
-			rules := generateRule(collected.Data(), keyTypes, rootConfig.rootPath)
+			rules := generateRule(collected.Data(), keyTypes, collected.Rule())
 			collectRule := &redfish.CollectRule{
-				TraverseRule: redfish.TraverseRule{
-					Root:         rootConfig.rootPath,
-					ExcludeRules: rootConfig.excludes,
-				},
-				MetricRules: rules,
+				TraverseRule: collected.Rule().TraverseRule,
+				MetricRules:  rules,
 			}
 
 			out, err := yaml.Marshal(collectRule)
@@ -77,11 +74,26 @@ var generateRuleCmd = &cobra.Command{
 	},
 }
 
-func generateRule(data map[string]*gabs.Container, keyTypes []*keyType, rootPath string) []*redfish.MetricRule {
+func generateRule(data map[string]*gabs.Container, keyTypes []*keyType, rule *redfish.CollectRule) []*redfish.MetricRule {
 	var rules []*redfish.MetricRule
 
+	matchedRules := make(map[string]bool)
+OUTER:
 	for path, parsedJSON := range data {
-		prefix := normalize(strings.ReplaceAll(path[len(rootPath):], "/", "_"))
+		if rule != nil {
+			for _, r := range rule.MetricRules {
+				matched, _ := r.MatchPath(path)
+				if matched {
+					if matchedRules[r.Path] {
+						continue OUTER
+					}
+					matchedRules[r.Path] = true
+					path = r.Path
+					break
+				}
+			}
+		}
+		prefix := normalize(strings.ReplaceAll(path[len(rule.TraverseRule.Root):], "/", "_"))
 		propertyRules := generateRuleAux(parsedJSON, keyTypes, "", prefix, []*redfish.PropertyRule{})
 
 		if len(propertyRules) > 0 {

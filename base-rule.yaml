@@ -39,6 +39,7 @@ Metrics:
   - Path: /redfish/v1/Dell/Systems/{system}/DellNumericSensor/{sensor}
   - Path: /redfish/v1/Systems/{system}/StorageControllers/{ctrl}
   - Path: /redfish/v1/Systems/{system}/Storage/Volumes/{volume}
+  - Path: /redfish/v1/Systems/{system}/Storage/Volumes/{volume}/Settings
   - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Volumes
   - Path: /redfish/v1/Systems/{system}/SimpleStorage/Controllers/{ctrl}
   - Path: /redfish/v1/Systems/{system}/PCIeFunction/{func}

@@ -14,11 +14,13 @@ import (
 )
 
 var showConfig struct {
-	keysOnly     bool
-	omitempty    bool
-	noDup        bool
-	ignoreFields []string
-	ignoreRegexp *regexp.Regexp
+	keysOnly       bool
+	omitempty      bool
+	noDup          bool
+	ignoreFields   []string
+	ignoreRegexp   *regexp.Regexp
+	requiredFields []string
+	requiredRegexp *regexp.Regexp
 }
 
 // showCmd represents the show command
@@ -36,6 +38,14 @@ var showCmd = &cobra.Command{
 				return err
 			}
 			showConfig.ignoreRegexp = r
+		}
+		if len(showConfig.requiredFields) != 0 {
+			pattern := strings.Join(showConfig.requiredFields, "|")
+			r, err := regexp.Compile(pattern)
+			if err != nil {
+				return err
+			}
+			showConfig.requiredRegexp = r
 		}
 
 		well.Go(func(ctx context.Context) error {
@@ -62,6 +72,13 @@ var showCmd = &cobra.Command{
 					result[k] = struct{}{}
 				} else {
 					result[k] = v.Data()
+				}
+
+				if showConfig.requiredRegexp != nil {
+					if !requiredFields(ctx, v, showConfig.requiredRegexp) {
+						delete(result, k)
+						continue
+					}
 				}
 
 				if collected.Rule() != nil {
@@ -95,6 +112,31 @@ var showCmd = &cobra.Command{
 		}
 		return nil
 	},
+}
+
+func requiredFields(ctx context.Context, current *gabs.Container, required *regexp.Regexp) bool {
+	if childrenMap, err := current.ChildrenMap(); err == nil {
+		for k, v := range childrenMap {
+			if required != nil && required.Match([]byte(k)) {
+				return true
+			}
+			b := requiredFields(ctx, v, required)
+			if b {
+				return true
+			}
+		}
+		return false
+	}
+
+	if children, err := current.Children(); err == nil {
+		for _, child := range children {
+			b := requiredFields(ctx, child, required)
+			if b {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func ignoreFields(ctx context.Context, current *gabs.Container, ignorePattern *regexp.Regexp) {
@@ -206,4 +248,5 @@ func init() {
 	showCmd.Flags().BoolVar(&showConfig.omitempty, "omitempty", false, "omit empty fields")
 	showCmd.Flags().BoolVar(&showConfig.noDup, "no-dup", false, "remove duplicate fields")
 	showCmd.Flags().StringSliceVar(&showConfig.ignoreFields, "ignore-field", nil, "ignore fields")
+	showCmd.Flags().StringSliceVar(&showConfig.requiredFields, "required-field", nil, "required fields")
 }

@@ -107,7 +107,11 @@ func TestGenerateRule(t *testing.T) {
 			key: "LineInputVoltage",
 			typ: "number",
 		},
-	}, defaultRootPath)
+	}, &redfish.CollectRule{
+		TraverseRule: redfish.TraverseRule{
+			Root: defaultRootPath,
+		},
+	})
 
 	if !reflect.DeepEqual(result, expected) {
 		expectedOut, err := yaml.Marshal(expected)
