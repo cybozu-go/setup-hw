@@ -29,36 +29,41 @@ Metrics:
   - Path: /redfish/v1/Chassis/{chassis}
   - Path: /redfish/v1/Chassis/{chassis}/Power
   - Path: /redfish/v1/Chassis/{chassis}/Thermal
-  - Path: /redfish/v1/Systems/{system}
-  - Path: /redfish/v1/Systems/{system}/EthernetInterfaces/{interface}
-  - Path: /redfish/v1/Systems/{system}/Processors/{processor}
-  - Path: /redfish/v1/Systems/{system}/Storage/{controller}
-  - Path: /redfish/v1/Systems/{system}/Storage/Drives/{device}
+  - Path: /redfish/v1/Chassis/{system}/Assembly/{asm}
+  - Path: /redfish/v1/Dell/Systems/{system}/DellNumericSensor/{sensor}
+  - Path: /redfish/v1/Dell/Systems/{system}/DellPCIeFunction/{func}
+  - Path: /redfish/v1/Dell/Systems/{system}/DellPSNumericSensor/{sensor}
+  - Path: /redfish/v1/Dell/Systems/{system}/DellSensor/{sensor}
+  - Path: /redfish/v1/Dell/Systems/{system}/Memory/DellMemory/{mem}
+  - Path: /redfish/v1/Dell/Systems/{system}/NetworkAdapters/NetworkDeviceFunctions/DellNICStatistics/{nic}
+  - Path: /redfish/v1/Dell/Systems/{system}/NetworkDeviceFunctions/DellNIC/{nic}
+  - Path: /redfish/v1/Dell/Systems/{system}/NetworkDeviceFunctions/DellNICCapabilities/{nic}
+  - Path: /redfish/v1/Dell/Systems/{system}/NetworkPorts/DellSwitchConnection/{conn}
+  - Path: /redfish/v1/Dell/Systems/{system}/Storage/DellController/{ctrl}
+  - Path: /redfish/v1/Dell/Systems/{system}/Storage/Drives/DellPhysicalDisk/{disk}
+  - Path: /redfish/v1/Dell/Systems/{system}/Storage/Volumes/DellVirtualDisk/{disk}
+  - Path: /redfish/v1/Managers/{idrac}/NetworkProtocol
   - Path: /redfish/v1/Managers/{manager}
   - Path: /redfish/v1/Managers/{manager}/EthernetInterfaces/{interface}
-  - Path: /redfish/v1/Dell/Systems/{system}/DellNumericSensor/{sensor}
-  - Path: /redfish/v1/Systems/{system}/StorageControllers/{ctrl}
-  - Path: /redfish/v1/Systems/{system}/Storage/Volumes/{volume}
-  - Path: /redfish/v1/Systems/{system}/Storage/Volumes/{volume}/Settings
-  - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Volumes
-  - Path: /redfish/v1/Systems/{system}/SimpleStorage/Controllers/{ctrl}
-  - Path: /redfish/v1/Systems/{system}/PCIeFunction/{func}
-  - Path: /redfish/v1/Dell/Systems/{system}/DellSensor/{sensor}
-  - Path: /redfish/v1/Dell/Systems/{system}/DellPCIeFunction/{func}
+  - Path: /redfish/v1/Systems/{system}
+  - Path: /redfish/v1/Systems/{system}/BootOptions/{opt}
+  - Path: /redfish/v1/Systems/{system}/EthernetInterfaces/{interface}
+  - Path: /redfish/v1/Systems/{system}/Memory/{mem}
+  - Path: /redfish/v1/Systems/{system}/Memory/{mem}/Metrics
+  - Path: /redfish/v1/Systems/{system}/NetworkAdapters/{nic}
   - Path: /redfish/v1/Systems/{system}/NetworkAdapters/{nic}/NetworkDeviceFunctions/{func}
   - Path: /redfish/v1/Systems/{system}/NetworkAdapters/{nic}/NetworkDeviceFunctions/{func}/Settings
   - Path: /redfish/v1/Systems/{system}/NetworkAdapters/{nic}/NetworkPorts/{port}
+  - Path: /redfish/v1/Systems/{system}/NetworkInterfaces/{nic}
   - Path: /redfish/v1/Systems/{system}/PCIeDevice/{dev}
-  - Path: /redfish/v1/Systems/{system}/BootOptions/{opt}
-  - Path: /redfish/v1/Systems/{system}/Memory/{mem}/Metrics
-  - Path: /redfish/v1/Systems/{system}/Memory/{mem}
-  - Path: /redfish/v1/Dell/Systems/{system}/Storage/DellController/{ctrl}
-  - Path: /redfish/v1/Dell/Systems/{system}/Storage/Volumes/DellVirtualDisk/{disk}
-  - Path: /redfish/v1/Dell/Systems/{system}/Storage/Drives/DellPhysicalDisk/{disk}
-  - Path: /redfish/v1/Dell/Systems/{system}/NetworkPorts/DellSwitchConnection/{conn}
-  - Path: /redfish/v1/Dell/Systems/{system}/NetworkDeviceFunctions/DellNICCapabilities/{nic}
-  - Path: /redfish/v1/Dell/Systems/{system}/NetworkDeviceFunctions/DellNIC/{nic}
-  - Path: /redfish/v1/Dell/Systems/{system}/NetworkAdapters/NetworkDeviceFunctions/DellNICStatistics/{nic}
-  - Path: /redfish/v1/Dell/Systems/{system}/Memory/DellMemory/{mem}
-  - Path: /redfish/v1/Dell/Systems/{system}/DellPSNumericSensor/{sensor}
-  - Path: /redfish/v1/Chassis/{system}/Assembly/{asm}
+  - Path: /redfish/v1/Systems/{system}/PCIeFunction/{func}
+  - Path: /redfish/v1/Systems/{system}/Processors/{processor}
+  - Path: /redfish/v1/Systems/{system}/SimpleStorage/Controllers/{ctrl}
+  - Path: /redfish/v1/Systems/{system}/Storage/Drives/{device}
+  - Path: /redfish/v1/Systems/{system}/Storage/Volumes/{volume}
+  - Path: /redfish/v1/Systems/{system}/Storage/Volumes/{volume}/Settings
+  - Path: /redfish/v1/Systems/{system}/Storage/{controller}
+  - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Volumes
+  - Path: /redfish/v1/Systems/{system}/StorageControllers/{ctrl}
+
+# ./collector generate-rule --input-file=show.json --base-rule=base-rule.yaml --key=Health:health --key=FailurePredicted:bool --key=PredictedMediaLifeLeftPercent:number --key=AddressParityError:bool --key=CorrectableECCError:bool --key=SpareBlock:bool --key=Temperature: bool --key=UncorrectableECCError:bool --key=DataLossDetected:bool --key=State:state --key=ReadingCelsius:number > generated.yaml
