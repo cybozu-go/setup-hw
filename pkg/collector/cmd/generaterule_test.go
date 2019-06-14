@@ -79,17 +79,17 @@ func TestGenerateRule(t *testing.T) {
 			Path: powerPath,
 			PropertyRules: []*redfish.PropertyRule{
 				{
-					Pointer: "/PowerSupplies/{TBD}/LineInputVoltage",
+					Pointer: "/PowerSupplies/{powersupply}/LineInputVoltage",
 					Name:    "chassis_systemembedded1_power_powersupplies_lineinputvoltage",
 					Type:    "number",
 				},
 				{
-					Pointer: "/PowerSupplies/{TBD}/Redundancy/{TBD}/Status/Health",
+					Pointer: "/PowerSupplies/{powersupply}/Redundancy/{redundancy}/Status/Health",
 					Name:    "chassis_systemembedded1_power_powersupplies_redundancy_status_health",
 					Type:    "health",
 				},
 				{
-					Pointer: "/PowerSupplies/{TBD}/Status/Health",
+					Pointer: "/PowerSupplies/{powersupply}/Status/Health",
 					Name:    "chassis_systemembedded1_power_powersupplies_status_health",
 					Type:    "health",
 				},

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -128,7 +129,14 @@ func generateRuleAux(data *gabs.Container, keyTypes []*keyType, pointer, name st
 
 	if childrenSlice, err := data.Children(); err == nil {
 		for _, v := range childrenSlice {
-			rules = generateRuleAux(v, keyTypes, pointer+"/{TBD}", name, rules)
+			ps := strings.Split(pointer, "/")
+			parent := ps[len(ps)-1]
+			if strings.HasSuffix(parent, "ies") {
+				parent = regexp.MustCompile("ies$").ReplaceAllString(parent, "y")
+			} else if strings.HasSuffix(parent, "s") {
+				parent = regexp.MustCompile("s$").ReplaceAllString(parent, "")
+			}
+			rules = generateRuleAux(v, keyTypes, pointer+"/{"+strings.ToLower(parent)+"}", name, rules)
 			break // inspect the first element only; the rest should have the same structure
 		}
 		return rules
