@@ -21,7 +21,7 @@ In any mode, `collector` uses pre-collected Redfish data if `--input-file` is sp
 or collects Redfish data by accessing Redfish API if `--input-file` is not specified.
 
 If `--base-rule` is specified, `collector` will exclude data included in `Traverse.Excludes`
-And path will be unified according to pattern specified in `Metrics.Path`.
+and paths are unified according to patterns specified in `Metrics.Path`.
 
 #### show whole data
 
