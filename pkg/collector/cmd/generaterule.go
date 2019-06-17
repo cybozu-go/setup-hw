@@ -26,12 +26,12 @@ type keyType struct {
 
 // generateRuleCmd represents the generateRule command
 var generateRuleCmd = &cobra.Command{
-	Use:   "generate-rule FILE",
+	Use:   "generate-rule FILE...",
 	Short: "output a collection rule to collect specified keys as metrics",
 	Long: `Output a collection rule to collect specified keys as metrics.
 
-It takes a JSON file name that was dumped by "collector show" command.`,
-	Args: cobra.ExactArgs(1),
+It takes one or more JSON file names that were dumped by "collector show" command.`,
+	Args: cobra.MinimumNArgs(1),
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		keyTypes := make([]*keyType, len(generateRuleConfig.keys))
@@ -47,18 +47,24 @@ It takes a JSON file name that was dumped by "collector show" command.`,
 		}
 
 		well.Go(func(ctx context.Context) error {
-			collected, err := collectOrLoad(ctx, args[0], rootConfig.baseRuleFile)
-			if err != nil {
-				return err
+			rules := make([]*redfish.CollectRule, len(args))
+			for i, fname := range args {
+				collected, err := collectOrLoad(ctx, fname, rootConfig.baseRuleFile)
+				if err != nil {
+					return err
+				}
+
+				metricRules := generateRule(collected.Data(), keyTypes, collected.Rule())
+				collectRule := &redfish.CollectRule{
+					TraverseRule: collected.Rule().TraverseRule,
+					MetricRules:  metricRules,
+				}
+				rules[i] = collectRule
 			}
 
-			rules := generateRule(collected.Data(), keyTypes, collected.Rule())
-			collectRule := &redfish.CollectRule{
-				TraverseRule: collected.Rule().TraverseRule,
-				MetricRules:  rules,
-			}
+			mergedRule := mergeCollectRules(rules)
 
-			out, err := yaml.Marshal(collectRule)
+			out, err := yaml.Marshal(mergedRule)
 			if err != nil {
 				return err
 			}
@@ -167,6 +173,54 @@ func normalize(key string) string {
 		}
 		return -1
 	}, key)
+}
+
+func mergeCollectRules(collectRules []*redfish.CollectRule) *redfish.CollectRule {
+	if len(collectRules) == 0 {
+		return &redfish.CollectRule{}
+	}
+
+	// This function merges CollectRules assuming that:
+	//   1. all rules are generated based on the same rule file, and
+	//   2. all rules are generated for the same set of keys and types.
+	// TraverseRules are exactly the same among all CollectRules from assumption 1.
+	// So we concentrate on merging MetricRules.
+	metricRules := []*redfish.MetricRule{}
+	for _, cr := range collectRules {
+		for _, mr := range cr.MetricRules {
+			metricRules = appendMetricRule(metricRules, mr)
+		}
+	}
+
+	return &redfish.CollectRule{
+		TraverseRule: collectRules[0].TraverseRule,
+		MetricRules:  metricRules,
+	}
+}
+
+func appendMetricRule(rules []*redfish.MetricRule, newRule *redfish.MetricRule) []*redfish.MetricRule {
+	for _, rule := range rules {
+		// We can simply compare paths without considering patterns from assumption 1.
+		if newRule.Path == rule.Path {
+			for _, pr := range newRule.PropertyRules {
+				rule.PropertyRules = appendPropertyRule(rule.PropertyRules, pr)
+			}
+			return rules
+		}
+	}
+
+	return append(rules, newRule)
+}
+
+func appendPropertyRule(rules []*redfish.PropertyRule, newRule *redfish.PropertyRule) []*redfish.PropertyRule {
+	for _, rule := range rules {
+		if newRule.Pointer == rule.Pointer {
+			// We don't need to compare types from assumption 2.
+			return rules
+		}
+	}
+
+	return append(rules, newRule)
 }
 
 func init() {

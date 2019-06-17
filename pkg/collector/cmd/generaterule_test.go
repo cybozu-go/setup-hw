@@ -1,12 +1,12 @@
 package cmd
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/cybozu-go/setup-hw/gabs"
 	"github.com/cybozu-go/setup-hw/redfish"
-	"github.com/ghodss/yaml"
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
 func TestGenerateRule(t *testing.T) {
@@ -113,15 +113,129 @@ func TestGenerateRule(t *testing.T) {
 		},
 	})
 
-	if !reflect.DeepEqual(result, expected) {
-		expectedOut, err := yaml.Marshal(expected)
-		if err != nil {
-			t.Fatal(err)
-		}
-		resultOut, err := yaml.Marshal(result)
-		if err != nil {
-			t.Fatal(err)
-		}
-		t.Errorf("generateRule() returned unexpected result;\nexpected:\n%s\nresult:\n%s", string(expectedOut), string(resultOut))
+	opts := cmpopts.IgnoreUnexported(redfish.TraverseRule{}, redfish.PropertyRule{})
+	if !cmp.Equal(result, expected, opts) {
+		t.Error("generateRule() returned unexpected result:", cmp.Diff(expected, result, opts))
+	}
+}
+
+func TestMergeCollectRules(t *testing.T) {
+	input1 := &redfish.CollectRule{
+		TraverseRule: redfish.TraverseRule{
+			Root: "/redfish/v1",
+		},
+		MetricRules: []*redfish.MetricRule{
+			{
+				Path: "/redfish/v1/CommonPage",
+				PropertyRules: []*redfish.PropertyRule{
+					{
+						Pointer: "/CommonProperty",
+						Name:    "commonpage_commonproperty",
+						Type:    "number",
+					},
+					{
+						Pointer: "/PropertyC1",
+						Name:    "commonpage_propertyc1",
+						Type:    "number",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Page1",
+				PropertyRules: []*redfish.PropertyRule{
+					{
+						Pointer: "/SimilarProperty",
+						Name:    "page1_similarproperty",
+						Type:    "number",
+					},
+				},
+			},
+		},
+	}
+	input2 := &redfish.CollectRule{
+		TraverseRule: redfish.TraverseRule{
+			Root: "/redfish/v1",
+		},
+		MetricRules: []*redfish.MetricRule{
+			{
+				Path: "/redfish/v1/CommonPage",
+				PropertyRules: []*redfish.PropertyRule{
+					{
+						Pointer: "/CommonProperty",
+						Name:    "commonpage_commonproperty",
+						Type:    "number",
+					},
+					{
+						Pointer: "/PropertyC2",
+						Name:    "commonpage_propertyc2",
+						Type:    "number",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Page2",
+				PropertyRules: []*redfish.PropertyRule{
+					{
+						Pointer: "/SimilarProperty",
+						Name:    "page2_similarproperty",
+						Type:    "number",
+					},
+				},
+			},
+		},
+	}
+
+	expected := &redfish.CollectRule{
+		TraverseRule: redfish.TraverseRule{
+			Root: "/redfish/v1",
+		},
+		MetricRules: []*redfish.MetricRule{
+			{
+				Path: "/redfish/v1/CommonPage",
+				PropertyRules: []*redfish.PropertyRule{
+					{
+						Pointer: "/CommonProperty",
+						Name:    "commonpage_commonproperty",
+						Type:    "number",
+					},
+					{
+						Pointer: "/PropertyC1",
+						Name:    "commonpage_propertyc1",
+						Type:    "number",
+					},
+					{
+						Pointer: "/PropertyC2",
+						Name:    "commonpage_propertyc2",
+						Type:    "number",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Page1",
+				PropertyRules: []*redfish.PropertyRule{
+					{
+						Pointer: "/SimilarProperty",
+						Name:    "page1_similarproperty",
+						Type:    "number",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Page2",
+				PropertyRules: []*redfish.PropertyRule{
+					{
+						Pointer: "/SimilarProperty",
+						Name:    "page2_similarproperty",
+						Type:    "number",
+					},
+				},
+			},
+		},
+	}
+
+	merged := mergeCollectRules([]*redfish.CollectRule{input1, input2})
+	opts := cmpopts.IgnoreUnexported(redfish.TraverseRule{}, redfish.PropertyRule{})
+	if !cmp.Equal(merged, expected, opts) {
+		t.Error("mergeCollectRules() returned unexpected result:", cmp.Diff(expected, merged, opts))
 	}
 }

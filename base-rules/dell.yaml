@@ -24,6 +24,8 @@ Traverse:
     - /Thermal/
     # Redundant page with extra trailing slash
     - /redfish/v1/Chassis/$
+    # 404 links
+    - /StorageControllers/PCIeSSD
 
 Metrics:
   - Path: /redfish/v1/Chassis/{chassis}
