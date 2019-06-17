@@ -66,4 +66,4 @@ Metrics:
   - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Volumes
   - Path: /redfish/v1/Systems/{system}/StorageControllers/{controller}
 
-# ./collector generate-rule --input-file=show.json --base-rule=base-rule.yaml --key=Health:health --key=FailurePredicted:bool --key=PredictedMediaLifeLeftPercent:number --key=AddressParityError:bool --key=CorrectableECCError:bool --key=SpareBlock:bool --key=Temperature:bool --key=UncorrectableECCError:bool --key=DataLossDetected:bool --key=State:state --key=ReadingCelsius:number > generated.yaml
+# ./collector generate-rule --base-rule=base-rules/dell.yaml --key=Health:health --key=FailurePredicted:bool --key=PredictedMediaLifeLeftPercent:number --key=AddressParityError:bool --key=CorrectableECCError:bool --key=SpareBlock:bool --key=Temperature:bool --key=UncorrectableECCError:bool --key=DataLossDetected:bool --key=State:state --key=ReadingCelsius:number show.json > generated.yaml

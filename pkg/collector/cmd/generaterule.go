@@ -26,9 +26,12 @@ type keyType struct {
 
 // generateRuleCmd represents the generateRule command
 var generateRuleCmd = &cobra.Command{
-	Use:   "generate-rule",
+	Use:   "generate-rule FILE",
 	Short: "output a collection rule to collect specified keys as metrics",
-	Long:  `output a collection rule to collect specified keys as metrics.`,
+	Long: `Output a collection rule to collect specified keys as metrics.
+
+It takes a JSON file name that was dumped by "collector show" command.`,
+	Args: cobra.ExactArgs(1),
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		keyTypes := make([]*keyType, len(generateRuleConfig.keys))
@@ -44,7 +47,7 @@ var generateRuleCmd = &cobra.Command{
 		}
 
 		well.Go(func(ctx context.Context) error {
-			collected, err := collectOrLoad(ctx, rootConfig.inputFile, rootConfig.baseRules)
+			collected, err := collectOrLoad(ctx, args[0], rootConfig.baseRuleFile)
 			if err != nil {
 				return err
 			}
@@ -67,11 +70,7 @@ var generateRuleCmd = &cobra.Command{
 		})
 
 		well.Stop()
-		err := well.Wait()
-		if err != nil {
-			return err
-		}
-		return nil
+		return well.Wait()
 	},
 }
 

@@ -14,6 +14,7 @@ import (
 )
 
 var showConfig struct {
+	inputFile      string
 	keysOnly       bool
 	omitempty      bool
 	noDup          bool
@@ -49,7 +50,7 @@ var showCmd = &cobra.Command{
 		}
 
 		well.Go(func(ctx context.Context) error {
-			collected, err := collectOrLoad(ctx, rootConfig.inputFile, rootConfig.baseRules)
+			collected, err := collectOrLoad(ctx, showConfig.inputFile, rootConfig.baseRuleFile)
 			if err != nil {
 				return err
 			}
@@ -106,11 +107,7 @@ var showCmd = &cobra.Command{
 		})
 
 		well.Stop()
-		err := well.Wait()
-		if err != nil {
-			return err
-		}
-		return nil
+		return well.Wait()
 	},
 }
 
@@ -244,6 +241,7 @@ func omitEmpty(ctx context.Context, current *gabs.Container) bool {
 
 func init() {
 	rootCmd.AddCommand(showCmd)
+	showCmd.Flags().StringVar(&showConfig.inputFile, "input-file", "", "pre-collected Redfish data")
 	showCmd.Flags().BoolVar(&showConfig.keysOnly, "keys-only", false, "show keys only")
 	showCmd.Flags().BoolVar(&showConfig.omitempty, "omitempty", false, "omit empty fields")
 	showCmd.Flags().BoolVar(&showConfig.noDup, "no-dup", false, "remove duplicate fields")

@@ -8,7 +8,7 @@ Synopsis
 
 ```console
 $ collector show [--input-file=<file>] [--base-rule=<file>] [--keys-only] [--omitempty] [--no-dup] [--ignore-field=<field>...] [--required-field=<field>...]
-$ collector generate-rule [--input-file=<file>] [--base-rule=<file>] [--key=<key>:<type>...]
+$ collector generate-rule [--base-rule=<file>] [--key=<key>:<type>...] INPUT_FILE
 ```
 
 Description
@@ -17,18 +17,17 @@ Description
 `collector` is a command-line tool that collects and processes [Redfish][] data.
 It shows the whole data, or generates a rule files.
 
-In any mode, `collector` uses pre-collected Redfish data if `--input-file` is specified,
-or collects Redfish data by accessing Redfish API if `--input-file` is not specified.
-
 If `--base-rule` is specified, `collector` will exclude data included in `Traverse.Excludes`
 and paths are unified according to patterns specified in `Metrics.Path`.
 
-#### show whole data
+Show mode
+---------
 
 `collector show` outputs Redfish data in the format described below.
 
-Options
--------
+### Options
+
+If `--input-file` is specified, it loads Redfish API responses from the file.
 
 If `--keys-only` is specified, `collector show` shows only path.
 
@@ -38,7 +37,8 @@ If `--ignore-field` is specified, `collector show` will not show the field that 
 
 If `--required-field` is specified, `collector show` will show the JSON object that has the specified field.
 
-#### generate a rule file
+Generate mode
+-------------
 
 `collector generate-rule` outputs a [collection rule](rule.md) to collect specified keys as metrics.
 
@@ -49,12 +49,7 @@ it just lists all page paths.
 It generates `Pointer` of `/foo/{TBD}/Status` if it finds a `Status` key in the first item of the list at `/foo`.
 This is based on [patterns](rule.md#patterned-pointer) in a collection rule.
 
-Options
--------
-
-`--input-file=<file>` specifies the path of the input data file.
-`collector` accesses Redfish on the local machine without this option.
-The format of the input data file is same as that of the output of `collector show`.
+### Options
 
 `--key=<key>:<type>` specifies the property key to be searched in generating a rule file, followed by the type of the property.
 This can be specified in the `generate-rule` mode only.

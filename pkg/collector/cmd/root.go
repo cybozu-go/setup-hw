@@ -12,8 +12,7 @@ import (
 const defaultRootPath = "/redfish/v1"
 
 var rootConfig struct {
-	inputFile string
-	baseRules string
+	baseRuleFile string
 }
 
 // rootCmd represents the base command when called without any subcommands
@@ -31,10 +30,6 @@ var rootCmd = &cobra.Command{
 			log.ErrorExit(err)
 		}
 	},
-
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -47,6 +42,5 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVar(&rootConfig.inputFile, "input-file", "", "pre-collected Redfish data")
-	rootCmd.PersistentFlags().StringVar(&rootConfig.baseRules, "base-rule", "", "based rule file")
+	rootCmd.PersistentFlags().StringVar(&rootConfig.baseRuleFile, "base-rule", "", "based rule file")
 }
