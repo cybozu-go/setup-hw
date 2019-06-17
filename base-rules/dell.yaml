@@ -1,0 +1,69 @@
+Traverse:
+  Root: /redfish/v1
+  Excludes:
+    # Schemas
+    - /JSONSchemas
+    # Non-metric properties
+    - /Accounts
+    - /Certificates
+    - /Jobs
+    - /Logs
+    - /Registries
+    - /Roles
+    - /Sessions
+    # Services
+    - /AccountService
+    - /EventService
+    - /LogServices
+    - /SessionService
+    - /TaskService
+    - /UpdateService
+    # Sub-metrics included in /Power or /Thermal
+    - /Power/
+    - /Sensors/
+    - /Thermal/
+    # Redundant page with extra trailing slash
+    - /redfish/v1/Chassis/$
+
+Metrics:
+  - Path: /redfish/v1/Chassis/{chassis}
+  - Path: /redfish/v1/Chassis/{chassis}/Power
+  - Path: /redfish/v1/Chassis/{chassis}/Thermal
+  - Path: /redfish/v1/Chassis/{chassis}/Assembly/{assembly}
+  - Path: /redfish/v1/Dell/Systems/{system}/DellNumericSensor/{sensor}
+  - Path: /redfish/v1/Dell/Systems/{system}/DellPCIeFunction/{function}
+  - Path: /redfish/v1/Dell/Systems/{system}/DellPSNumericSensor/{sensor}
+  - Path: /redfish/v1/Dell/Systems/{system}/DellSensor/{sensor}
+  - Path: /redfish/v1/Dell/Systems/{system}/Memory/DellMemory/{memory}
+  - Path: /redfish/v1/Dell/Systems/{system}/NetworkAdapters/NetworkDeviceFunctions/DellNICStatistics/{nic}
+  - Path: /redfish/v1/Dell/Systems/{system}/NetworkDeviceFunctions/DellNIC/{nic}
+  - Path: /redfish/v1/Dell/Systems/{system}/NetworkDeviceFunctions/DellNICCapabilities/{nic}
+  - Path: /redfish/v1/Dell/Systems/{system}/NetworkPorts/DellSwitchConnection/{connection}
+  - Path: /redfish/v1/Dell/Systems/{system}/Storage/DellController/{controller}
+  - Path: /redfish/v1/Dell/Systems/{system}/Storage/Drives/DellPhysicalDisk/{disk}
+  - Path: /redfish/v1/Dell/Systems/{system}/Storage/Volumes/DellVirtualDisk/{disk}
+  - Path: /redfish/v1/Managers/{manager}/NetworkProtocol
+  - Path: /redfish/v1/Managers/{manager}
+  - Path: /redfish/v1/Managers/{manager}/EthernetInterfaces/{interface}
+  - Path: /redfish/v1/Systems/{system}
+  - Path: /redfish/v1/Systems/{system}/BootOptions/{option}
+  - Path: /redfish/v1/Systems/{system}/EthernetInterfaces/{interface}
+  - Path: /redfish/v1/Systems/{system}/Memory/{memory}
+  - Path: /redfish/v1/Systems/{system}/Memory/{memory}/Metrics
+  - Path: /redfish/v1/Systems/{system}/NetworkAdapters/{nic}
+  - Path: /redfish/v1/Systems/{system}/NetworkAdapters/{nic}/NetworkDeviceFunctions/{function}
+  - Path: /redfish/v1/Systems/{system}/NetworkAdapters/{nic}/NetworkDeviceFunctions/{function}/Settings
+  - Path: /redfish/v1/Systems/{system}/NetworkAdapters/{nic}/NetworkPorts/{port}
+  - Path: /redfish/v1/Systems/{system}/NetworkInterfaces/{nic}
+  - Path: /redfish/v1/Systems/{system}/PCIeDevice/{device}
+  - Path: /redfish/v1/Systems/{system}/PCIeFunction/{function}
+  - Path: /redfish/v1/Systems/{system}/Processors/{processor}
+  - Path: /redfish/v1/Systems/{system}/SimpleStorage/Controllers/{controller}
+  - Path: /redfish/v1/Systems/{system}/Storage/Drives/{device}
+  - Path: /redfish/v1/Systems/{system}/Storage/Volumes/{volume}
+  - Path: /redfish/v1/Systems/{system}/Storage/Volumes/{volume}/Settings
+  - Path: /redfish/v1/Systems/{system}/Storage/{controller}
+  - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Volumes
+  - Path: /redfish/v1/Systems/{system}/StorageControllers/{controller}
+
+# ./collector generate-rule --base-rule=base-rules/dell.yaml --key=Health:health --key=FailurePredicted:bool --key=PredictedMediaLifeLeftPercent:number --key=AddressParityError:bool --key=CorrectableECCError:bool --key=SpareBlock:bool --key=Temperature:bool --key=UncorrectableECCError:bool --key=DataLossDetected:bool --key=State:state --key=ReadingCelsius:number show.json > generated.yaml

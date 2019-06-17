@@ -1,4 +1,4 @@
-BIN_PKGS = ./pkg/idrac-passwd-hash ./pkg/setup-hw ./pkg/monitor-hw
+BIN_PKGS = ./pkg/idrac-passwd-hash ./pkg/setup-hw ./pkg/monitor-hw ./pkg/collector
 GENERATED = redfish/rendered_rules.go
 GENERATE_SRC = $(shell find redfish/rules)
 
@@ -33,9 +33,9 @@ endif
 build-image: install
 ifdef GOBIN
 	mkdir -p $(GOBIN)
-	cp $(GOBIN)/setup-hw $(GOBIN)/monitor-hw ./docker/
+	cp $(GOBIN)/setup-hw $(GOBIN)/monitor-hw $(GOBIN)/collector ./docker/
 else
-	cp $(GOPATH)/bin/setup-hw $(GOPATH)/bin/monitor-hw ./docker/
+	cp $(GOPATH)/bin/setup-hw $(GOPATH)/bin/monitor-hw $(GOPATH)/bin/collector ./docker/
 endif
 	cd docker && docker build -t quay.io/cybozu/setup-hw:dev .
 

@@ -101,7 +101,7 @@ func (c *redfishClient) GetVersion(ctx context.Context) (string, error) {
 }
 
 func (c *redfishClient) get(ctx context.Context, path string, cl Collected) {
-	if cl.rule.TraverseRule.excludeRegexp != nil && cl.rule.TraverseRule.excludeRegexp.MatchString(path) {
+	if !cl.rule.TraverseRule.NeedTraverse(path) {
 		return
 	}
 

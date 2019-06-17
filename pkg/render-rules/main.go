@@ -94,7 +94,7 @@ func init() {
 var Rules = map[string]*CollectRule{
 	{{- range $key, $value := . }}
 	{{ printf "%q" $key }}: {
-		TraverseRule: traverseRule{
+		TraverseRule: TraverseRule{
 			Root: {{ printf "%q" $value.TraverseRule.Root }},
 			ExcludeRules: []string{
 				{{- range $value.TraverseRule.ExcludeRules }}
@@ -102,11 +102,11 @@ var Rules = map[string]*CollectRule{
 				{{- end }}
 			},
 		},
-		MetricRules: []*metricRule{
+		MetricRules: []*MetricRule{
 			{{- range $value.MetricRules }}
 			{
 				Path: {{ printf "%q" .Path }},
-				PropertyRules: []*propertyRule{
+				PropertyRules: []*PropertyRule{
 					{{- range .PropertyRules }}
 					{
 						Pointer: {{ printf "%q" .Pointer }},

@@ -1,6 +1,9 @@
 package redfish
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 type converter func(interface{}) (float64, error)
 
@@ -8,6 +11,7 @@ var typeToConverters = map[string]converter{
 	"number": numberConverter,
 	"health": healthConverter,
 	"state":  stateConverter,
+	"bool":   boolConverter,
 }
 
 func numberConverter(data interface{}) (float64, error) {
@@ -67,4 +71,21 @@ func stateConverter(data interface{}) (float64, error) {
 		return 10, nil
 	}
 	return -1, errors.New("unknown state value: " + state)
+}
+
+func boolConverter(data interface{}) (float64, error) {
+	if data == nil {
+		return -1, nil
+	}
+	health, ok := data.(bool)
+	if !ok {
+		return -1, errors.New("health value was not boolean")
+	}
+	switch health {
+	case false:
+		return 0, nil
+	case true:
+		return 1, nil
+	}
+	return -1, fmt.Errorf("unknown health value: %t", health)
 }
