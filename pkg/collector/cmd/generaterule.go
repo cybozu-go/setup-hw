@@ -99,8 +99,8 @@ OUTER:
 				}
 			}
 		}
-		prefix := normalize(strings.ReplaceAll(path[len(rule.TraverseRule.Root):], "/", "_"))
-		propertyRules := generateRuleAux(parsedJSON, keyTypes, "", prefix, []*redfish.PropertyRule{})
+		relPath := path[len(rule.TraverseRule.Root):]
+		propertyRules := generateRuleAux(parsedJSON, keyTypes, relPath, "", []*redfish.PropertyRule{})
 
 		if len(propertyRules) > 0 {
 			sort.Slice(propertyRules, func(i, j int) bool { return propertyRules[i].Pointer < propertyRules[j].Pointer })
@@ -115,18 +115,19 @@ OUTER:
 	return rules
 }
 
-func generateRuleAux(data *gabs.Container, keyTypes []*keyType, pointer, name string, rules []*redfish.PropertyRule) []*redfish.PropertyRule {
+func generateRuleAux(data *gabs.Container, keyTypes []*keyType, path, pointer string, rules []*redfish.PropertyRule) []*redfish.PropertyRule {
 	if childrenMap, err := data.ChildrenMap(); err == nil {
 		for k, v := range childrenMap {
+			newPointer := pointer + "/" + k
 			kt := findKeyInKeyTypes(k, keyTypes)
 			if kt != nil {
 				rules = append(rules, &redfish.PropertyRule{
-					Pointer: pointer + "/" + k,
-					Name:    (name + "_" + normalize(k))[1:], // trim the first "_"
+					Pointer: newPointer,
+					Name:    generateMetricName(path, newPointer),
 					Type:    kt.typ,
 				})
 			} else {
-				rules = generateRuleAux(v, keyTypes, pointer+"/"+k, name+"_"+normalize(k), rules)
+				rules = generateRuleAux(v, keyTypes, path, newPointer, rules)
 			}
 		}
 		return rules
@@ -141,7 +142,7 @@ func generateRuleAux(data *gabs.Container, keyTypes []*keyType, pointer, name st
 			} else if strings.HasSuffix(parent, "s") {
 				parent = regexp.MustCompile("s$").ReplaceAllString(parent, "")
 			}
-			rules = generateRuleAux(v, keyTypes, pointer+"/{"+strings.ToLower(parent)+"}", name, rules)
+			rules = generateRuleAux(v, keyTypes, path, pointer+"/{"+strings.ToLower(parent)+"}", rules)
 			break // inspect the first element only; the rest should have the same structure
 		}
 		return rules
@@ -157,6 +158,21 @@ func findKeyInKeyTypes(key string, keyTypes []*keyType) *keyType {
 		}
 	}
 	return nil
+}
+
+func generateMetricName(path, pointer string) string {
+	elements := strings.Split(path+pointer, "/")
+	elementsWithoutPattern := make([]string, 0, len(elements))
+	for _, e := range elements {
+		if len(e) >= 3 && e[0] == '{' && e[len(e)-1] == '}' {
+			// Typically, a pattern name is a singular form of its parent.  So ignore it.
+			continue
+		}
+		elementsWithoutPattern = append(elementsWithoutPattern, normalize(e))
+	}
+	// Though path can be empty, pointer cannot be empty nor "/{foo}".
+	// pointer must be "/foo" at least, so len(elementsWithoutpattern) >= 2.
+	return strings.Join(elementsWithoutPattern[1:], "_")
 }
 
 // Convert a key into a mostly-suitable name for the Prometheus metric name '[a-zA-Z_:][a-zA-Z0-9_:]*'.
