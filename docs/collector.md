@@ -36,9 +36,14 @@ If `--keys-only` is specified, `collector show` shows only path.
 
 If `--omitempty` is specified, `collector show` will not show an empty array or an empty map.
 
+If `--no-dup` is specified, `collector show` will truncate the second and later elements in a list.
+It will also truncate the second and later pages from those pages whose paths are matched to a certain `Metrics.Path` pattern in a base rule file.
+
 If `--ignore-field` is specified, `collector show` will not show the field that matches the specified name.
+This option can be specified for multiple times.
 
 If `--required-field` is specified, `collector show` will show the JSON object that has the specified field.
+This option can be specified for multiple times.
 
 Generate mode
 -------------
@@ -65,7 +70,7 @@ If patterned `Metrics.Path`s are given through the `--base-rule` option, however
 
 `--key=<key>:<type>` specifies the property key to be searched in generating a rule file, followed by the type of the property.
 This can be specified in the `generate-rule` mode only.
-This option can be specified multiple times.
+This option can be specified for multiple times.
 
 Data Format
 -----------
