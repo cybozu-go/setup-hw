@@ -11,6 +11,7 @@ Traverse:
     - /Registries
     - /Roles
     - /Sessions
+    - /Settings
     # Services
     - /AccountService
     - /EventService
@@ -44,6 +45,8 @@ Metrics:
   - Path: /redfish/v1/Dell/Systems/{system}/Storage/DellController/{controller}
   - Path: /redfish/v1/Dell/Systems/{system}/Storage/Drives/DellPhysicalDisk/{disk}
   - Path: /redfish/v1/Dell/Systems/{system}/Storage/Volumes/DellVirtualDisk/{disk}
+  - Path: /redfish/v1/Fabrics/{fabric}
+  - Path: /redfish/v1/Fabrics/{fabric}/Switches
   - Path: /redfish/v1/Managers/{manager}/NetworkProtocol
   - Path: /redfish/v1/Managers/{manager}
   - Path: /redfish/v1/Managers/{manager}/EthernetInterfaces/{interface}
@@ -54,7 +57,6 @@ Metrics:
   - Path: /redfish/v1/Systems/{system}/Memory/{memory}/Metrics
   - Path: /redfish/v1/Systems/{system}/NetworkAdapters/{nic}
   - Path: /redfish/v1/Systems/{system}/NetworkAdapters/{nic}/NetworkDeviceFunctions/{function}
-  - Path: /redfish/v1/Systems/{system}/NetworkAdapters/{nic}/NetworkDeviceFunctions/{function}/Settings
   - Path: /redfish/v1/Systems/{system}/NetworkAdapters/{nic}/NetworkPorts/{port}
   - Path: /redfish/v1/Systems/{system}/NetworkInterfaces/{nic}
   - Path: /redfish/v1/Systems/{system}/PCIeDevice/{device}
@@ -63,8 +65,7 @@ Metrics:
   - Path: /redfish/v1/Systems/{system}/SimpleStorage/Controllers/{controller}
   - Path: /redfish/v1/Systems/{system}/Storage/Drives/{device}
   - Path: /redfish/v1/Systems/{system}/Storage/Volumes/{volume}
-  - Path: /redfish/v1/Systems/{system}/Storage/Volumes/{volume}/Settings
-  - Path: /redfish/v1/Systems/{system}/Storage/{controller}
+  - Path: /redfish/v1/Systems/{system}/Storage/{storage}
   - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Volumes
   - Path: /redfish/v1/Systems/{system}/StorageControllers/{controller}
 
@@ -80,4 +81,5 @@ Metrics:
 #   --key=DataLossDetected:bool \
 #   --key=State:state \
 #   --key=ReadingCelsius:number \
-#   show.json > generated.yaml
+#   --key=PowerConsumedWatts:number \
+#   <model-1-data>.json <model-2-data>.json ... > generated.yaml
