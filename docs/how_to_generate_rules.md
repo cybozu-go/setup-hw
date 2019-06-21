@@ -11,21 +11,43 @@ can use [collector](collector.md) command-line tool.
 This document describes how to use `collector` to generate a rule file.
 
 
+Update Server Firmware
+----------------------
+
+First of all, it is recommended that you update your servers' BIOS, BMC
+software, or anything related to hardware management.
+It is important to keep your servers' firmware versions to some uniform one,
+if not the latest, among all servers.
+
+Detailed operations vary with the kind of machine, so please refer to your
+servers' manuals.
+
+### \[Informational\] Update steps for Dell PowerEdge servers
+
+1. Download the latest stable iDRAC and BIOS firmware from Dell's site.
+
+2. Update iDRAC and BIOS via the iDRAC Web interface.
+
+3. Execute "Full Power Cycle" via the iDRAC Web interface.
+
+
 Collect Redfish Data
 --------------------
 
-First of all, you need to collect Redfish data from your servers.
-Prepare a `collector` binary file and its [configuration files] on a server,
-and execute:
+You need to collect Redfish data from your servers.
+Prepare a `collector` binary file and its [configuration files](config.md)
+on a server, and execute:
 
 ```console
 $ collector show > data.json
 ```
 
-This saves collected Redfish data in a [simple JSON format](collector.md#data-format)
-into a file.
+This saves collected Redfish data into a file in a [simple JSON format](collector.md#data-format).
+The rest of works are performed on the retrieved JSON file, and can be run
+on your local machine.
 
-`collector` retrieves Redfish data by traversing from `/redfish/v1`.
+`collector` retrieves Redfish data by traversing from `/redfish/v1`
+by default.
 If your server's BMC provides Redfish API at other than `/redfish/v1`,
 prepare a base rule file with `Traverse.Root` filled, and use it by
 `--base-rule=<file>`.
@@ -37,9 +59,6 @@ Traverse:
 
 $ collector show --base-rule=rule.yaml > data.json
 ```
-
-The rest of works are performed on the retrieved JSON file, and can be run
-on your local machine.
 
 
 Summarize Redfish Data
@@ -57,6 +76,17 @@ The following command shows the collected data as is.
 $ collector show --input-file=data.json
 ```
 
+Redfish API returns one page of some hardware information in a JSON format
+per access, according to the accessed URL path.
+For example, `GET /redfish/v1` returns a page of the server's overall
+information, while `GET /redfish/v1/Systems/system1/Storage/Volumes/volume1`
+returns a page of a very specific volume's information.
+`collector show` traverses such pages and displays them in the form of
+a JSON key-value object.
+The keys of the JSON object are paths of Redfish data, and the values are
+pages as JSON data returned by Redfish API.
+See the ["Data Format" section](collector.md#data-format) to view an example.
+
 ### Exclude paths
 
 If you find that Redfish pages at paths of `/redfish/v1/JSONSchemas/...`
@@ -64,65 +94,132 @@ or something do not provide useful data for metrics at all, you can exclude
 those pages by specifying `Traverse.Excludes` in a base rule file.
 
 ```console
-$ cat rule.yaml
+$ collector show --input-file=data.json --base-rule=rule.yaml
+{
+    "/redfish/v1/JSONSchemas": { ...(non-metric values)... },
+    "/redfish/v1/Chassis/chassis1/Power": { ...(metric values)... }
+}
+
+$ vi rule.yaml
 Traverse:
   Root: /redfish/v1
   Excludes:
     - /JSONSchemas
 
 $ collector show --input-file=data.json --base-rule=rule.yaml
+{
+    "/redfish/v1/Chassis/chassis1/Power": { ...(metric values)... }
+}
 ```
 
 Each element of `Traverse.Exludes` are interpreted as a regular expression
 and matched to Redfish paths.
 
-The `--keys-only` option helps you to find unnecessary pages.
+The `--paths-only` option helps you to find unnecessary pages.
 
-### Summarize repeated pages
+### Summarize pages with similar paths
 
-If you find that a group of Redfish pages has a patterned path like
-`/redfish/v1/Chassis/.../Power`, you can summarize such pages by specifying
-`Metrics.Path` in a base rule file, and by using the `--no-dup` option.
+Because Redfish data are well-structured, you will find that Redfish pages
+with similar contents have similar paths like these:
 
 ```console
-$ cat rule.yaml
+$ collector show --input-file=data.json --base-rule=rule.yaml
+{
+    "/redfish/v1/Chassis/chassis1/Power": { ...(metric values on chassis#1)... },
+    "/redfish/v1/Chassis/chassis2/Power": { ...(metric values on chassis#2)... },
+    "/redfish/v1/Chassis/chassis3/Power": { ...(metric values on chassis#3)... }
+}
+```
+
+The first page would show the information about the power supply modules of
+the chassis #1.
+The second page would be about those of the chassis #2.
+Such pages have the same structure in most cases.
+In process of finding informative properties, only one of the similar pages
+has importance.
+
+`collector` drops the second and later pages from the similar pages with
+similar paths, but `collector` cannot detect "similar" paths by itself.
+Instead, please specify `Metrics.Path` for "similar" paths in a base rule file.
+Replace the varying path components in similar paths with a "pattern"
+component like `{foo}`.
+In the above example, you should specify `/redfish/v1/Chassis/{chassis}/Power`
+in a base rule file.
+
+```console
+$ vi rule.yaml
 Traverse:
   Root: /redfish/v1
 Metrics:
   - Path: /redfish/v1/Chassis/{chassis}/Power
 
-$ collector show --input-file=data.json --base-rule=rule.yaml --no-dup
+$ collector show --input-file=data.json --base-rule=rule.yaml
+{
+    "/redfish/v1/Chassis/chassis1/Power": { ...(metric values on chassis#1)... }
+}
 ```
 
-This will show at least one page per patterned path.
-Note that specifying `Metrics.Path` here does not prohibit the data outside
-the path to be shown.
-
+This will show at most one page per patterned path.
 See the ["Patterned path" section](rule.md#patterned-path) for more detail on
 `Metrics.Path`.
+
+Note that specifying `Metrics.Path` here does not prohibit the data outside
+the path to be shown.
 
 Also note that specifying `Metrics.Path` here does not affect whether
 properties inside the path will finally be collected and exported as metrics
 or not.
-It just controls summarization in deciding target properties.
+It just controls summarization in showing Redfish data.
 
-The `--keys-only` option helps you to find repeated pages.
+The `--paths-only` option helps you to find pages with similar paths.
 
-### Summarize repeated list elements
+### Summarize array elements
 
-By using the `--no-dup` option, you can also summarize list elements.
+The JSON data in a Redfish page sometimes contains arrays to represent groups
+of resources.
+For example, `PowerSupplies` in `/redfish/v1/Chassis/chassis1/Power` is
+an array of information on power supply units.
 
 ```console
-$ collector show --input-file=data.json --no-dup
+$ collector show --input-file=data.json
+{
+    "/redfish/v1/Chassis/chassis1/Power": {
+        "PowerSupplies": [
+            { ...(metric values on PSU#1)... },
+            { ...(metric values on PSU#2)... },
+            { ...(metric values on PSU#3)... }
+        ]
+    }
+}
 ```
 
-This will show at least one element per list.
+In process of finding informative properties, only one of the array elements
+has importance.
+By specifying the `--truncate-arrrays` option, you can drop the second and
+later array elements.
+
+```console
+$ collector show --input-file=data.json --truncate-arrays
+{
+    "/redfish/v1/Chassis/chassis1/Power": {
+        "PowerSupplies": [
+            { ...(metric values on PSU#1)... }
+        ]
+    }
+}
+```
+
+This will show at most one element per array.
 
 ### Condense more
 
-The `--omitempty` option truncates empty arrays and empty maps.
+The `--omit-empty` option truncates empty arrays and empty objects in
+Redfish pages.
 
-The `--ignore-field` option hides those fields whose names match the specified pattern.
+The `--ignore-field` option hides those key-value pairs in Redfish pages
+whose keys match the specified pattern.
+For example it would be comfortable to hide Redfish meta data by specifying
+`--ignore-field="@odata.*"`.
 
 
 Select Key Properties
@@ -150,14 +247,13 @@ $ collector show --input-file=data.json ...
 You need to record the names and "types" of informative properties.
 In the above example, two properties are extracted; "Health" of the type of
 `health` and "State" of the type of `state`.
+
 Types are the names of converting rules for Redfish data to be exported
 as metrics numbers.
-They are defined in [converter.go](../redfish/converter.go).
-If you cannot find an appropriate converter, add a new one.
-
-You can use the `--required-field` option to see what values appear
-in the specified kind of field throughout the data.
-In this case, you should not use other summarizing options.
+The ["Type of property" section](rule.md#type-of-property) describes
+currently supported types.
+If you cannot find an appropriate type, please implement a new one in
+[converter.go](../redfish/converter.go).
 
 When you find an informative property, you can specify `--ignore-field`
 with it to reduce data before finding other informative properties.
@@ -178,11 +274,12 @@ Check the generated file carefully.
 If you find unnecessary paths or redundant rules, go back to summarization
 of the data.
 
-To use the generated rule file, put it in [redfish/rules](../redfish/rules)
-with an appropriate name.
-See [monitor-hw's root.go](../pkg/monitor-hw/cmd/root.go) to know loading
-of a rule file.
-Update root.go's logic if necessary.
+You may need to fix auto-generated `Metrics.Properties.Pointer` and
+`Metrics.Properties.Name`.
+Especially pattern names in `Metrics.Properties.Pointer` are used as
+label names in Prometheus metrics, so please take a good look.
+See the ["Patterned pointer" section](rule.md#patterned-pointer) for more
+detail on `Metrics.Properties.Pointer`.
 
 
 Generate a Common Rule File for Multiple Types of Machines
@@ -199,6 +296,22 @@ $ collector generate-rule --base-rule=rule.yaml --key=name1:type1 --key=name2:ty
 ```
 
 
+Put a Rule File into Rules Directory
+------------------------------------
+
+To use the generated rule file, put it in [redfish/rules](../redfish/rules)
+with an appropriate name.
+See [monitor-hw's root.go](../pkg/monitor-hw/cmd/root.go) to know loading
+of a rule file.
+Update root.go's logic if necessary.
+
+Currently `monitor-hw` works as follows:
+1. Detects the hardware vendor by reading `/sys/devices/virtual/dmi/id/sys_vendor`.
+2. Detects the Redfish version by retrieving `/redfish/v1` from the Redfish API
+   and inspecting the `RedfishVersion` property.
+3. Constructs a file name as `dell_redfish_{version}.yml` for Dell servers.
+   Other vendors are not supported.
+
+
 [Prometheus]: https://prometheus.io/
 [Redfish]: https://www.dmtf.org/standards/redfish
-

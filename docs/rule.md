@@ -73,15 +73,11 @@ Name    | true     | string | Base name of a metric converted from the property.
 Help    | false    | string | Help text.
 Type    | true     | string | Type of a property.  This controls conversion from Redfish string to metric float.
 
-* `Pointer` can be given in the form of [JSON Pointer][RFC6901] with extension
+`Pointer` can be given in the form of [JSON Pointer][RFC6901] with extension
 of [patterns](#patterned-pointer).
 The following are not supported:
   * reference to an array element, e.g. `/2` to point the third element in the array
   * escapes, e.g. `/foo~1bar` to point the object value with the key of `foo/bar`
-* The following types are supported:
-  * `number`
-  * `health`
-  * `state`
 
 ### Patterned pointer
 
@@ -124,6 +120,38 @@ does not produce any metrics from the following JSON data.
   }
 }
 ```
+
+### Type of property
+
+The following types are supported.
+See [Redfish Resource and Schema Guide](https://www.dmtf.org/dsp/DSP2046)
+for more detail.
+
+* `number`: for generic numerical properties
+
+* `health`: for "Health" property in "Status" type
+  * `"OK"` => 0
+  * `"Warning"` => 1
+  * `"Critical"` => 2
+  * `null` => -1
+
+* `state`: for "State" property in "Status" type
+  * `"Enabled"` => 0
+  * `"Disabled"` => 1
+  * `"Absent"` => 2
+  * `"Deferring"` => 3
+  * `"InTest"` => 4
+  * `"Quiesced"` => 5
+  * `"StandbyOffline"` => 6
+  * `"StandbySpare"` => 7
+  * `"Starting"` => 8
+  * `"UnavailableOffline"` => 9
+  * `"Updating"` => 10
+
+* `bool`: for generic boolean properties
+  * `false` => 0
+  * `true` => 1
+  * `null` => -1
 
 
 [Redfish]: https://www.dmtf.org/standards/redfish
