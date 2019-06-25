@@ -5,6 +5,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.6.5] - 2019-06-25
+
+### Added
+- A utility to collect Redfish data (#23)
+
+### Changed
+- Update the rule file for Dell 14G (#24)
+
 ## [1.6.4] - 2019-06-11
 
 ### Changed
@@ -46,7 +54,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 (#12)
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.6.4...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.6.5...HEAD
+[1.6.5]: https://github.com/cybozu-go/setup-hw/compare/v1.6.4...v1.6.5
 [1.6.4]: https://github.com/cybozu-go/setup-hw/compare/v1.6.3...v1.6.4
 [1.6.3]: https://github.com/cybozu-go/setup-hw/compare/v1.6.2...v1.6.3
 [1.6.2]: https://github.com/cybozu-go/setup-hw/compare/v1.6.1...v1.6.2
