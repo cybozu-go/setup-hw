@@ -15,13 +15,13 @@ import (
 
 var showConfig struct {
 	inputFile      string
-	keysOnly       bool
-	omitempty      bool
-	noDup          bool
-	ignoreFields   []string
-	ignoreRegexp   *regexp.Regexp
+	pathsOnly      bool
 	requiredFields []string
 	requiredRegexp *regexp.Regexp
+	omitEmpty      bool
+	truncateArrays bool
+	ignoreFields   []string
+	ignoreRegexp   *regexp.Regexp
 }
 
 // showCmd represents the show command
@@ -59,24 +59,24 @@ var showCmd = &cobra.Command{
 			result := make(map[string]interface{})
 			for k, v := range collected.Data() {
 				if showConfig.ignoreRegexp != nil {
-					ignoreFields(ctx, v, showConfig.ignoreRegexp)
+					ignoreFields(v, showConfig.ignoreRegexp)
 				}
-				if showConfig.noDup {
-					leaveFirstItem(ctx, v)
+				if showConfig.truncateArrays {
+					leaveFirstItem(v)
 				}
-				if showConfig.omitempty {
-					if omitEmpty(ctx, v) {
+				if showConfig.omitEmpty {
+					if omitEmpty(v) {
 						delete(collected.Data(), k)
 					}
 				}
-				if showConfig.keysOnly {
+				if showConfig.pathsOnly {
 					result[k] = struct{}{}
 				} else {
 					result[k] = v.Data()
 				}
 
 				if showConfig.requiredRegexp != nil {
-					if !requiredFields(ctx, v, showConfig.requiredRegexp) {
+					if !requiredFields(v, showConfig.requiredRegexp) {
 						delete(result, k)
 						continue
 					}
@@ -111,14 +111,13 @@ var showCmd = &cobra.Command{
 	},
 }
 
-func requiredFields(ctx context.Context, current *gabs.Container, required *regexp.Regexp) bool {
+func requiredFields(current *gabs.Container, required *regexp.Regexp) bool {
 	if childrenMap, err := current.ChildrenMap(); err == nil {
 		for k, v := range childrenMap {
-			if required != nil && required.Match([]byte(k)) {
+			if required != nil && required.MatchString(k) {
 				return true
 			}
-			b := requiredFields(ctx, v, required)
-			if b {
+			if ok := requiredFields(v, required); ok {
 				return true
 			}
 		}
@@ -127,8 +126,7 @@ func requiredFields(ctx context.Context, current *gabs.Container, required *rege
 
 	if children, err := current.Children(); err == nil {
 		for _, child := range children {
-			b := requiredFields(ctx, child, required)
-			if b {
+			if ok := requiredFields(child, required); ok {
 				return true
 			}
 		}
@@ -136,10 +134,10 @@ func requiredFields(ctx context.Context, current *gabs.Container, required *rege
 	return false
 }
 
-func ignoreFields(ctx context.Context, current *gabs.Container, ignorePattern *regexp.Regexp) {
+func ignoreFields(current *gabs.Container, ignorePattern *regexp.Regexp) {
 	if childrenMap, err := current.ChildrenMap(); err == nil {
 		for k, v := range childrenMap {
-			if ignorePattern != nil && ignorePattern.Match([]byte(k)) {
+			if ignorePattern != nil && ignorePattern.MatchString(k) {
 				err = current.Delete(k)
 				if err != nil {
 					log.Warn("failed to delete", map[string]interface{}{
@@ -149,40 +147,46 @@ func ignoreFields(ctx context.Context, current *gabs.Container, ignorePattern *r
 				}
 				continue
 			}
-			ignoreFields(ctx, v, ignorePattern)
+			ignoreFields(v, ignorePattern)
 		}
 		return
 	}
 
 	if children, err := current.Children(); err == nil {
 		for _, child := range children {
-			ignoreFields(ctx, child, ignorePattern)
+			ignoreFields(child, ignorePattern)
 		}
 	}
 }
 
-func leaveFirstItem(ctx context.Context, parsed *gabs.Container) int {
+func leaveFirstItem(parsed *gabs.Container) {
 	if childrenMap, err := parsed.ChildrenMap(); err == nil {
 		for k, v := range childrenMap {
-			count := leaveFirstItem(ctx, v)
-			for i := count - 1; i > 0; i-- {
-				err = parsed.ArrayRemove(i, k)
-				if err != nil {
-					log.Warn("failed to remove", map[string]interface{}{
-						log.FnError: err,
-						"key":       k,
-						"index":     i,
-					})
-				}
+			leaveFirstItem(v)
+			_, err = parsed.Set(v.Data(), k)
+			if err != nil {
+				log.Warn("failed to set", map[string]interface{}{
+					log.FnError: err,
+					"value":     v,
+					"key":       k,
+				})
 			}
 		}
-		return 0
 	}
 
 	if children, err := parsed.Children(); err == nil {
 		if len(children) > 0 {
-			count := leaveFirstItem(ctx, children[0])
-			for i := count - 1; i > 0; i-- {
+			leaveFirstItem(children[0])
+			_, err = parsed.SetIndex(children[0].Data(), 0)
+			if err != nil {
+				log.Warn("failed to set", map[string]interface{}{
+					log.FnError: err,
+					"value":     children[0],
+					"index":     0,
+				})
+			}
+
+			for i := len(children) - 1; i > 0; i-- {
 				err = parsed.ArrayRemove(i)
 				if err != nil {
 					log.Warn("failed to remove", map[string]interface{}{
@@ -192,20 +196,26 @@ func leaveFirstItem(ctx context.Context, parsed *gabs.Container) int {
 				}
 			}
 		}
-		return len(children)
 	}
-
-	return 0
 }
 
-func omitEmpty(ctx context.Context, current *gabs.Container) bool {
+func omitEmpty(current *gabs.Container) bool {
 	if childrenMap, err := current.ChildrenMap(); err == nil {
 		for k, v := range childrenMap {
-			if omitEmpty(ctx, v) {
+			if omitEmpty(v) {
 				err = current.Delete(k)
 				if err != nil {
 					log.Warn("failed to delete", map[string]interface{}{
 						log.FnError: err,
+						"key":       k,
+					})
+				}
+			} else {
+				_, err = current.Set(v.Data(), k)
+				if err != nil {
+					log.Warn("failed to set", map[string]interface{}{
+						log.FnError: err,
+						"value":     v,
 						"key":       k,
 					})
 				}
@@ -220,11 +230,20 @@ func omitEmpty(ctx context.Context, current *gabs.Container) bool {
 	if children, err := current.Children(); err == nil {
 		for i := len(children) - 1; i >= 0; i-- {
 			v := children[i]
-			if omitEmpty(ctx, v) {
+			if omitEmpty(v) {
 				err = current.ArrayRemove(i)
 				if err != nil {
 					log.Warn("failed to remove", map[string]interface{}{
 						log.FnError: err,
+						"index":     i,
+					})
+				}
+			} else {
+				_, err = current.SetIndex(v.Data(), i)
+				if err != nil {
+					log.Warn("failed to set", map[string]interface{}{
+						log.FnError: err,
+						"value":     v,
 						"index":     i,
 					})
 				}
@@ -242,9 +261,9 @@ func omitEmpty(ctx context.Context, current *gabs.Container) bool {
 func init() {
 	rootCmd.AddCommand(showCmd)
 	showCmd.Flags().StringVar(&showConfig.inputFile, "input-file", "", "pre-collected Redfish data")
-	showCmd.Flags().BoolVar(&showConfig.keysOnly, "keys-only", false, "show keys only")
-	showCmd.Flags().BoolVar(&showConfig.omitempty, "omitempty", false, "omit empty fields")
-	showCmd.Flags().BoolVar(&showConfig.noDup, "no-dup", false, "remove duplicate fields")
+	showCmd.Flags().BoolVar(&showConfig.pathsOnly, "paths-only", false, "show paths only")
+	showCmd.Flags().StringSliceVar(&showConfig.requiredFields, "required-field", nil, "required fields to show a page")
+	showCmd.Flags().BoolVar(&showConfig.omitEmpty, "omit-empty", false, "omit empty arrays and objects")
+	showCmd.Flags().BoolVar(&showConfig.truncateArrays, "truncate-arrays", false, "show first array element only")
 	showCmd.Flags().StringSliceVar(&showConfig.ignoreFields, "ignore-field", nil, "ignore fields")
-	showCmd.Flags().StringSliceVar(&showConfig.requiredFields, "required-field", nil, "required fields")
 }

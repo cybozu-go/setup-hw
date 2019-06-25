@@ -7,7 +7,7 @@ Synopsis
 --------
 
 ```console
-$ collector show [--input-file=<file>] [--base-rule=<file>] [--keys-only] [--omitempty] [--no-dup] [--ignore-field=<field>...] [--required-field=<field>...]
+$ collector show [--input-file=<file>] [--base-rule=<file>] [--paths-only] [--required-field=<field>...] [--omit-empty] [--truncate-arrays] [--ignore-field=<field>...]
 $ collector generate-rule [--base-rule=<file>] [--key=<key>:<type>...] INPUT_FILE...
 ```
 
@@ -32,13 +32,21 @@ Show mode
 
 If `--input-file` is specified, it loads Redfish API responses from the file.
 
-If `--keys-only` is specified, `collector show` shows only path.
+`--paths-only` and `--required-field` control showing of paths and pages.
 
-If `--omitempty` is specified, `collector show` will not show an empty array or an empty map.
+If `--paths-only` is specified, `collector show` shows only paths.
+
+If `--required-field` is specified, `collector show` will show only the pages that have the specified field.
+This option can be specified for multiple times.
+
+`--omit-empty`, `--truncate-arrays`, and `--ignore-field` control showing of JSON data in a page.
+
+If `--omit-empty` is specified, `collector show` will not show empty arrays and empty objects.
+
+If `--truncate-arrays` is specified, `collector show` will truncate the second and later elements of arrays.
 
 If `--ignore-field` is specified, `collector show` will not show the field that matches the specified name.
-
-If `--required-field` is specified, `collector show` will show the JSON object that has the specified field.
+This option can be specified for multiple times.
 
 Generate mode
 -------------
@@ -53,8 +61,8 @@ It traverses Redfish data from the input file, picks up specified keys, and gene
 It generates multiple collection rules internally, and merges rules into one.
 By accepting multiple input files, it can produce a unified collection rule for slightly varying types of machines.
 
-`collector generate-rule` summarizes keys if they are in a list.
-It generates `Pointer` of `/foos/{foo}/Status` if it finds a `Status` key in the first item of the list at `/foos`.
+`collector generate-rule` summarizes keys if they are in an array.
+It generates `Pointer` of `/foos/{foo}/Status` if it finds a `Status` key in the first item of the array at `/foos`.
 This is based on [patterns](rule.md#patterned-pointer) in a collection rule.
 
 In contrast, `collector generate-rule` cannot detect [patterns](rule.md#patterned-path) in paths, i.e. it cannot generate rules with page paths like `/redfish/v1/Chassis/{chassis}` by itself.
@@ -65,7 +73,7 @@ If patterned `Metrics.Path`s are given through the `--base-rule` option, however
 
 `--key=<key>:<type>` specifies the property key to be searched in generating a rule file, followed by the type of the property.
 This can be specified in the `generate-rule` mode only.
-This option can be specified multiple times.
+This option can be specified for multiple times.
 
 Data Format
 -----------
@@ -73,7 +81,7 @@ Data Format
 `collector show` outputs collected Redfish data in the following JSON format.
 
 - key: path of Redfish data
-- value: JSON data retrieved by accessing Redfish API
+- value: JSON data returned from Redfish API as a page
 
 The output is like this:
 

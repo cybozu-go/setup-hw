@@ -11,6 +11,7 @@ import (
 
 func TestGenerateRule(t *testing.T) {
 	powerPath := "/redfish/v1/Chassis/System.Embedded.1/Power"
+	powerPatternedPath := "/redfish/v1/Chassis/{chassis}/Power"
 	powerJSON := `
 {
     "@odata.context": "/redfish/v1/$metadata#Power.Power",
@@ -76,21 +77,21 @@ func TestGenerateRule(t *testing.T) {
 
 	expected := []*redfish.MetricRule{
 		{
-			Path: powerPath,
+			Path: powerPatternedPath,
 			PropertyRules: []*redfish.PropertyRule{
 				{
 					Pointer: "/PowerSupplies/{powersupply}/LineInputVoltage",
-					Name:    "chassis_systemembedded1_power_powersupplies_lineinputvoltage",
+					Name:    "chassis_power_powersupplies_lineinputvoltage",
 					Type:    "number",
 				},
 				{
 					Pointer: "/PowerSupplies/{powersupply}/Redundancy/{redundancy}/Status/Health",
-					Name:    "chassis_systemembedded1_power_powersupplies_redundancy_status_health",
+					Name:    "chassis_power_powersupplies_redundancy_status_health",
 					Type:    "health",
 				},
 				{
 					Pointer: "/PowerSupplies/{powersupply}/Status/Health",
-					Name:    "chassis_systemembedded1_power_powersupplies_status_health",
+					Name:    "chassis_power_powersupplies_status_health",
 					Type:    "health",
 				},
 			},
@@ -110,6 +111,11 @@ func TestGenerateRule(t *testing.T) {
 	}, &redfish.CollectRule{
 		TraverseRule: redfish.TraverseRule{
 			Root: defaultRootPath,
+		},
+		MetricRules: []*redfish.MetricRule{
+			{
+				Path: powerPatternedPath,
+			},
 		},
 	})
 
