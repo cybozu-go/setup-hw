@@ -159,28 +159,34 @@ func ignoreFields(current *gabs.Container, ignorePattern *regexp.Regexp) {
 	}
 }
 
-func leaveFirstItem(parsed *gabs.Container) int {
+func leaveFirstItem(parsed *gabs.Container) {
 	if childrenMap, err := parsed.ChildrenMap(); err == nil {
 		for k, v := range childrenMap {
-			count := leaveFirstItem(v)
-			for i := count - 1; i > 0; i-- {
-				err = parsed.ArrayRemove(i, k)
-				if err != nil {
-					log.Warn("failed to remove", map[string]interface{}{
-						log.FnError: err,
-						"key":       k,
-						"index":     i,
-					})
-				}
+			leaveFirstItem(v)
+			_, err = parsed.Set(v.Data(), k)
+			if err != nil {
+				log.Warn("failed to set", map[string]interface{}{
+					log.FnError: err,
+					"value":     v,
+					"key":       k,
+				})
 			}
 		}
-		return 0
 	}
 
 	if children, err := parsed.Children(); err == nil {
 		if len(children) > 0 {
-			count := leaveFirstItem(children[0])
-			for i := count - 1; i > 0; i-- {
+			leaveFirstItem(children[0])
+			_, err = parsed.SetIndex(children[0].Data(), 0)
+			if err != nil {
+				log.Warn("failed to set", map[string]interface{}{
+					log.FnError: err,
+					"value":     children[0],
+					"index":     0,
+				})
+			}
+
+			for i := len(children) - 1; i > 0; i-- {
 				err = parsed.ArrayRemove(i)
 				if err != nil {
 					log.Warn("failed to remove", map[string]interface{}{
@@ -190,10 +196,7 @@ func leaveFirstItem(parsed *gabs.Container) int {
 				}
 			}
 		}
-		return len(children)
 	}
-
-	return 0
 }
 
 func omitEmpty(current *gabs.Container) bool {
@@ -204,6 +207,15 @@ func omitEmpty(current *gabs.Container) bool {
 				if err != nil {
 					log.Warn("failed to delete", map[string]interface{}{
 						log.FnError: err,
+						"key":       k,
+					})
+				}
+			} else {
+				_, err = current.Set(v.Data(), k)
+				if err != nil {
+					log.Warn("failed to set", map[string]interface{}{
+						log.FnError: err,
+						"value":     v,
 						"key":       k,
 					})
 				}
@@ -223,6 +235,15 @@ func omitEmpty(current *gabs.Container) bool {
 				if err != nil {
 					log.Warn("failed to remove", map[string]interface{}{
 						log.FnError: err,
+						"index":     i,
+					})
+				}
+			} else {
+				_, err = current.SetIndex(v.Data(), i)
+				if err != nil {
+					log.Warn("failed to set", map[string]interface{}{
+						log.FnError: err,
+						"value":     v,
 						"index":     i,
 					})
 				}

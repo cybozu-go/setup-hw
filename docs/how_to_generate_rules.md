@@ -220,6 +220,8 @@ The `--ignore-field` option hides those key-value pairs in Redfish pages
 whose keys match the specified pattern.
 For example it would be comfortable to hide Redfish meta data by specifying
 `--ignore-field="@odata.*"`.
+Note that this does not change traversal, i.e. pages pointed by "@odata.id"
+are still traversed.
 
 
 Select Key Properties
