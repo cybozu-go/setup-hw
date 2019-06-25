@@ -14,13 +14,10 @@ This document describes how to use `collector` to generate a rule file.
 Update Server Firmware
 ----------------------
 
-First of all, it is recommended that you update your servers' BIOS, BMC
-software, or anything related to hardware management.
-It is important to keep your servers' firmware versions to some uniform one,
-if not the latest, among all servers.
-
-Detailed operations vary with the kind of machine, so please refer to your
-servers' manuals.
+First of all, make sure all servers have up-to-date BIOS and BMC.
+Follow the instructions below to update them if you are using Dell PowerEdge
+servers.
+For other types of servers, please refer to their manuals.
 
 ### \[Informational\] Update steps for Dell PowerEdge servers
 
@@ -80,11 +77,11 @@ Redfish API returns one page of some hardware information in a JSON format
 per access, according to the accessed URL path.
 For example, `GET /redfish/v1` returns a page of the server's overall
 information, while `GET /redfish/v1/Systems/system1/Storage/Volumes/volume1`
-returns a page of a very specific volume's information.
+returns a page of very specific volume's information.
 `collector show` traverses such pages and displays them in the form of
 a JSON key-value object.
 The keys of the JSON object are paths of Redfish data, and the values are
-pages as JSON data returned by Redfish API.
+pages returned by Redfish API in JSON.
 See the ["Data Format" section](collector.md#data-format) to view an example.
 
 ### Exclude paths
@@ -138,7 +135,7 @@ Such pages have the same structure in most cases.
 In process of finding informative properties, only one of the similar pages
 has importance.
 
-`collector` drops the second and later pages from the similar pages with
+`collector` can drop the second and later pages from the similar pages with
 similar paths, but `collector` cannot detect "similar" paths by itself.
 Instead, please specify `Metrics.Path` for "similar" paths in a base rule file.
 Replace the varying path components in similar paths with a "pattern"
@@ -169,7 +166,10 @@ the path to be shown.
 Also note that specifying `Metrics.Path` here does not affect whether
 properties inside the path will finally be collected and exported as metrics
 or not.
-It just controls summarization in showing Redfish data.
+It controls summarization in showing Redfish data.
+It also controls the output format of `Metrics.Path` in the `generate-rule`
+mode, but whether the path is included in the generated rule depends on
+the user-specified options.
 
 The `--paths-only` option helps you to find pages with similar paths.
 
@@ -245,9 +245,6 @@ $ collector show --input-file=data.json ...
 ```
 
 You need to record the names and "types" of informative properties.
-In the above example, two properties are extracted; "Health" of the type of
-`health` and "State" of the type of `state`.
-
 Types are the names of converting rules for Redfish data to be exported
 as metrics numbers.
 The ["Type of property" section](rule.md#type-of-property) describes
@@ -255,9 +252,16 @@ currently supported types.
 If you cannot find an appropriate type, please implement a new one in
 [converter.go](../redfish/converter.go).
 
-When you find an informative property, you can specify `--ignore-field`
+In the example above, two properties seem informative; "Health" of
+the type of `health` and "State" of the type of `state`.
+
+Once you find an informative property, you can specify `--ignore-field`
 with it to reduce data before finding other informative properties.
 
+```console
+$ collector show --input-file=data.json ... --ignore-field=Health --ignore-field=State
+(...much smaller data...)
+```
 
 Generate a Rule File
 --------------------
@@ -267,7 +271,7 @@ Let's generate a rule file by specifying them in the generate mode of
 `collector`.
 
 ```console
-$ collector generate-rule --base-rule=rule.yaml --key=name1:type1 --key=name2:type2 data.json
+$ collector generate-rule --base-rule=rule.yaml --key=Health:health --key=State:state data.json
 ```
 
 Check the generated file carefully.
@@ -292,7 +296,7 @@ After you find informative properties, you can generate a common rule file
 by passing all collected Redfish data to one command invocation.
 
 ```console
-$ collector generate-rule --base-rule=rule.yaml --key=name1:type1 --key=name2:type2 data1.json data2.json data3.json
+$ collector generate-rule --base-rule=rule.yaml --key=Health:health --key=State:state data1.json data2.json data3.json
 ```
 
 
@@ -301,8 +305,8 @@ Put a Rule File into Rules Directory
 
 To use the generated rule file, put it in [redfish/rules](../redfish/rules)
 with an appropriate name.
-See [monitor-hw's root.go](../pkg/monitor-hw/cmd/root.go) to know loading
-of a rule file.
+See [monitor-hw's root.go](../pkg/monitor-hw/cmd/root.go) to learn about
+loading of a rule file.
 Update root.go's logic if necessary.
 
 Currently `monitor-hw` works as follows:
