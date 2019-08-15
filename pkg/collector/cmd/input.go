@@ -9,7 +9,7 @@ import (
 	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/setup-hw/gabs"
 	"github.com/cybozu-go/setup-hw/redfish"
-	"github.com/ghodss/yaml"
+	"sigs.k8s.io/yaml"
 )
 
 func collectOrLoad(ctx context.Context, inputFile string, baseRule string) (*redfish.Collected, error) {
