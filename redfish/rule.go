@@ -14,8 +14,8 @@ import (
 
 // CollectRule is a set of rules of traversing and converting Redfish data.
 type CollectRule struct {
-	TraverseRule TraverseRule  `json:"Traverse" yaml:"Traverse"`
-	MetricRules  []*MetricRule `json:"Metrics" yaml:"Metrics"`
+	TraverseRule TraverseRule  `json:"Traverse"`
+	MetricRules  []*MetricRule `json:"Metrics"`
 }
 
 // RuleGetter is the type to obtain dynamic rules
@@ -23,23 +23,23 @@ type RuleGetter func(context.Context) (*CollectRule, error)
 
 // TraverseRule is a set of rules of traversing Redfish data.
 type TraverseRule struct {
-	Root          string   `json:"Root" yaml:"Root"`
-	ExcludeRules  []string `json:"Excludes" yaml:"Excludes"`
+	Root          string   `json:"Root"`
+	ExcludeRules  []string `json:"Excludes"`
 	excludeRegexp *regexp.Regexp
 }
 
 // MetricRule is a set of rules of converting Redfish data for one URL path or patterned-path.
 type MetricRule struct {
-	Path          string          `json:"Path" yaml:"Path"`
-	PropertyRules []*PropertyRule `json:"Properties" yaml:"Properties"`
+	Path          string          `json:"Path"`
+	PropertyRules []*PropertyRule `json:"Properties"`
 }
 
 // PropertyRule is a rule of converting Redfish data into a Prometheus metric.
 type PropertyRule struct {
-	Pointer   string `json:"Pointer"        yaml:"Pointer"`
-	Name      string `json:"Name"           yaml:"Name"`
-	Help      string `json:"Help,omitempty" yaml:"Help,omitempty"`
-	Type      string `json:"Type"           yaml:"Type"`
+	Pointer   string `json:"Pointer"`
+	Name      string `json:"Name"`
+	Help      string `json:"Help,omitempty"`
+	Type      string `json:"Type"`
 	converter converter
 	desc      *prometheus.Desc
 }
