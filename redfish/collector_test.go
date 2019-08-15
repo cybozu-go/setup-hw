@@ -15,9 +15,9 @@ import (
 
 	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/setup-hw/gabs"
-	"github.com/ghodss/yaml"
 	"github.com/prometheus/client_golang/prometheus"
 	prommodel "github.com/prometheus/client_model/go"
+	"sigs.k8s.io/yaml"
 )
 
 func collectRule(filename string) (*CollectRule, error) {

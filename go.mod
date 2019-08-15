@@ -3,7 +3,6 @@ module github.com/cybozu-go/setup-hw
 require (
 	github.com/cybozu-go/log v1.5.0
 	github.com/cybozu-go/well v1.8.1
-	github.com/ghodss/yaml v1.0.0
 	github.com/google/go-cmp v0.3.0
 	github.com/gopherjs/gopherjs v0.0.0-20181103185306-d547d1d9531e // indirect
 	github.com/howeyc/gopass v0.0.0-20170109162249-bf9dde6d0d2c
@@ -18,4 +17,5 @@ require (
 	golang.org/x/crypto v0.0.0-20190128193316-c7b33c32a30b
 	golang.org/x/sys v0.0.0-20190124100055-b90733256f2e // indirect
 	gopkg.in/ini.v1 v1.41.0
+	sigs.k8s.io/yaml v1.1.0
 )
