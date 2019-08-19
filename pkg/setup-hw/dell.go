@@ -215,19 +215,32 @@ func (dc *dellConfigurator) configProcessor(ctx context.Context) error {
 }
 
 func (dc *dellConfigurator) configTpm(ctx context.Context) error {
-	if err := dc.enqueueConfig(ctx, "BIOS.SysSecurity.TpmSecurity", "OnPbm"); err != nil {
-		return err
-	}
-
-	key := "BIOS.SysSecurity.TpmStatus"
-	val, err := racadmGetConfig(ctx, key)
+	val, err := racadmGetConfig(ctx, "BIOS.SysSecurity.TpmInfo")
 	if err != nil {
 		return err
 	}
-	if val == "Enabled, Activated" {
-		return nil
+	switch {
+	case strings.Contains(val, "2.0"):
+		return dc.enqueueConfig(ctx, "BIOS.SysSecurity.TpmSecurity", "On")
+	case strings.Contains(val, "1.2"):
+		if err := dc.enqueueConfig(ctx, "BIOS.SysSecurity.TpmSecurity", "OnPbm"); err != nil {
+			return err
+		}
+		key := "BIOS.SysSecurity.TpmStatus"
+		val, err := racadmGetConfig(ctx, key)
+		if err != nil {
+			return err
+		}
+		if val == "Enabled, Activated" {
+			return nil
+		}
+		return dc.configTpmCommand(ctx, "Activate")
 	}
-	return dc.configTpmCommand(ctx, "Activate")
+
+	log.Warn("tpm not found", map[string]interface{}{
+		"tpminfo": val,
+	})
+	return nil
 }
 
 func (dc *dellConfigurator) configTpmCommand(ctx context.Context, action string) error {
