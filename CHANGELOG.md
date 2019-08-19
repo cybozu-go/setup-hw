@@ -5,6 +5,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.6.7] - 2019-08-19
+
+### Changed
+- Enable TPM 2.0 on Dell servers (#29)
+
 ## [1.6.6] - 2019-07-16
 
 ### Changed
@@ -59,7 +64,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 (#12)
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.6.6...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.6.7...HEAD
+[1.6.7]: https://github.com/cybozu-go/setup-hw/compare/v1.6.6...v1.6.7
 [1.6.6]: https://github.com/cybozu-go/setup-hw/compare/v1.6.5...v1.6.6
 [1.6.5]: https://github.com/cybozu-go/setup-hw/compare/v1.6.4...v1.6.5
 [1.6.4]: https://github.com/cybozu-go/setup-hw/compare/v1.6.3...v1.6.4
