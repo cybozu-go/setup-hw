@@ -11,7 +11,7 @@ Follow [semantic versioning 2.0.0][semver] to choose the new version number.
 Change log
 ----------
 
-Notable changes since the last release to [CHANGELOG.md](CHANGELOG.md) should be listed in [CHANGELOG.md](CHANGELOG.md).
+Notable changes since the last release should be listed in [CHANGELOG.md](CHANGELOG.md).
 
 The file should respect [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
