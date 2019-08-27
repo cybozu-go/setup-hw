@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -41,6 +42,33 @@ RETRY:
 
 	retries++
 	if retries == retryCount {
+		return err
+	}
+
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-time.After(10 * time.Second):
+	}
+	goto RETRY
+}
+
+func racadmRetrySilent(ctx context.Context, args ...string) error {
+	retries := 0
+RETRY:
+	cmd := exec.CommandContext(ctx, racadmPath, args...)
+	out, err := cmd.CombinedOutput()
+	if err == nil {
+		time.Sleep(1 * time.Second)
+		return nil
+	}
+
+	retries++
+	if retries == retryCount {
+		log.Error("idracadm7 failed", map[string]interface{}{
+			log.FnError: err,
+			"output":    string(out),
+		})
 		return err
 	}
 
@@ -358,7 +386,7 @@ func (dc *dellConfigurator) configUser(ctx context.Context, idx, name, priv, ipm
 		return err
 	}
 	if cred.Password.Raw != "" {
-		if err := racadmRetry(ctx, "set", prefix+"Password", cred.Password.Raw); err != nil {
+		if err := racadmRetrySilent(ctx, "set", prefix+"Password", cred.Password.Raw); err != nil {
 			return err
 		}
 	} else {
