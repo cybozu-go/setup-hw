@@ -25,6 +25,8 @@ The container need to be run as a system service before using `idracadm7` or [`s
 rkt and systemd:
 
 ```console
+$ sudo mkdir -p /var/lib/setup-hw
+
 $ sudo systemd-run --unit=setup-hw.service \
   rkt run --net=host --dns=host --hosts-entry=host --hostname=%H \
   --insecure-options=all \
@@ -32,6 +34,7 @@ $ sudo systemd-run --unit=setup-hw.service \
   --volume sys,kind=host,source=/sys --mount volume=sys,target=/sys \
   --volume modules,kind=host,source=/lib/modules,readOnly=true --mount volume=modules,target=/lib/modules \
   --volume neco,kind=host,source=/etc/neco,readOnly=true --mount volume=neco,target=/etc/neco \
+  --volume var,kind=host,source=/var/lib/setup-hw --mount volume=var,target=/var/lib/setup-hw \
   setup-hw:latest \
     --name setup-hw \
     --caps-retain=CAP_SYS_ADMIN,CAP_SYS_CHROOT,CAP_CHOWN,CAP_FOWNER,CAP_NET_ADMIN
@@ -40,11 +43,14 @@ $ sudo systemd-run --unit=setup-hw.service \
 Docker:
 
 ```console
+$ sudo mkdir -p /var/lib/setup-hw
+
 $ docker run -d --name=setup-hw \
   --net=host --privileged \
   -v /dev:/dev \
   -v /lib/modules:/lib/modules:ro \
   -v /etc/neco:/etc/neco:ro \
+  -v /var/lib/setup-hw:/var/lib/setup-hw \
   setup-hw:latest
 ```
 

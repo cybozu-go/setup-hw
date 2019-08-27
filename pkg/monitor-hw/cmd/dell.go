@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/cybozu-go/log"
@@ -20,6 +21,11 @@ func monitorDell(ctx context.Context) error {
 			case <-time.After(time.Duration(opts.resetInterval) * time.Hour):
 			case <-ctx.Done():
 				return nil
+			}
+
+			if _, err := os.Stat(opts.noResetFile); err == nil {
+				// if no-reset file exists, skip reset.
+				continue
 			}
 
 			err := well.CommandContext(ctx, "/opt/dell/srvadmin/bin/idracadm7", "racreset", "soft").Run()

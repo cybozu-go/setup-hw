@@ -16,8 +16,7 @@ $ monitor-hw [--listen=<address>] [--interval=<interval>] [vendor-specific optio
 Description
 -----------
 
-`monitor-hw` is a monitoring daemon using [Redfish API][Redfish].
-It works as an exporter for [Prometheus][] to monitor hardware metrics.
+`monitor-hw` exposes hardware status obtained through [Redfish API][Redfish] as Prometheus metrics.
 
 When `monitor-hw` is invoked, it starts a background routine to gather
 Redfish data of the server where it runs.
@@ -32,15 +31,16 @@ As `monitor-hw` uses the standard API of Redfish instead of dedicated tools
 like `omreport`, it can support multiple types of servers from multiple
 vendors.
 
-### Vendor specific actions
+Vendor specific behaviors
+------------------------
 
-#### Dell actions
+### Dell actions
 
-`monitor-hw` starts `instsvcdrv-helper`.
+`monitor-hw` invokes `instsvcdrv-helper` for `idracadm7`.
 
 `monitor-hw` periodically resets iDRAC because it occasionally hangs.
 
-#### QEMU actions
+### QEMU actions
 
 `monitor-hw` behaves as a mock server.
 
@@ -60,13 +60,13 @@ This interval means the time between the end of a certain traversal operation
 and the beginning of the next one, so the observed interval of metrics update
 will be somewhat longer than this interval.
 
-### Vendor specific options
-
-#### Dell options
+### Dell options
 
 `--reset-interval` specifies the interval of resetting iDRAC in hours.
 The default is 24 hours.
 
+`--no-reset` specifies a file name watched by `monitor-hw`.
+While the file exists, `monitor-hw` does not reset iDRAC.
 
 Configuration files
 -------------------
