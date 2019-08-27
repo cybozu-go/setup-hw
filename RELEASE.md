@@ -8,47 +8,38 @@ Versioning
 
 Follow [semantic versioning 2.0.0][semver] to choose the new version number.
 
-Prepare change log entries
---------------------------
+Change log
+----------
 
-Add notable changes since the last release to [CHANGELOG.md](CHANGELOG.md).
-It should look like:
+Notable changes since the last release to [CHANGELOG.md](CHANGELOG.md) should be listed in [CHANGELOG.md](CHANGELOG.md).
 
-```markdown
-(snip)
-## [Unreleased]
-
-### Added
-- Implement ... (#35)
-
-### Changed
-- Fix a bug in ... (#33)
-
-### Removed
-- Deprecated `-option` is removed ... (#39)
-
-(snip)
-```
+The file should respect [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 Bump version
 ------------
 
-1. Determine a new version number.  Let it write `$VERSION` as `VERSION=x.y.z`.
-2. Checkout `master` branch.
-3. Make a branch to release, for example by `git neco dev "$VERSION"`
-4. Edit `CHANGELOG.md` for the new version ([example][]).
-5. Commit the change and push it.
+1. Determine a new version number.  Export it as `VERSION` environment variable:
+
+    ```console
+    $ VERSION=x.y.z
+    $ export VERSION
+    ```
+
+2. Make a branch to release, for example by `git neco dev "prepare-$VERSION"`
+3. Edit `CHANGELOG.md` for the new version ([example][]).
+4. Commit the change and create a new pull request
 
     ```console
     $ git commit -a -m "Bump version to $VERSION"
     $ git neco review
     ```
 
-6. Merge this branch.
-7. Checkout `master` branch.
-8. Add a git tag, then push it.
+5. Merge the pull request.
+6. Pull `master` branch, add a git tag, then push it.
 
     ```console
+    $ git checkout master
+    $ git pull
     $ git tag "v$VERSION"
     $ git push origin "v$VERSION"
     ```
