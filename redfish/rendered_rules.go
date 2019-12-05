@@ -488,18 +488,6 @@ var Rules = map[string]*CollectRule{
 				Path: "/redfish/v1/Chassis/{chassis}/Thermal",
 				PropertyRules: []*PropertyRule{
 					{
-						Pointer: "/Fans/{fan}/Status/Health",
-						Name:    "chassis_thermal_fans_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-					{
-						Pointer: "/Fans/{fan}/Status/State",
-						Name:    "chassis_thermal_fans_status_state",
-						Help:    "",
-						Type:    "state",
-					},
-					{
 						Pointer: "/Redundancy/{redundancy}/Status/Health",
 						Name:    "chassis_thermal_redundancy_status_health",
 						Help:    "",
@@ -526,6 +514,23 @@ var Rules = map[string]*CollectRule{
 					{
 						Pointer: "/Temperatures/{temperature}/Status/State",
 						Name:    "chassis_thermal_temperatures_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Chassis/{chassis}/Sensors/Fans/{fan}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "chassis_thermal_fans_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "chassis_thermal_fans_status_state",
 						Help:    "",
 						Type:    "state",
 					},

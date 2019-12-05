@@ -38,12 +38,6 @@ Metrics:
     Type: state
 - Path: /redfish/v1/Chassis/{chassis}/Thermal
   Properties:
-  - Name: chassis_thermal_fans_status_health
-    Pointer: /Fans/{fan}/Status/Health
-    Type: health
-  - Name: chassis_thermal_fans_status_state
-    Pointer: /Fans/{fan}/Status/State
-    Type: state
   - Name: chassis_thermal_redundancy_status_health
     Pointer: /Redundancy/{redundancy}/Status/Health
     Type: health
@@ -58,6 +52,14 @@ Metrics:
     Type: health
   - Name: chassis_thermal_temperatures_status_state
     Pointer: /Temperatures/{temperature}/Status/State
+    Type: state
+- Path: /redfish/v1/Chassis/{chassis}/Sensors/Fans/{fan}
+  Properties:
+  - Name: chassis_thermal_fans_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: chassis_thermal_fans_status_state
+    Pointer: /Status/State
     Type: state
 - Path: /redfish/v1/Fabrics/{fabric}
   Properties:
