@@ -112,7 +112,7 @@ $ collector show --input-file=data.json --base-rule=rule.yaml
 Each element of `Traverse.Exludes` are interpreted as a regular expression
 and matched to Redfish paths.
 
-The `--keys-only` option helps you to find unnecessary pages.
+The `--paths-only` option helps you to find unnecessary pages.
 
 ### Summarize pages with similar paths
 
