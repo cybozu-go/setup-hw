@@ -195,7 +195,7 @@ $ collector show --input-file=data.json
 
 In process of finding informative properties, only one of the array elements
 has importance.
-By specifying the `--truncate-arrrays` option, you can drop the second and
+By specifying the `--truncate-arrays` option, you can drop the second and
 later array elements.
 
 ```console

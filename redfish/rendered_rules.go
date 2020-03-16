@@ -975,6 +975,591 @@ var Rules = map[string]*CollectRule{
 			},
 		},
 	},
+	"dell_redfish_1.6.0.yml": {
+		TraverseRule: TraverseRule{
+			Root: "/redfish/v1",
+			ExcludeRules: []string{
+				"/JsonSchemas",
+				"/Accounts",
+				"/Certificates",
+				"/Jobs",
+				"/Logs",
+				"/Registries",
+				"/Roles",
+				"/Sessions",
+				"/Settings",
+				"/AccountService",
+				"/CertificateService",
+				"/EventService",
+				"/JobService",
+				"/LogServices",
+				"/SessionService",
+				"/TaskService",
+				"/TelemetryService",
+				"/UpdateService",
+				"/Power/",
+				"/Power#/",
+				"/Thermal#/",
+				"/Assembly#/",
+				"/redfish/v1/Chassis/$",
+			},
+		},
+		MetricRules: []*MetricRule{
+			{
+				Path: "/redfish/v1/Chassis/{chassis}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "chassis_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "chassis_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "chassis_networkadapters_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "chassis_networkadapters_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/NetworkDeviceFunctions/{function}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "chassis_networkadapters_networkdevicefunctions_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "chassis_networkadapters_networkdevicefunctions_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/NetworkPorts/{port}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "chassis_networkadapters_networkports_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "chassis_networkadapters_networkports_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Chassis/{chassis}/Power",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/PowerControl/{powercontrol}/PowerConsumedWatts",
+						Name:    "chassis_power_powercontrol_powerconsumedwatts",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/PowerSupplies/{powersupply}/Redundancy/{redundancy}/Status/Health",
+						Name:    "chassis_power_powersupplies_redundancy_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/PowerSupplies/{powersupply}/Redundancy/{redundancy}/Status/State",
+						Name:    "chassis_power_powersupplies_redundancy_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+					{
+						Pointer: "/PowerSupplies/{powersupply}/Status/Health",
+						Name:    "chassis_power_powersupplies_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/PowerSupplies/{powersupply}/Status/State",
+						Name:    "chassis_power_powersupplies_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+					{
+						Pointer: "/Redundancy/{redundancy}/Status/Health",
+						Name:    "chassis_power_redundancy_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Redundancy/{redundancy}/Status/State",
+						Name:    "chassis_power_redundancy_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+					{
+						Pointer: "/Voltages/{voltage}/Status/Health",
+						Name:    "chassis_power_voltages_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Voltages/{voltage}/Status/State",
+						Name:    "chassis_power_voltages_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Chassis/{chassis}/Thermal",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Fans/{fan}/Status/Health",
+						Name:    "chassis_thermal_fans_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Fans/{fan}/Status/State",
+						Name:    "chassis_thermal_fans_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+					{
+						Pointer: "/Redundancy/{redundancy}/Status/Health",
+						Name:    "chassis_thermal_redundancy_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Redundancy/{redundancy}/Status/State",
+						Name:    "chassis_thermal_redundancy_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+					{
+						Pointer: "/Temperatures/{temperature}/ReadingCelsius",
+						Name:    "chassis_thermal_temperatures_readingcelsius",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/Temperatures/{temperature}/Status/Health",
+						Name:    "chassis_thermal_temperatures_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Temperatures/{temperature}/Status/State",
+						Name:    "chassis_thermal_temperatures_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Fabrics/{fabric}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "fabrics_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "fabrics_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Managers/{manager}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "managers_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "managers_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Managers/{manager}/EthernetInterfaces/{interface}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "managers_ethernetinterfaces_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "managers_ethernetinterfaces_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Managers/{manager}/NetworkProtocol",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "managers_networkprotocol_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "managers_networkprotocol_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/{system}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/HostWatchdogTimer/Status/State",
+						Name:    "systems_hostwatchdogtimer_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+					{
+						Pointer: "/MemorySummary/Status/Health",
+						Name:    "systems_memorysummary_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/MemorySummary/Status/State",
+						Name:    "systems_memorysummary_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+					{
+						Pointer: "/ProcessorSummary/Status/Health",
+						Name:    "systems_processorsummary_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/ProcessorSummary/Status/State",
+						Name:    "systems_processorsummary_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+					{
+						Pointer: "/Status/Health",
+						Name:    "systems_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "systems_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+					{
+						Pointer: "/TrustedModules/{trustedmodule}/Status/State",
+						Name:    "systems_trustedmodules_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/{system}/EthernetInterfaces/{interface}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "systems_ethernetinterfaces_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "systems_ethernetinterfaces_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/{system}/Memory/{memory}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "systems_memory_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "systems_memory_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/{system}/Memory/{memory}/MemoryMetrics",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/HealthData/AlarmTrips/AddressParityError",
+						Name:    "systems_memory_memorymetrics_healthdata_alarmtrips_addressparityerror",
+						Help:    "",
+						Type:    "bool",
+					},
+					{
+						Pointer: "/HealthData/AlarmTrips/CorrectableECCError",
+						Name:    "systems_memory_memorymetrics_healthdata_alarmtrips_correctableeccerror",
+						Help:    "",
+						Type:    "bool",
+					},
+					{
+						Pointer: "/HealthData/AlarmTrips/SpareBlock",
+						Name:    "systems_memory_memorymetrics_healthdata_alarmtrips_spareblock",
+						Help:    "",
+						Type:    "bool",
+					},
+					{
+						Pointer: "/HealthData/AlarmTrips/Temperature",
+						Name:    "systems_memory_memorymetrics_healthdata_alarmtrips_temperature",
+						Help:    "",
+						Type:    "bool",
+					},
+					{
+						Pointer: "/HealthData/AlarmTrips/UncorrectableECCError",
+						Name:    "systems_memory_memorymetrics_healthdata_alarmtrips_uncorrectableeccerror",
+						Help:    "",
+						Type:    "bool",
+					},
+					{
+						Pointer: "/HealthData/DataLossDetected",
+						Name:    "systems_memory_memorymetrics_healthdata_datalossdetected",
+						Help:    "",
+						Type:    "bool",
+					},
+					{
+						Pointer: "/HealthData/PredictedMediaLifeLeftPercent",
+						Name:    "systems_memory_memorymetrics_healthdata_predictedmedialifeleftpercent",
+						Help:    "",
+						Type:    "number",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/{system}/NetworkInterfaces/{nic}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "systems_networkinterfaces_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "systems_networkinterfaces_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/{system}/PCIeDevices/{device}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "systems_pciedevices_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "systems_pciedevices_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/{system}/PCIeDevices/{device}/PCIeFunctions/{function}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "systems_pciedevices_pciefunctions_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "systems_pciedevices_pciefunctions_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/{system}/Processors/{processor}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "systems_processors_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "systems_processors_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/{system}/SimpleStorage/{controller}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "systems_simplestorage_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "systems_simplestorage_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/{system}/Storage/{storage}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "systems_storage_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "systems_storage_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+					{
+						Pointer: "/StorageControllers/{storagecontroller}/Status/Health",
+						Name:    "systems_storage_storagecontrollers_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/StorageControllers/{storagecontroller}/Status/State",
+						Name:    "systems_storage_storagecontrollers_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/{system}/Storage/{storage}/Drives/{device}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/FailurePredicted",
+						Name:    "systems_storage_drives_failurepredicted",
+						Help:    "",
+						Type:    "bool",
+					},
+					{
+						Pointer: "/PredictedMediaLifeLeftPercent",
+						Name:    "systems_storage_drives_predictedmedialifeleftpercent",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/Status/Health",
+						Name:    "systems_storage_drives_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "systems_storage_drives_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/{system}/Storage/{storage}/Volumes/{volume}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "systems_storage_volumes_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "systems_storage_volumes_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/{system}/StorageControllers/{controller}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "systems_storagecontrollers_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "systems_storagecontrollers_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+		},
+	},
 	"qemu.yml": {
 		TraverseRule: TraverseRule{
 			Root:         "/redfish/v1",
