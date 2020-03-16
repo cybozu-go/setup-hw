@@ -2,7 +2,7 @@ Traverse:
   Root: /redfish/v1
   Excludes:
     # Schemas
-    - /JSONSchemas
+    - /JsonSchemas
     # Non-metric properties
     - /Accounts
     - /Certificates
@@ -21,12 +21,11 @@ Traverse:
     - /UpdateService
     # Sub-metrics included in /Power or /Thermal
     - /Power/
-    - /Sensors/
-    - /Thermal/
+    - /Power#/
+    - /Thermal#/
+    - /Assembly#/
     # Redundant page with extra trailing slash
     - /redfish/v1/Chassis/$
-    # 404 links
-    - /StorageControllers/PCIeSSD
 
 Metrics:
   - Path: /redfish/v1/Chassis/{chassis}
