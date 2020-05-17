@@ -1,4 +1,3 @@
-[![Docker Repository on Quay](https://quay.io/repository/cybozu/setup-hw/status "Docker Repository on Quay")](https://quay.io/repository/cybozu/setup-hw)
 [![CircleCI](https://circleci.com/gh/cybozu-go/setup-hw.svg?style=svg)](https://circleci.com/gh/cybozu-go/setup-hw)
 
 Hardware setup container
@@ -53,6 +52,11 @@ $ docker run -d --name=setup-hw \
   -v /var/lib/setup-hw:/var/lib/setup-hw \
   setup-hw:latest
 ```
+
+Docker images
+-------------
+
+Docker images are available on [Quay.io](https://quay.io/repository/cybozu/setup-hw)
 
 ### Access `monitor-hw`
 
