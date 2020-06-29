@@ -5,6 +5,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.6.10] - 2020-06-29
+
+### Added
+- Reset iDRAC at startup (#40)
+
 ## [1.6.9] - 2020-03-16
 
 ### Added
@@ -77,7 +82,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 (#12)
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.6.9...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.6.10...HEAD
+[1.6.10]: https://github.com/cybozu-go/setup-hw/compare/v1.6.9...v1.6.10
 [1.6.9]: https://github.com/cybozu-go/setup-hw/compare/v1.6.8...v1.6.9
 [1.6.8]: https://github.com/cybozu-go/setup-hw/compare/v1.6.7...v1.6.8
 [1.6.7]: https://github.com/cybozu-go/setup-hw/compare/v1.6.6...v1.6.7
