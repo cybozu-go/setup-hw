@@ -46,7 +46,7 @@ Example:
     "root": {
         "password": {
             "raw": "raw password"
-        },
+        }
     },
     "power": {
         "password": {
