@@ -5,8 +5,6 @@ import (
 	"errors"
 	"net"
 	"os"
-
-	"golang.org/x/crypto/ssh"
 )
 
 const (
@@ -76,19 +74,7 @@ type BMCPassword struct {
 
 // Credentials represents credentials of a BMC user.
 type Credentials struct {
-	Password       BMCPassword `json:"password"`
-	AuthorizedKeys []string    `json:"authorized_keys"`
-}
-
-// Validate validates Credentials.
-func (c Credentials) Validate() error {
-	for _, k := range c.AuthorizedKeys {
-		_, _, _, _, err := ssh.ParseAuthorizedKey([]byte(k))
-		if err != nil {
-			return errors.New("invalid authorized key: " + k)
-		}
-	}
-	return nil
+	Password BMCPassword `json:"password"`
 }
 
 // UserConfig represents a set of BMC user credentials in JSON format.
@@ -96,20 +82,6 @@ type UserConfig struct {
 	Root    Credentials `json:"root"`
 	Power   Credentials `json:"power"`
 	Support Credentials `json:"support"`
-}
-
-// Validate validates UserConfig.
-func (c UserConfig) Validate() error {
-	if err := c.Root.Validate(); err != nil {
-		return err
-	}
-	if err := c.Power.Validate(); err != nil {
-		return err
-	}
-	if err := c.Support.Validate(); err != nil {
-		return err
-	}
-	return nil
 }
 
 // LoadConfig loads AddressConfig and UserConfig.
@@ -139,10 +111,6 @@ func LoadConfig() (*AddressConfig, *UserConfig, error) {
 	bmcUsers := new(UserConfig)
 	err = json.NewDecoder(g).Decode(bmcUsers)
 	if err != nil {
-		return nil, nil, err
-	}
-
-	if err := bmcUsers.Validate(); err != nil {
 		return nil, nil, err
 	}
 

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 	"time"
 
@@ -394,16 +393,6 @@ func (dc *dellConfigurator) configUser(ctx context.Context, idx, name, priv, ipm
 			return err
 		}
 		if _, err := racadmSetConfig(ctx, prefix+"SHA256PasswordSalt", cred.Password.Salt); err != nil {
-			return err
-		}
-	}
-
-	if _, err := racadm(ctx, "sshpkauth", "-i", idx, "-d", "-k", "all"); err != nil {
-		return err
-	}
-	for i, k := range cred.AuthorizedKeys {
-		kidx := strconv.Itoa(i + 1)
-		if _, err := racadm(ctx, "sshpkauth", "-i", idx, "-k", kidx, "-t", k); err != nil {
 			return err
 		}
 	}

@@ -68,46 +68,13 @@ func TestAddressConfig(t *testing.T) {
 func TestUserConfig(t *testing.T) {
 	t.Parallel()
 
-	bad := "8a8a8339"
-	good := "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC+CayRlLvi+VPdtAqVdq8PH/y/56XivHJ20QVggbxsxHt2CfGDc/gH9Nv9b/3lGuOQDh30TDX51Mj0JQEHRc3V7CGicOR2f+5fn2+8tvU2UrjBGab/SD2IyuSrsWr2qY4pIngGm8uE8x0lNd++1KZB+JxsJFUEG15ezLQV3WZWBIjjZtmvrtahvRApLlj9v55uvMzf3E8KTE/c1NDz3UxKq88e23ebBceXEnB7E1I0crDWN++L0ZivOIZ973b42s4hv1a4f6bV4xBCgMk4jqWCU8RJhFyLpdxQXgje1eQKegjVlDSe0xfeIzwJ1zXqEfOSh74lk7vzvQCk0AcdypiT dummy@dummy"
-
-	goodCred := Credentials{
-		AuthorizedKeys: []string{good},
-	}
-	badCred := Credentials{
-		AuthorizedKeys: []string{good, bad},
-	}
-
-	uc := UserConfig{}
-	if err := uc.Validate(); err != nil {
-		t.Error(err)
-	}
-	uc.Root = goodCred
-	if err := uc.Validate(); err != nil {
-		t.Error(err)
-	}
-	uc.Root = badCred
-	if err := uc.Validate(); err == nil {
-		t.Error("credential for root must be invalid")
-	}
-	uc.Root = goodCred
-	uc.Power = badCred
-	if err := uc.Validate(); err == nil {
-		t.Error("credential for power must be invalid")
-	}
-	uc.Power = goodCred
-	uc.Support = badCred
-	if err := uc.Validate(); err == nil {
-		t.Error("credential for support must be invalid")
-	}
-
 	f, err := os.Open("../testdata/bmc-user.json")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer f.Close()
 
-	uc = UserConfig{}
+	uc := UserConfig{}
 	err = json.NewDecoder(f).Decode(&uc)
 	if err != nil {
 		t.Fatal(err)
@@ -121,9 +88,6 @@ func TestUserConfig(t *testing.T) {
 	}
 	if uc.Power.Password.Raw != "ranranran" {
 		t.Error("wrong power password")
-	}
-	if len(uc.Power.AuthorizedKeys) != 1 {
-		t.Error("wrong power authorized keys")
 	}
 	if uc.Support.Password.Raw != "no support" {
 		t.Error("wrong support password")
