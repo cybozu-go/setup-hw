@@ -35,7 +35,6 @@ Credential types are:
 * Raw password
 * Hashed password with salt  
     For iDRAC, use [`idrac-passwd-hash`](../pkg/idrac-passwd-hash) tool to generate them.
-* Authorized public keys for SSH
 
 Supported credential types varies by BMC types.
 iDRAC, BMC embedded in Dell servers, supports all credential types.
@@ -48,10 +47,6 @@ Example:
         "password": {
             "raw": "raw password"
         },
-        "authorized_keys": [
-            "ssh-rsa ...",
-            ...
-        ]
     },
     "power": {
         "password": {
