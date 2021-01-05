@@ -5,6 +5,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.7.1] - 2021-01-05
+
+### Changed
+- setup-hw: Wait for iDRAC to get ready (#46)
+
 ## [1.7.0] - 2020-07-28
 
 ### Removed
@@ -87,7 +92,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 (#12)
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.7.0...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.7.1...HEAD
+[1.7.1]: https://github.com/cybozu-go/setup-hw/compare/v1.7.0...1.7.1
 [1.7.0]: https://github.com/cybozu-go/setup-hw/compare/v1.6.10...1.7.0
 [1.6.10]: https://github.com/cybozu-go/setup-hw/compare/v1.6.9...v1.6.10
 [1.6.9]: https://github.com/cybozu-go/setup-hw/compare/v1.6.8...v1.6.9
