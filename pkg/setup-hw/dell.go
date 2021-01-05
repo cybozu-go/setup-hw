@@ -149,18 +149,45 @@ func racadmSetConfig(ctx context.Context, key, value string) (bool, error) {
 	return true, nil
 }
 
+var waitKeys = []string{
+	"BIOS.SysProfileSettings.SysProfile",
+	"BIOS.ProcSettings.LogicalProc",
+	"BIOS.SysSecurity.TpmInfo",
+	"System.ServerPwr.PSRapidOn",
+	"System.ThermalSettings.FanSpeedOffset",
+	"iDRAC.SNMP.AgentEnable",
+	"iDRAC.NIC.Selection",
+	"iDRAC.IPv4.DHCPEnable",
+	"iDRAC.IPv4.Address",
+	"iDRAC.IPv4.Netmask",
+	"iDRAC.IPv4.Gateway",
+	"iDRAC.NIC.DNSRacName",
+	"iDRAC.IPMILan.PrivLimit",
+	"iDRAC.IPMILan.Enable",
+	"iDRAC.VirtualConsole.PluginType",
+}
+
 func iDRACWait(ctx context.Context) error {
+	log.Info("waiting iDRAC...", nil)
 	for i := 0; i < 60; i++ {
 		out, _ := racadm(ctx, "get", "iDRAC.Info.Name")
-		if strings.Contains(out, "Name=iDRAC") {
-			return nil
+		if !strings.Contains(out, "Name=iDRAC") {
+			goto NOTREADY
 		}
 
-		log.Info("waiting iDRAC...", nil)
+		for _, key := range waitKeys {
+			_, err := racadmGetConfig(ctx, key)
+			if err != nil {
+				goto NOTREADY
+			}
+		}
+		return nil
+
+	NOTREADY:
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-time.After(1 * time.Second):
+		case <-time.After(5 * time.Second):
 		}
 	}
 
@@ -177,6 +204,9 @@ func (dc *dellConfigurator) Run(ctx context.Context) error {
 	if err := iDRACWait(ctx); err != nil {
 		return err
 	}
+
+	// for extra safety
+	time.Sleep(1 * time.Minute)
 
 	out, err := racadm(ctx, "jobqueue", "view")
 	if err != nil {
