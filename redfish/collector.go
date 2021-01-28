@@ -69,7 +69,7 @@ func (c Collector) Describe(ch chan<- *prometheus.Desc) {
 func (c Collector) Collect(ch chan<- prometheus.Metric) {
 	m := prometheus.MustNewConstMetric(c.lastUpdateDesc, prometheus.CounterValue, float64(c.lastUpdate.Unix()))
 	ch <- m
-	m = prometheus.MustNewConstMetric(c.lastUpdateDurationMinutesDesc, prometheus.GaugeValue, time.Now().Sub(c.lastUpdate).Minutes())
+	m = prometheus.MustNewConstMetric(c.lastUpdateDurationMinutesDesc, prometheus.GaugeValue, time.Since(c.lastUpdate).Minutes())
 	ch <- m
 
 	v := c.collected.Load()

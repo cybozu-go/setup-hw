@@ -133,19 +133,17 @@ func generateRuleAux(data *gabs.Container, keyTypes []*keyType, path, pointer st
 		return rules
 	}
 
-	if childrenSlice, err := data.Children(); err == nil {
-		for _, v := range childrenSlice {
-			ps := strings.Split(pointer, "/")
-			parent := ps[len(ps)-1]
-			if strings.HasSuffix(parent, "ies") {
-				parent = regexp.MustCompile("ies$").ReplaceAllString(parent, "y")
-			} else if strings.HasSuffix(parent, "s") {
-				parent = regexp.MustCompile("s$").ReplaceAllString(parent, "")
-			}
-			rules = generateRuleAux(v, keyTypes, path, pointer+"/{"+strings.ToLower(parent)+"}", rules)
-			break // inspect the first element only; the rest should have the same structure
+	if childrenSlice, err := data.Children(); err == nil && len(childrenSlice) > 0 {
+		// inspect the first element only; the rest should have the same structure
+		v := childrenSlice[0]
+		ps := strings.Split(pointer, "/")
+		parent := ps[len(ps)-1]
+		if strings.HasSuffix(parent, "ies") {
+			parent = regexp.MustCompile("ies$").ReplaceAllString(parent, "y")
+		} else if strings.HasSuffix(parent, "s") {
+			parent = regexp.MustCompile("s$").ReplaceAllString(parent, "")
 		}
-		return rules
+		return generateRuleAux(v, keyTypes, path, pointer+"/{"+strings.ToLower(parent)+"}", rules)
 	}
 
 	return rules
