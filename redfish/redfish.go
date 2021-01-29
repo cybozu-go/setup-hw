@@ -16,12 +16,11 @@ import (
 )
 
 type redfishClient struct {
-	redfishVersion string
-	endpoint       *url.URL
-	user           string
-	password       string
-	httpClient     *http.Client
-	noEscape       bool
+	endpoint   *url.URL
+	user       string
+	password   string
+	httpClient *http.Client
+	noEscape   bool
 }
 
 // ClientConfig is a set of configurations for redfishClient.

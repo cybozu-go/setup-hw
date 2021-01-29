@@ -449,11 +449,11 @@ func TestModify(t *testing.T) {
 		t.Errorf("Didn't find test.value")
 	}
 
-	if out := val.String(); `{"test":{"value":45},"test2":20}` != out {
+	if out := val.String(); out != `{"test":{"value":45},"test2":20}` {
 		t.Errorf("Incorrectly serialized: %v", out)
 	}
 
-	if out := val.Search("test").String(); `{"value":45}` != out {
+	if out := val.Search("test").String(); out != `{"value":45}` {
 		t.Errorf("Incorrectly serialized: %v", out)
 	}
 }
@@ -549,19 +549,20 @@ func TestChildrenMap(t *testing.T) {
 	}
 
 	for key, val := range objectMap {
-		if "objectOne" == key {
+		switch key {
+		case "objectOne":
 			if val := val.S("num").Data().(float64); val != 1 {
 				t.Errorf("%v != %v", val, 1)
 			}
-		} else if "objectTwo" == key {
+		case "objectTwo":
 			if val := val.S("num").Data().(float64); val != 2 {
 				t.Errorf("%v != %v", val, 2)
 			}
-		} else if "objectThree" == key {
+		case "objectThree":
 			if val := val.S("num").Data().(float64); val != 3 {
 				t.Errorf("%v != %v", val, 3)
 			}
-		} else {
+		default:
 			t.Errorf("Unexpected key: %v", key)
 		}
 	}
@@ -934,7 +935,7 @@ func TestInvalid(t *testing.T) {
 	}
 
 	invalidStr := validObj.S("Doesn't exist").String()
-	if "{}" != invalidStr {
+	if invalidStr != "{}" {
 		t.Errorf("expected '{}', received: %v", invalidStr)
 	}
 }

@@ -115,7 +115,7 @@ func parseRacadmGetOutput(out, key string) (string, error) {
 
 	var sectionName string
 	for _, name := range cfg.SectionStrings() {
-		if name != ini.DEFAULT_SECTION {
+		if name != ini.DefaultSection {
 			sectionName = name
 			break
 		}

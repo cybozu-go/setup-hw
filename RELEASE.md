@@ -35,10 +35,10 @@ Bump version
     ```
 
 5. Merge the pull request.
-6. Pull `master` branch, add a git tag, then push it.
+6. Pull `main` branch, add a git tag, then push it.
 
     ```console
-    $ git checkout master
+    $ git checkout main
     $ git pull
     $ git tag "v$VERSION"
     $ git push origin "v$VERSION"

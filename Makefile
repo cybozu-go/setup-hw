@@ -2,9 +2,6 @@ BIN_PKGS = ./pkg/idrac-passwd-hash ./pkg/setup-hw ./pkg/monitor-hw ./pkg/collect
 GENERATED = redfish/rendered_rules.go
 GENERATE_SRC = $(shell find redfish/rules)
 
-GOFLAGS = -mod=vendor
-export GOFLAGS
-
 all:
 	@echo "Specify one of these targets:"
 	@echo
@@ -18,9 +15,8 @@ $(GENERATED): $(GENERATE_SRC) pkg/render-rules/main.go
 	go generate ./redfish/...
 
 test: generate
-	test -z "$$(gofmt -s -l . | grep -v '^vendor' | tee /dev/stderr)"
-	test -z "$$(golint $$(go list ./... | grep -v /vendor/) | tee /dev/stderr)"
-	ineffassign .
+	test -z "$$(gofmt -s -l . | tee /dev/stderr)"
+	staticcheck ./...
 	go build ./...
 	go test -race -v ./...
 	go vet ./...
