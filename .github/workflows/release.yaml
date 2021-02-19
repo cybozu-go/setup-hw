@@ -1,5 +1,6 @@
 name: Release
 on:
+  pull_request:
   workflow_run:
     workflows:
       - 'Main'
@@ -16,8 +17,11 @@ jobs:
       - name: Load images
         uses: actions/download-artifact@v2
         with:
-          name: setup-hw
+          name: setup-hw-images
       - name: Push Images to Quay.io
+        env:
+          QUAY_USER: ${{ secrets.QUAY_USER }}
+          QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
         run: |
           docker login -u $QUAY_USER -p $QUAY_PASSWORD quay.io
           TAG=${GITHUB_REF#refs/*/}

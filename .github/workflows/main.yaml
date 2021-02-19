@@ -21,7 +21,10 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: setup-hw-binaries
-          path: /tmp/*
+          path: |
+            /tmp/setup-hw
+            /tmp/monitor-hw
+            /tmp/collector
           retention-days: 1
   build-image:
     name: build-image
@@ -29,12 +32,10 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
-      - run: apk add --no-cache git
       - name: Download binaries for setup-hw
         uses: actions/download-artifact@v2
         with:
           name: setup-hw-binaries
-      - run: ls
       - run: |
           cp setup-hw docker
           cp monitor-hw docker
@@ -50,5 +51,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: setup-hw-images
-          path: /tmp/docker/*
+          path: |
+            /tmp/docker/setup-hw-image
+            /tmp/docker/setup-hw-secret-image
           retention-days: 1
