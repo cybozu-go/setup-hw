@@ -1,0 +1,54 @@
+name: Main
+on:
+  pull_request:
+  push:
+    branches:
+      - 'main'
+    tags:
+      - 'v*'
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.15
+      - run: make test
+      - run: make install GOBIN=/tmp/
+      - name: Upload binaries for setup-hw
+        uses: actions/upload-artifact@v2
+        with:
+          name: setup-hw-binaries
+          path: /tmp/*
+          retention-days: 1
+  build-image:
+    name: build-image
+    needs: build
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - run: apk add --no-cache git
+      - name: Download binaries for setup-hw
+        uses: actions/download-artifact@v2
+        with:
+          name: setup-hw-binaries
+      - run: ls
+      - run: |
+          cp setup-hw docker
+          cp monitor-hw docker
+          cp collector docker
+      - run: |
+          docker build -t quay.io/cybozu/setup-hw:latest --target stage1 docker
+          docker build -t quay.io/cybozu/setup-hw-secret:latest docker
+      - run: |
+          mkdir -p /tmp/docker
+          docker save quay.io/cybozu/setup-hw:latest -o /tmp/docker/setup-hw-image
+          docker save quay.io/cybozu/setup-hw-secret:latest -o /tmp/docker/setup-hw-secret-image
+      - name: Upload setup-hw images
+        uses: actions/upload-artifact@v2
+        with:
+          name: setup-hw-images
+          path: /tmp/docker/*
+          retention-days: 1

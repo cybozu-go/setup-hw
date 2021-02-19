@@ -1,0 +1,29 @@
+name: Release
+on:
+  workflow_run:
+    workflows:
+      - 'Main'
+    tags:
+      - 'v*'
+    types:
+      - completed
+      - requested
+jobs:
+  push-image:
+    name: push-image
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Load images
+        uses: actions/download-artifact@v2
+        with:
+          name: setup-hw
+      - name: Push Images to Quay.io
+        run: |
+          docker login -u $QUAY_USER -p $QUAY_PASSWORD quay.io
+          TAG=${GITHUB_REF#refs/*/}
+          for name in setup-hw setup-hw-secret; do
+              echo "pushing ${name} ..."
+              docker tag quay.io/cybozu/${name}:latest quay.io/cybozu/${name}:$TAG
+              docker push quay.io/cybozu/${name}:latest
+              docker push quay.io/cybozu/${name}:$TAG
+          done
