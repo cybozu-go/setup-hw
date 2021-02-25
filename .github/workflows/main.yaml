@@ -5,10 +5,10 @@ on:
     branches:
       - 'main'
     tags:
-      - 'v*'
+      - '*'
 jobs:
   build:
-    name: build
+    name: Build binaries
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -27,7 +27,7 @@ jobs:
             /tmp/collector
           retention-days: 1
   build_image:
-    name: build_image
+    name: Build images
     needs: build
     runs-on: ubuntu-20.04
     steps:
@@ -55,25 +55,51 @@ jobs:
             /tmp/docker/setup-hw-image
             /tmp/docker/setup-hw-secret-image
           retention-days: 1
-  push_image:
-    name: push_image
+  release:
+    name: Release on GitHub
     runs-on: ubuntu-20.04
+    if: github.event_name != 'pull_request'
+    needs: build_image
     steps:
-      - name: Push images to  if tagged
-        if: startsWith( github.ref, 'refs/tags/v' )
-        env:
-          REF: ${{ github.ref }}
-          QUAY_USER: ${{ secrets.QUAY_USER }}
-          QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+      - name: Validate Release Version
+        id: check_version
+        run: |
+          VERSION=$(echo $GITHUB_REF | sed -ne 's/[^0-9]*\([0-9]\+\.[0-9]\+\.[0-9]\+\(-.*\)\?\).*/\1/p')
+          if [ "$VERSION" = "" ]; then
+            # Invalid version format
+            exit 1
+          fi
+          if [ $(echo $VERSION | grep "-") ]; then PRERELEASE=true; else PRERELEASE=false; fi
+          echo "::set-output name=version::${VERSION}"
+          echo "::set-output name=prerelease::${PRERELEASE}"
+      - name: Download setup-hw images
         uses: actions/download-artifact@v2
         with:
           name: setup-hw-images
+      - name: Load images
         run: |
-          docker login -u $QUAY_USER -p $QUAY_PASSWORD quay.io
-          TAG=${GITHUB_REF#refs/*/}
+          docker load -i setup-hw-image
+          docker load -i setup-hw-secret-image
+      - name: Push images
+        env:
+          QUAY_USER: ${{ secrets.QUAY_USER }}
+          QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+        run: |
+          echo ${{ secrets.QUAY_PASSWORD }} | docker login -u ${{ secrets.QUAY_USER }} --password-stdin quay.io
+          TAG=${GITHUB_REF#refs/tags/v}
           for name in setup-hw setup-hw-secret; do
-              echo "pushing ${name} ..."
+              echo "pushing ${name}:v${TAG} ..."
               docker tag quay.io/cybozu/${name}:latest quay.io/cybozu/${name}:$TAG
               docker push quay.io/cybozu/${name}:latest
               docker push quay.io/cybozu/${name}:$TAG
           done
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release v${{ steps.check_version.outputs.version  }}
+          draft: false
+          prerelease: ${{ steps.check_version.outputs.prerelease }}
