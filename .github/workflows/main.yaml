@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - 'main'
+    tags:
+      - 'v*'
 jobs:
   build:
     name: build
@@ -53,3 +55,25 @@ jobs:
             /tmp/docker/setup-hw-image
             /tmp/docker/setup-hw-secret-image
           retention-days: 1
+  push_image:
+    name: push_image
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Push images to  if tagged
+        if: startsWith( github.ref, 'refs/tags/v' )
+        env:
+          REF: ${{ github.ref }}
+          QUAY_USER: ${{ secrets.QUAY_USER }}
+          QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+        uses: actions/download-artifact@v2
+        with:
+          name: setup-hw-images
+        run: |
+          docker login -u $QUAY_USER -p $QUAY_PASSWORD quay.io
+          TAG=${GITHUB_REF#refs/*/}
+          for name in setup-hw setup-hw-secret; do
+              echo "pushing ${name} ..."
+              docker tag quay.io/cybozu/${name}:latest quay.io/cybozu/${name}:$TAG
+              docker push quay.io/cybozu/${name}:latest
+              docker push quay.io/cybozu/${name}:$TAG
+          done
