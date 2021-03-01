@@ -48,7 +48,7 @@ Now the version is bumped up and the latest container image is uploaded to [quay
 
 (Option) Edit GitHub release page
 ------------
-If you would like to give further descriptions of the new release, edit the GitHub release page.
+If you would like to give further descriptions of the new release, edit [the GitHub release page](https://github.com/cybozu-go/setup-hw/releases/latest).
 
 [semver]: https://semver.org/spec/v2.0.0.html
 [example]: https://github.com/cybozu-go/etcdpasswd/commit/77d95384ac6c97e7f48281eaf23cb94f68867f79
