@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/cybozu-go/setup-hw.svg?style=svg)](https://circleci.com/gh/cybozu-go/setup-hw)
+![CI](https://github.com/cybozu-go/setup-hw/workflows/main/badge.svg)
 
 Hardware setup container
 ========================
