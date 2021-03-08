@@ -1,4 +1,4 @@
-name: Main
+name: main
 on:
   pull_request:
   push:
@@ -70,9 +70,6 @@ jobs:
           docker load -i setup-hw-image
           docker load -i setup-hw-secret-image
       - name: Push images
-        env:
-          QUAY_USER: ${{ secrets.QUAY_USER }}
-          QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
         run: |
           echo ${{ secrets.QUAY_PASSWORD }} | docker login -u ${{ secrets.QUAY_USER }} --password-stdin quay.io
           TAG=${GITHUB_REF#refs/tags/v}
