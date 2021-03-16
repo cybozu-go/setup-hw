@@ -15,8 +15,8 @@ $(GENERATED): $(GENERATE_SRC) pkg/render-rules/main.go
 	go generate ./redfish/...
 
 setup:
-	cd /tmp; env GOFLAGS= GO111MODULE=on go get golang.org/x/tools/cmd/goimports
-	cd /tmp; env GOFLAGS= GO111MODULE=on go get honnef.co/go/tools/cmd/staticcheck
+	env GOFLAGS= go install golang.org/x/tools/cmd/goimports@latest
+	env GOFLAGS= go install honnef.co/go/tools/cmd/staticcheck@latest
 
 test: setup generate
 	test -z "$$(gofmt -s -l . | tee /dev/stderr)"

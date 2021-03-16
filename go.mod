@@ -1,5 +1,7 @@
 module github.com/cybozu-go/setup-hw
 
+go 1.16
+
 require (
 	github.com/cybozu-go/log v1.6.0
 	github.com/cybozu-go/well v1.10.0
@@ -14,5 +16,3 @@ require (
 	gopkg.in/ini.v1 v1.62.0
 	sigs.k8s.io/yaml v1.2.0
 )
-
-go 1.13
