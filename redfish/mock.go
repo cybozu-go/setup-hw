@@ -3,7 +3,7 @@ package redfish
 import (
 	"context"
 	"encoding/json"
-	"io/ioutil"
+	"os"
 
 	"github.com/cybozu-go/log"
 	"github.com/cybozu-go/setup-hw/gabs"
@@ -102,7 +102,7 @@ func makeDataMap(data []byte) dataMap {
 }
 
 func (c *mockClient) Traverse(ctx context.Context, rule *CollectRule) Collected {
-	cBytes, err := ioutil.ReadFile(c.filename)
+	cBytes, err := os.ReadFile(c.filename)
 	if err != nil {
 		log.Error("cannot open dummy data file: "+c.filename, map[string]interface{}{
 			log.FnError: err,

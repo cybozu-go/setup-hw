@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -32,7 +31,7 @@ func load() (map[string]*redfish.CollectRule, error) {
 
 	rules := make(map[string]*redfish.CollectRule)
 	for _, filename := range filenames {
-		data, err := ioutil.ReadFile(filename)
+		data, err := os.ReadFile(filename)
 		if err != nil {
 			return nil, err
 		}
