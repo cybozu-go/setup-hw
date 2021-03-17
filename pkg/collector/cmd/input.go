@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"encoding/json"
-	"io/ioutil"
 	"os"
 
 	"github.com/cybozu-go/setup-hw/config"
@@ -15,7 +14,7 @@ import (
 func collectOrLoad(ctx context.Context, inputFile string, baseRule string) (*redfish.Collected, error) {
 	var rule *redfish.CollectRule
 	if len(baseRule) != 0 {
-		data, err := ioutil.ReadFile(baseRule)
+		data, err := os.ReadFile(baseRule)
 		if err != nil {
 			return nil, err
 		}

@@ -2,7 +2,7 @@ package lib
 
 import (
 	"errors"
-	"io/ioutil"
+	"os"
 	"strings"
 )
 
@@ -18,7 +18,7 @@ const (
 
 // DetectVendor detects hardware vendor.
 func DetectVendor() (Vendor, error) {
-	data, err := ioutil.ReadFile("/sys/devices/virtual/dmi/id/sys_vendor")
+	data, err := os.ReadFile("/sys/devices/virtual/dmi/id/sys_vendor")
 	if err != nil {
 		return Unknown, err
 	}
