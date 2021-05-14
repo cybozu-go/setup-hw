@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/fs"
 	"os"
 )
 
@@ -14,7 +13,7 @@ func setupQEMU(ctx context.Context, files []string) error {
 		if err != nil {
 			return err
 		}
-		if info.Mode()&fs.ModeType != 0 {
+		if !info.Mode().IsRegular() {
 			return fmt.Errorf("file %s is not a regular file", f)
 		}
 	}

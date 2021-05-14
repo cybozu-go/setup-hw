@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"errors"
+	"net/url"
 	"os"
 	"path"
-	"strings"
+	"path/filepath"
 
 	"github.com/cybozu-go/log"
 	"github.com/cybozu-go/setup-hw/lib"
@@ -40,9 +41,12 @@ func main() {
 	urls := os.Args[1:]
 	files := make([]string, len(urls))
 	for i, u := range urls {
-		idx := strings.LastIndex(u, "/")
-		f := u[idx+1:]
-		files[i] = path.Join(tmpdir, f)
+		url, err := url.Parse(u)
+		if err != nil {
+			log.ErrorExit(err)
+		}
+		f := path.Base(url.Path)
+		files[i] = filepath.Join(tmpdir, f)
 	}
 
 	err = downloadUpdaters(ctx, urls, files)
