@@ -25,6 +25,7 @@ jobs:
             /tmp/setup-hw
             /tmp/monitor-hw
             /tmp/collector
+            /tmp/setup-apply-firmware
           retention-days: 1
   build_image:
     name: Build images
@@ -40,6 +41,7 @@ jobs:
           cp setup-hw docker
           cp monitor-hw docker
           cp collector docker
+          cp setup-apply-firmware docker
       - run: |
           docker build -t quay.io/cybozu/setup-hw:latest --target stage1 docker
           docker build -t quay.io/cybozu/setup-hw-secret:latest docker

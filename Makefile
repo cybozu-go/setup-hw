@@ -1,4 +1,10 @@
-BIN_PKGS = ./pkg/idrac-passwd-hash ./pkg/setup-hw ./pkg/monitor-hw ./pkg/collector
+# binaries to be included in the image
+BINS_IMAGE = setup-hw monitor-hw collector setup-apply-firmware
+
+# binaries not to be included in the image
+BINS_NOIMAGE = idrac-passwd-hash
+
+BINS = $(BINS_IMAGE) $(BINS_NOIMAGE)
 GENERATED = redfish/rendered_rules.go
 GENERATE_SRC = $(shell find redfish/rules)
 
@@ -29,14 +35,14 @@ install: generate
 ifdef GOBIN
 	mkdir -p $(GOBIN)
 endif
-	GOBIN=$(GOBIN) go install $(BIN_PKGS)
+	GOBIN=$(GOBIN) go install $(foreach f, $(BINS), ./pkg/$(f))
 
 build-image: install
 ifdef GOBIN
 	mkdir -p $(GOBIN)
-	cp $(GOBIN)/setup-hw $(GOBIN)/monitor-hw $(GOBIN)/collector ./docker/
+	cp $(foreach f, $(BINS_IMAGE), $(GOBIN)/$(f)) ./docker/
 else
-	cp $(GOPATH)/bin/setup-hw $(GOPATH)/bin/monitor-hw $(GOPATH)/bin/collector ./docker/
+	cp $(foreach f, $(BINS_IMAGE), $(GOPATH)/bin/$(f)) ./docker/
 endif
 	cd docker && docker build -t quay.io/cybozu/setup-hw:dev .
 
