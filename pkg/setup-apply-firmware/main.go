@@ -41,11 +41,11 @@ func main() {
 	urls := os.Args[1:]
 	files := make([]string, len(urls))
 	for i, u := range urls {
-		url, err := url.Parse(u)
+		parsedUrl, err := url.Parse(u)
 		if err != nil {
 			log.ErrorExit(err)
 		}
-		f := path.Base(url.Path)
+		f := path.Base(parsedUrl.Path)
 		files[i] = filepath.Join(tmpdir, f)
 	}
 
