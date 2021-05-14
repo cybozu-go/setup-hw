@@ -9,7 +9,7 @@ env:
   go-version: 1.16
 jobs:
   build:
-    name: Build binaries
+    name: Build
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -24,7 +24,7 @@ jobs:
         run: make test
 
       - name: Build binaries
-        run: make install GOBIN=./docker
+        run: make install GOBIN=`pwd`/docker
 
       - name: Build setup-hw image
         run: |

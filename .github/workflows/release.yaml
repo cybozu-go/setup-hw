@@ -22,7 +22,7 @@ jobs:
         run: make test
 
       - name: Build binaries
-        run: make install GOBIN=./docker
+        run: make install GOBIN=`pwd`/docker
 
       - name: Build setup-hw image
         run: |
