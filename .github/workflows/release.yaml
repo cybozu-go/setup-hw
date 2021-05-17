@@ -18,9 +18,6 @@ jobs:
         with:
           go-version: ${{ env.go-version }}
 
-      - name: Run test
-        run: make test
-
       - name: Build binaries
         run: make install GOBIN=`pwd`/docker
 
