@@ -37,15 +37,10 @@ jobs:
               docker push quay.io/cybozu/${name}:$TAG
           done
 
-      - name: Install ghr
-        run: go get -u github.com/tcnksm/ghr
-
       - name: Create release
         run: |
-          OWNER=$(echo ${{ github.repository }} | cut -d '/' -f 1)
-          REPOSITORY=$(echo ${{ github.repository }} | cut -d '/' -f 2)
-          if ${{ env.prerelease }}; then
-            PRERELEASE="-prerelease"
-          fi
-          TAG=${GITHUB_REF#refs/tags/}
-          ghr -t ${{ secrets.GITHUB_TOKEN }} -u ${OWNER} -r ${REPOSITORY} -n "Release v${TAG}"" ${PRERELEASE} -b "See [CHANGELOG.md](./CHANGELOG.md) for details." ${TAG}
+          tagname="${GITHUB_REF#refs/tags/}"
+          if echo ${{ github.ref }} | grep -q -e '-'; then prerelease=-p; fi
+          gh release create -t "Release $tagname" $prerelease \
+            -n "See [CHANGELOG.md](./CHANGELOG.md) for details." \
+            "$tagname"
