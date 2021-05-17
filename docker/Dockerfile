@@ -3,6 +3,7 @@ FROM centos:7 as stage1
 COPY setup-hw /usr/local/bin/setup-hw
 COPY monitor-hw /usr/local/sbin/monitor-hw
 COPY collector /usr/local/sbin/collector
+COPY setup-apply-firmware /usr/local/sbin/setup-apply-firmware
 
 CMD ["/usr/local/sbin/monitor-hw"]
 
