@@ -5,6 +5,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.8.0] - 2021-05-18
+
+### Added
+
+- add support command for automated firmware update (#55)
+
 ## [1.7.2] - 2021-01-29
 
 ### Changed
@@ -97,7 +103,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 (#12)
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.7.2...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.8.0...HEAD
+[1.8.0]: https://github.com/cybozu-go/setup-hw/compare/v1.7.2...1.8.0
 [1.7.2]: https://github.com/cybozu-go/setup-hw/compare/v1.7.1...1.7.2
 [1.7.1]: https://github.com/cybozu-go/setup-hw/compare/v1.7.0...1.7.1
 [1.7.0]: https://github.com/cybozu-go/setup-hw/compare/v1.6.10...1.7.0
