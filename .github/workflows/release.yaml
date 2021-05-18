@@ -33,7 +33,7 @@ jobs:
           for name in setup-hw setup-hw-secret; do
               echo "pushing ${name}:v${tag} ..."
               docker tag quay.io/cybozu/${name}:latest quay.io/cybozu/${name}:$tag
-              if echo $tag | grep -q -e '-'; then docker push quay.io/cybozu/${name}:latest; fi
+              if ! echo $tag | grep -q -e '-'; then docker push quay.io/cybozu/${name}:latest; fi
               docker push quay.io/cybozu/${name}:$tag
           done
 
