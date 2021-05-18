@@ -38,6 +38,8 @@ jobs:
           done
 
       - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           tagname="${GITHUB_REF#refs/tags/}"
           if echo ${{ github.ref }} | grep -q -e '-'; then prerelease=-p; fi
