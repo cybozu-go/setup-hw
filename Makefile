@@ -1,5 +1,5 @@
 # binaries to be included in the image
-BINS_IMAGE = setup-hw monitor-hw collector setup-apply-firmware
+BINS_IMAGE = setup-hw monitor-hw collector setup-apply-firmware setup-isoreboot
 
 # binaries not to be included in the image
 BINS_NOIMAGE = idrac-passwd-hash

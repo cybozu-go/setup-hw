@@ -2,3 +2,4 @@ setup-hw
 monitor-hw
 collector
 setup-apply-firmware
+setup-isoreboot
