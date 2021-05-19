@@ -20,6 +20,7 @@ func setupDell(ctx context.Context, url string) error {
 		return fmt.Errorf("racadm vmdisconnect failed: %w", err)
 	}
 
+	// `idracadm7 remoteimage -d` returns zero if the remote image is not connected.
 	err = well.CommandContext(ctx, idracadm7Path, "remoteimage", "-d").Run()
 	if err != nil {
 		return fmt.Errorf("racadm remoteimage -d failed: %w", err)

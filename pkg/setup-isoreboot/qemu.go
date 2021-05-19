@@ -10,7 +10,7 @@ func setupQEMU(ctx context.Context, url string) error {
 	// nothing to do
 
 	log.Info("setupQEMU called", map[string]interface{}{
-		"url": url,
+		"iso_url": url,
 	})
 
 	return nil
