@@ -10,6 +10,7 @@ import (
 
 	"github.com/cybozu-go/log"
 	"github.com/cybozu-go/setup-hw/config"
+	"github.com/cybozu-go/setup-hw/lib"
 	"github.com/cybozu-go/well"
 	"gopkg.in/ini.v1"
 )
@@ -268,7 +269,38 @@ func (dc *dellConfigurator) configPerformance(ctx context.Context) error {
 }
 
 func (dc *dellConfigurator) configProcessor(ctx context.Context) error {
-	return dc.enqueueConfig(ctx, "BIOS.ProcSettings.LogicalProc", "Disabled")
+	err := dc.enqueueConfig(ctx, "BIOS.ProcSettings.LogicalProc", "Disabled")
+	if err != nil {
+		return err
+	}
+
+	numaSettingsKey := "BIOS.ProcSettings.NumaNodesPerSocket"
+	product, err := lib.DetectProduct()
+	if err != nil {
+		return err
+	}
+	switch product {
+	case lib.R6525:
+		cpu, err := lib.DetectCPUNumber()
+		if err != nil {
+			return err
+		}
+		memory, err := lib.DetectMemoryNumber(ctx)
+		if err != nil {
+			return err
+		}
+		// https://www.dell.com/support/manuals/ja-jp/poweredge-r6525/r6525_ism_pub/%E3%83%A1%E3%83%A2%E3%83%AA%E3%83%BC-%E3%83%A2%E3%82%B8%E3%83%A5%E3%83%BC%E3%83%AB%E5%8F%96%E3%82%8A%E4%BB%98%E3%81%91%E3%82%AC%E3%82%A4%E3%83%89%E3%83%A9%E3%82%A4%E3%83%B3?guid=guid-80b1c1ad-14b7-4dd6-b122-abb0c82bd3e8&lang=ja-jp
+		switch {
+		case cpu == 1 && memory == 2:
+			return dc.enqueueConfig(ctx, numaSettingsKey, "4")
+		case cpu == 2 && memory == 16:
+			return dc.enqueueConfig(ctx, numaSettingsKey, "0")
+		}
+	case lib.R7525:
+		// https://www.dell.com/support/manuals/ja-jp/poweredge-r7525/r7525_ism_pub/%E3%83%A1%E3%83%A2%E3%83%AA%E3%83%BC-%E3%83%A2%E3%82%B8%E3%83%A5%E3%83%BC%E3%83%AB%E5%8F%96%E3%82%8A%E4%BB%98%E3%81%91%E3%82%AC%E3%82%A4%E3%83%89%E3%83%A9%E3%82%A4%E3%83%B3?guid=guid-80b1c1ad-14b7-4dd6-b122-abb0c82bd3e8&lang=ja-jp
+		return dc.enqueueConfig(ctx, numaSettingsKey, "4")
+	}
+	return nil
 }
 
 func (dc *dellConfigurator) configTpm(ctx context.Context) error {
