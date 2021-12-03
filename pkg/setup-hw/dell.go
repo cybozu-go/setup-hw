@@ -281,11 +281,11 @@ func (dc *dellConfigurator) configProcessor(ctx context.Context) error {
 	}
 	switch product {
 	case lib.R6525, lib.R7525:
-		cpu, err := lib.DetectCPUNumber()
+		cpu, err := lib.CountCPUs()
 		if err != nil {
 			return err
 		}
-		memory, err := lib.DetectMemoryNumber(ctx)
+		memory, err := lib.CountMemoryModules(ctx)
 		if err != nil {
 			return err
 		}
@@ -325,8 +325,9 @@ func (dc *dellConfigurator) configProcessor(ctx context.Context) error {
 			npsVal = "1"
 		}
 		return dc.enqueueConfig(ctx, "BIOS.ProcSettings.NumaNodesPerSocket", npsVal)
+	default:
+		return nil
 	}
-	return nil
 }
 
 func (dc *dellConfigurator) configTpm(ctx context.Context) error {

@@ -8,7 +8,7 @@ import (
 	"github.com/cybozu-go/well"
 )
 
-func DetectCPUNumber() (int, error) {
+func CountCPUs() (int, error) {
 	data, err := os.ReadFile("/proc/cpuinfo")
 	if err != nil {
 		return -1, err
@@ -16,19 +16,15 @@ func DetectCPUNumber() (int, error) {
 	info := strings.Split(string(data), "\n")
 	count := map[string]struct{}{}
 	for _, s := range info {
-		if !strings.Contains(s, "physical id") {
-			continue
-		}
-		if _, ok := count[s]; !ok {
+		if strings.Contains(s, "physical id") {
 			count[s] = struct{}{}
 		}
 	}
 	return len(count), nil
 }
 
-func DetectMemoryNumber(ctx context.Context) (int, error) {
-	checkCmd := well.CommandContext(ctx, "dmidecode", "-t", "memory")
-	out, err := checkCmd.Output()
+func CountMemoryModules(ctx context.Context) (int, error) {
+	out, err := well.CommandContext(ctx, "dmidecode", "-t", "memory").Output()
 	if err != nil {
 		return -1, err
 	}
