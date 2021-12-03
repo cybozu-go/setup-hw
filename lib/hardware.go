@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"bufio"
 	"context"
 	"os"
 	"strings"
@@ -9,16 +10,20 @@ import (
 )
 
 func CountCPUs() (int, error) {
-	data, err := os.ReadFile("/proc/cpuinfo")
+	f, err := os.Open("/proc/cpuinfo")
 	if err != nil {
 		return -1, err
 	}
-	info := strings.Split(string(data), "\n")
+	s := bufio.NewScanner(f)
 	count := map[string]struct{}{}
-	for _, s := range info {
-		if strings.Contains(s, "physical id") {
-			count[s] = struct{}{}
+	for s.Scan() {
+		l := s.Text()
+		if strings.Contains(l, "physical id") {
+			count[l] = struct{}{}
 		}
+	}
+	if err := s.Err(); err != nil {
+		return -1, err
 	}
 	return len(count), nil
 }
