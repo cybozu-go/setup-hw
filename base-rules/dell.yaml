@@ -36,7 +36,9 @@ Metrics:
   - Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}
   - Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/NetworkDeviceFunctions/{function}
   - Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/NetworkPorts/{port}
+  - Path: /redfish/v1/Chassis/{chassis}/PCIeSlots
   - Path: /redfish/v1/Chassis/{chassis}/Power
+  - Path: /redfish/v1/Chassis/{chassis}/Sensors/{sensor}
   - Path: /redfish/v1/Chassis/{chassis}/Thermal
   - Path: /redfish/v1/Dell/Chassis/{system}/DellAssembly/{assembly}
   - Path: /redfish/v1/Dell/Systems/{system}/DellNumericSensor/{sensor}
@@ -76,9 +78,9 @@ Metrics:
   - Path: /redfish/v1/Systems/{system}/SimpleStorage/{controller}
   - Path: /redfish/v1/Systems/{system}/Storage/{storage}
   - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Drives/{device}
+  - Path: /redfish/v1/Systems/{system}/Storage/{storage}/StorageControllers/{controller}
   - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Volumes
   - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Volumes/{volume}
-  - Path: /redfish/v1/Systems/{system}/StorageControllers/{controller}
 
 # ./collector generate-rule --base-rule=base-rules/dell.yaml \
 #   --key=Health:health \
