@@ -34,3 +34,30 @@ func DetectVendor() (Vendor, error) {
 
 	return Unknown, errors.New("unknown vendor: " + vendor)
 }
+
+// Product represents server hardware product name.
+type Product int
+
+// Product
+const (
+	Other Product = iota
+	R6525
+	R7525
+)
+
+// DetectProduct detects product name.
+func DetectProduct() (Product, error) {
+	data, err := os.ReadFile("/sys/devices/virtual/dmi/id/product_name")
+	if err != nil {
+		return Other, err
+	}
+	product := strings.TrimSpace(string(data))
+	switch {
+	case strings.Contains(product, "R6525"):
+		return R6525, nil
+	case strings.Contains(product, "R7525"):
+		return R7525, nil
+	default:
+		return Other, nil
+	}
+}

@@ -21,26 +21,6 @@ $ docker build -t setup-hw:latest docker
 
 The container need to be run as a system service before using `idracadm7` or [`setup-hw`](docs/setup-hw.md).
 
-rkt and systemd:
-
-```console
-$ sudo mkdir -p /var/lib/setup-hw
-
-$ sudo systemd-run --unit=setup-hw.service \
-  rkt run --net=host --dns=host --hosts-entry=host --hostname=%H \
-  --insecure-options=all \
-  --volume dev,kind=host,source=/dev --mount volume=dev,target=/dev \
-  --volume sys,kind=host,source=/sys --mount volume=sys,target=/sys \
-  --volume modules,kind=host,source=/lib/modules,readOnly=true --mount volume=modules,target=/lib/modules \
-  --volume neco,kind=host,source=/etc/neco,readOnly=true --mount volume=neco,target=/etc/neco \
-  --volume var,kind=host,source=/var/lib/setup-hw --mount volume=var,target=/var/lib/setup-hw \
-  setup-hw:latest \
-    --name setup-hw \
-    --caps-retain=CAP_SYS_ADMIN,CAP_SYS_CHROOT,CAP_CHOWN,CAP_FOWNER,CAP_NET_ADMIN
-```
-
-Docker:
-
 ```console
 $ sudo mkdir -p /var/lib/setup-hw
 
@@ -69,15 +49,6 @@ You must prepare [configuration files](docs/config.md) before running
 `monitor-hw`.
 
 ### Run idracadm7
-
-rkt:
-
-```console
-$ POD_UUID=$(sudo rkt list --full | grep running | grep setup-hw | cut -f 1)
-$ sudo rkt enter $POD_UUID idracadm7 ...
-```
-
-Docker:
 
 ```console
 $ docker exec setup-hw idracadm7 ...

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/cybozu-go/log"
 	"github.com/cybozu-go/setup-hw/config"
+	"github.com/cybozu-go/setup-hw/lib"
 	"github.com/cybozu-go/well"
 	"gopkg.in/ini.v1"
 )
@@ -268,7 +270,64 @@ func (dc *dellConfigurator) configPerformance(ctx context.Context) error {
 }
 
 func (dc *dellConfigurator) configProcessor(ctx context.Context) error {
-	return dc.enqueueConfig(ctx, "BIOS.ProcSettings.LogicalProc", "Disabled")
+	err := dc.enqueueConfig(ctx, "BIOS.ProcSettings.LogicalProc", "Disabled")
+	if err != nil {
+		return err
+	}
+
+	product, err := lib.DetectProduct()
+	if err != nil {
+		return err
+	}
+	switch product {
+	case lib.R6525, lib.R7525:
+		cpu, err := lib.CountCPUs()
+		if err != nil {
+			return err
+		}
+		memory, err := lib.CountMemoryModules(ctx)
+		if err != nil {
+			return err
+		}
+		if cpu == 0 || memory%cpu != 0 {
+			return fmt.Errorf("invalid number of CPUs or memory modules, cpu: %d, memory: %d", cpu, memory)
+		}
+		memoryPerCPU := memory / cpu
+		// r6525: https://www.dell.com/support/manuals/ja-jp/poweredge-r6525/r6525_ism_pub/%E3%83%A1%E3%83%A2%E3%83%AA%E3%83%BC-%E3%83%A2%E3%82%B8%E3%83%A5%E3%83%BC%E3%83%AB%E5%8F%96%E3%82%8A%E4%BB%98%E3%81%91%E3%82%AC%E3%82%A4%E3%83%89%E3%83%A9%E3%82%A4%E3%83%B3?guid=guid-80b1c1ad-14b7-4dd6-b122-abb0c82bd3e8&lang=ja-jp
+		// r7525: https://www.dell.com/support/manuals/ja-jp/poweredge-r7525/r7525_ism_pub/%E3%83%A1%E3%83%A2%E3%83%AA%E3%83%BC-%E3%83%A2%E3%82%B8%E3%83%A5%E3%83%BC%E3%83%AB%E5%8F%96%E3%82%8A%E4%BB%98%E3%81%91%E3%82%AC%E3%82%A4%E3%83%89%E3%83%A9%E3%82%A4%E3%83%B3?guid=guid-80b1c1ad-14b7-4dd6-b122-abb0c82bd3e8&lang=ja-jp
+		nps := map[int]string{
+			1:  "4",
+			2:  "4",
+			3:  "4",
+			4:  "1",
+			5:  "4",
+			6:  "4",
+			7:  "4",
+			8:  "0",
+			9:  "4",
+			10: "4",
+			11: "4",
+			12: "2",
+			13: "4",
+			14: "4",
+			15: "4",
+			16: "0",
+		}
+		npsVal, ok := nps[memoryPerCPU]
+		if !ok {
+			log.Warn("invalid number of memory modules per number of CPUs. Set the default value for NumaNodesPerSocket.", map[string]interface{}{
+				"cpu":    cpu,
+				"memory": memory,
+			})
+			npsVal = "1"
+		}
+		if npsVal == "0" && cpu == 1 {
+			npsVal = "1"
+		}
+		return dc.enqueueConfig(ctx, "BIOS.ProcSettings.NumaNodesPerSocket", npsVal)
+	default:
+		return nil
+	}
 }
 
 func (dc *dellConfigurator) configTpm(ctx context.Context) error {

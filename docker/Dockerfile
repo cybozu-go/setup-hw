@@ -12,7 +12,7 @@ CMD ["/usr/local/sbin/monitor-hw"]
 # Install vendor tools
 FROM stage1
 
-ARG DSU_VERSION=19.07.00
+ARG DSU_VERSION=21.11.26
 
 RUN curl -sf -o bootstrap.cgi https://linux.dell.com/repo/hardware/DSU_${DSU_VERSION}/bootstrap.cgi \
     && bash bootstrap.cgi \
