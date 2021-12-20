@@ -227,12 +227,6 @@ Metrics:
     Type: state
 - Path: /redfish/v1/Systems/{system}/SimpleStorage/{controller}
   Properties:
-  - Name: systems_simplestorage_devices_status_health
-    Pointer: /Devices/{device}/Status/Health
-    Type: health
-  - Name: systems_simplestorage_devices_status_state
-    Pointer: /Devices/{device}/Status/State
-    Type: state
   - Name: systems_simplestorage_status_health
     Pointer: /Status/Health
     Type: health
@@ -246,6 +240,12 @@ Metrics:
     Type: health
   - Name: systems_storage_status_state
     Pointer: /Status/State
+    Type: state
+  - Name: systems_storage_storagecontrollers_status_health
+    Pointer: /StorageControllers/{storagecontroller}/Status/Health
+    Type: health
+  - Name: systems_storage_storagecontrollers_status_state
+    Pointer: /StorageControllers/{storagecontroller}/Status/State
     Type: state
 - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Drives/{device}
   Properties:
