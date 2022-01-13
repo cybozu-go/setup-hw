@@ -14,7 +14,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Add BIOS settings for new equipment (#65)
-- Add rules for version 1.11.0 (#66)
+- Add rules for Redfish version 1.11.0 (#66)
 
 ## [1.9.2] - 2021-09-15
 
