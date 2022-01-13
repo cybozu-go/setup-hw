@@ -5,9 +5,21 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.10.0] - 2022-01-04
+
+### Changed
+
+- Update dependencies (#67)
+
+### Added
+
+- Add BIOS settings for new equipment (#65)
+- Add rules for Redfish version 1.11.0 (#66)
+
 ## [1.9.2] - 2021-09-15
 
-## Changed
+### Changed
+
 - update golang to 1.17 (#63)
 
 ## [1.9.1] - 2021-05-31
@@ -120,7 +132,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 (#12)
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.9.2...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.10.0...HEAD
+[1.10.0]: https://github.com/cybozu-go/setup-hw/compare/v1.9.2...v1.10.0
 [1.9.2]: https://github.com/cybozu-go/setup-hw/compare/v1.9.1...1.9.2
 [1.9.1]: https://github.com/cybozu-go/setup-hw/compare/v1.9.0...1.9.1
 [1.9.0]: https://github.com/cybozu-go/setup-hw/compare/v1.8.0...1.9.0
