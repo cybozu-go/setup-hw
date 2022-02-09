@@ -132,6 +132,59 @@ func parseRacadmGetOutput(out, key string) (string, error) {
 	return keys[0].String(), nil
 }
 
+// racadmGetConfigs returns a key-value map under the given group key.
+// The returned value of 'idracadm7 get KEY' with a group KEY takes
+// various forms.
+//
+// case1: the children are objects and the result contains a section name
+//     $ sudo idracadm7 get iDRAC.SNMP
+//     [Key=iDRAC.Embedded.1#SNMP.1]
+//     AgentCommunity=public
+//     AgentEnable=Enabled
+//     #EngineID=0x0123  # This type of line is ignored!
+//
+// case2: the children are objects and the result has no section name
+//     $ sudo idracadm7 get System.ServerPwr
+//     GridACurrentCapLimit=1000000
+//     GridACurrentCapSetting=Disabled
+//
+// case3: the children are groups; this is treated as an error
+//     $ sudo idracadm7 get System
+//     ServerOS
+//     ServerPwr
+//     ServerPwrMon
+//
+// If you want to get a commented key-value like 'iDRAC.SNMP.EngineID',
+// use 'racadmGetConfig()'.
+func racadmGetConfigs(ctx context.Context, key string) (map[string]string, error) {
+	cmd := well.CommandContext(ctx, racadmPath, "get", key)
+	cmd.Severity = log.LvDebug
+	out, err := cmd.Output()
+	if err != nil {
+		return nil, err
+	}
+
+	return parseRacadmGetOutputs(out, key)
+}
+
+func parseRacadmGetOutputs(out []byte, key string) (map[string]string, error) {
+	cfg, err := ini.Load(out)
+	if err != nil {
+		return nil, err
+	}
+
+	sectionName := ini.DefaultSection
+	for _, name := range cfg.SectionStrings() {
+		if name != ini.DefaultSection {
+			sectionName = name
+			break
+		}
+	}
+
+	section := cfg.Section(sectionName)
+	return section.KeysHash(), nil
+}
+
 // racadmSetConfig check the current value of key and compares it to value.
 // If the current value is the same as value, this returns (false, nil).
 // Otherwise, this sets key to value and returns (true, nil).
@@ -410,6 +463,9 @@ func (dc *dellConfigurator) configiDRAC(ctx context.Context) error {
 	if err := dc.configVirtualConsole(ctx); err != nil {
 		return err
 	}
+	if err := dc.configWebServer(ctx); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -517,6 +573,18 @@ func (dc *dellConfigurator) configUsers(ctx context.Context) error {
 
 func (dc *dellConfigurator) configVirtualConsole(ctx context.Context) error {
 	_, err := racadmSetConfig(ctx, "iDRAC.VirtualConsole.PluginType", "2")
+	return err
+}
+
+func (dc *dellConfigurator) configWebServer(ctx context.Context) error {
+	keys, err := racadmGetConfigs(ctx, "iDRAC.WebServer")
+	if err != nil {
+		return err
+	}
+	if _, ok := keys["HostHeaderCheck"]; !ok {
+		return nil
+	}
+	_, err = racadmSetConfig(ctx, "iDRAC.WebServer.HostHeaderCheck", "Disabled")
 	return err
 }
 
