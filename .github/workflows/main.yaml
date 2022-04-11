@@ -19,6 +19,12 @@ jobs:
         with:
           go-version: ${{ env.go-version }}
 
+      - name: Install test tools
+        run: make setup
+
+      - name: Check auto-generated files
+        run: make check-generate
+
       - name: Run test
         run: make test
 
