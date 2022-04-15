@@ -20,11 +20,16 @@ generate: $(GENERATED)
 $(GENERATED): $(GENERATE_SRC) pkg/render-rules/main.go
 	go generate ./redfish/...
 
+check-generate:
+	$(MAKE) generate
+	go mod tidy
+	git diff --exit-code --name-only
+
 setup:
 	env GOFLAGS= go install golang.org/x/tools/cmd/goimports@latest
 	env GOFLAGS= go install honnef.co/go/tools/cmd/staticcheck@latest
 
-test: setup generate
+test:
 	test -z "$$(gofmt -s -l . | tee /dev/stderr)"
 	staticcheck ./...
 	go build ./...
@@ -46,4 +51,4 @@ else
 endif
 	cd docker && docker build -t quay.io/cybozu/setup-hw:dev .
 
-.PHONY: all generate test install build-image setup
+.PHONY: all generate check-generate setup test install build-image
