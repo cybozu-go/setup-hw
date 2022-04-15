@@ -5,6 +5,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.11.0] - 2022-04-15
+
+### Changed
+
+- Update go module dependencies and actions (#71)
+
 ## [1.10.1] - 2022-02-09
 
 ### Changed
@@ -138,7 +144,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 (#12)
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.10.1...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.11.0...HEAD
+[1.11.0]: https://github.com/cybozu-go/setup-hw/compare/v1.10.1...v1.11.0
 [1.10.1]: https://github.com/cybozu-go/setup-hw/compare/v1.10.0...v1.10.1
 [1.10.0]: https://github.com/cybozu-go/setup-hw/compare/v1.9.2...v1.10.0
 [1.9.2]: https://github.com/cybozu-go/setup-hw/compare/v1.9.1...1.9.2
