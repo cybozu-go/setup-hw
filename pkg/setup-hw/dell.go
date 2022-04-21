@@ -356,7 +356,7 @@ func (dc *dellConfigurator) configProcessor(ctx context.Context) error {
 			5:  "4",
 			6:  "4",
 			7:  "4",
-			8:  "0",
+			8:  "4", // The optimal value for 8 is "0". We set "4" in order to treat dies == NUMA nodes and avoid cross-die pinning under current K8s Topology Manager. It may be changed in further release of K8s.
 			9:  "4",
 			10: "4",
 			11: "4",
