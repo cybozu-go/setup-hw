@@ -13,8 +13,10 @@ func monitorDell(ctx context.Context) error {
 	if err := initDell(ctx); err != nil {
 		return err
 	}
-	if err := resetDell(ctx); err != nil {
-		return err
+	if !noResetExists() {
+		if err := resetDell(ctx); err != nil {
+			return err
+		}
 	}
 
 	env := well.NewEnvironment(ctx)
@@ -26,8 +28,7 @@ func monitorDell(ctx context.Context) error {
 				return nil
 			}
 
-			if _, err := os.Stat(opts.noResetFile); err == nil {
-				// if no-reset file exists, skip reset.
+			if noResetExists() {
 				continue
 			}
 
@@ -56,4 +57,9 @@ func initDell(ctx context.Context) error {
 
 func resetDell(ctx context.Context) error {
 	return well.CommandContext(ctx, "/opt/dell/srvadmin/bin/idracadm7", "racreset", "soft").Run()
+}
+
+func noResetExists() bool {
+	_, err := os.Stat(opts.noResetFile)
+	return err == nil
 }
