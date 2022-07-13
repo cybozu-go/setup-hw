@@ -18,11 +18,12 @@ The file should respect [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 Bump version
 ------------
 
-1. Determine a new version number.  Export it as `VERSION` environment variable:
+1. Determine a new version number. Then set `VERSION` variable.
 
     ```console
-    $ VERSION=x.y.z
-    $ export VERSION
+    # Set VERSION and confirm it. It should not have "v" prefix.
+    $ VERSION=x.y.x
+    $ echo $VERSION
     ```
 
 2. Make a branch to release
@@ -43,9 +44,17 @@ Bump version
 6. Pull `main` branch, add a git tag, then push it.
 
     ```console
+    # Set VERSION again.
+    $ VERSION=x.y.x
+    $ echo $VERSION
+
     $ git checkout main
     $ git pull
     $ git tag -a -m "Release v$VERSION" "v$VERSION"
+
+    # Make sure the release tag exists.
+    $ git tag -ln | grep $VERSION
+
     $ git push origin "v$VERSION"
     ```
 
