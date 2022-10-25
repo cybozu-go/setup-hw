@@ -86,14 +86,15 @@ RETRY:
 // but in some cases it returns the value not conforming to INI format.
 //
 // case1: conform to INI format
-//     $ sudo idracadm7 get iDRAC.SNMP.AgentEnable
-//     [Key=iDRAC.Embedded.1#SNMP.1]
-//     AgentEnable=Enabled
+//
+//	$ sudo idracadm7 get iDRAC.SNMP.AgentEnable
+//	[Key=iDRAC.Embedded.1#SNMP.1]
+//	AgentEnable=Enabled
 //
 // case2: not conform to INI format. return only value.
-//     $ sudo idracadm7 get System.ServerPwr.PSRapidOn
-//     Enabled
 //
+//	$ sudo idracadm7 get System.ServerPwr.PSRapidOn
+//	Enabled
 func racadmGetConfig(ctx context.Context, key string) (string, error) {
 	cmd := well.CommandContext(ctx, racadmPath, "get", key)
 	cmd.Severity = log.LvDebug
@@ -137,22 +138,25 @@ func parseRacadmGetOutput(out, key string) (string, error) {
 // various forms.
 //
 // case1: the children are objects and the result contains a section name
-//     $ sudo idracadm7 get iDRAC.SNMP
-//     [Key=iDRAC.Embedded.1#SNMP.1]
-//     AgentCommunity=public
-//     AgentEnable=Enabled
-//     #EngineID=0x0123  # This type of line is ignored!
+//
+//	$ sudo idracadm7 get iDRAC.SNMP
+//	[Key=iDRAC.Embedded.1#SNMP.1]
+//	AgentCommunity=public
+//	AgentEnable=Enabled
+//	#EngineID=0x0123  # This type of line is ignored!
 //
 // case2: the children are objects and the result has no section name
-//     $ sudo idracadm7 get System.ServerPwr
-//     GridACurrentCapLimit=1000000
-//     GridACurrentCapSetting=Disabled
+//
+//	$ sudo idracadm7 get System.ServerPwr
+//	GridACurrentCapLimit=1000000
+//	GridACurrentCapSetting=Disabled
 //
 // case3: the children are groups; this is treated as an error
-//     $ sudo idracadm7 get System
-//     ServerOS
-//     ServerPwr
-//     ServerPwrMon
+//
+//	$ sudo idracadm7 get System
+//	ServerOS
+//	ServerPwr
+//	ServerPwrMon
 //
 // If you want to get a commented key-value like 'iDRAC.SNMP.EngineID',
 // use 'racadmGetConfig()'.
