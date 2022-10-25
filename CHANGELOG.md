@@ -5,11 +5,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Update dependencies (#78)
+    - Upgrade direct dependencies in go.mod
+    - Update Golang to 1.19
+
 ## [1.12.0] - 2022-04-21
 
-- Change NPS settings for R6525 (#73)
-
 ### Changed
+
+- Change NPS settings for R6525 (#73)
 
 ## [1.11.0] - 2022-04-15
 
