@@ -5,6 +5,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Change system profile setting to `Performance` (#80)
+
 ## [1.12.1] - 2022-10-26
 
 ### Changed
