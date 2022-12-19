@@ -5,6 +5,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.13.0] - 2022-12-19
+
 ### Changed
 
 - Change system profile setting to `Performance` (#80)
@@ -162,7 +164,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 (#12)
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.12.1...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.13.0...HEAD
+[1.13.0]: https://github.com/cybozu-go/setup-hw/compare/v1.12.1...v1.13.0
 [1.12.1]: https://github.com/cybozu-go/setup-hw/compare/v1.12.0...v1.12.1
 [1.12.0]: https://github.com/cybozu-go/setup-hw/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/cybozu-go/setup-hw/compare/v1.10.1...v1.11.0
