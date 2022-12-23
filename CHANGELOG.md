@@ -5,6 +5,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+- Revert "Change system profile setting to `Performance`" (#82)
+
 ## [1.13.0] - 2022-12-19
 
 ### Changed
