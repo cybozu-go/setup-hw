@@ -323,7 +323,7 @@ func (dc *dellConfigurator) configBIOS(ctx context.Context) error {
 }
 
 func (dc *dellConfigurator) configPerformance(ctx context.Context) error {
-	return dc.enqueueConfig(ctx, "BIOS.SysProfileSettings.SysProfile", "PerfOptimized")
+	return dc.enqueueConfig(ctx, "BIOS.SysProfileSettings.SysProfile", "PerfPerWattOptimizedOs")
 }
 
 func (dc *dellConfigurator) configProcessor(ctx context.Context) error {
