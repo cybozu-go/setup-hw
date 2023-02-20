@@ -5,7 +5,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Update dependencies in [#84](https://github.com/cybozu-go/setup-hw/pull/84)
+    - Upgrade direct dependencies in go.mod
+    - Update testing/releasing environments
+
 ## [1.13.1] - 2023-01-13
+
+### Changed
 
 - Revert "Change system profile setting to `Performance`" (#82)
 
