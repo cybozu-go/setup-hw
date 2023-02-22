@@ -40,7 +40,7 @@ install: generate
 ifdef GOBIN
 	mkdir -p $(GOBIN)
 endif
-	GOBIN=$(GOBIN) go install $(foreach f, $(BINS), ./pkg/$(f))
+	GOBIN=$(GOBIN) CGO_ENABLED=0 go install -ldflags="-s -w" $(foreach f, $(BINS), ./pkg/$(f))
 
 build-image: install
 ifdef GOBIN
