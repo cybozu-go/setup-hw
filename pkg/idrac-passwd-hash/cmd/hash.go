@@ -1,29 +1,43 @@
 package cmd
 
 import (
-	"bytes"
 	"crypto/rand"
 	"crypto/sha256"
 	"errors"
+	"fmt"
 	"os"
 
-	"github.com/howeyc/gopass"
+	"golang.org/x/term"
 )
 
+func readPasswordFromStdTerminal(prompt string) (string, error) {
+	if !term.IsTerminal(int(os.Stdin.Fd())) || !term.IsTerminal(int(os.Stdout.Fd())) {
+		return "", fmt.Errorf("stdin and stdout are not terminals")
+	}
+
+	fmt.Print(prompt)
+	p, err := term.ReadPassword(int(os.Stdin.Fd()))
+	fmt.Println()
+	if err != nil {
+		return "", err
+	}
+	return string(p), nil
+}
+
 func askPassword() ([]byte, error) {
-	pass, err := gopass.GetPasswdPrompt("Enter password: ", false, os.Stdin, os.Stdout)
+	pass, err := readPasswordFromStdTerminal("Enter password: ")
 	if err != nil {
 		return nil, err
 	}
-	pass2, err := gopass.GetPasswdPrompt("Retype password: ", false, os.Stdin, os.Stdout)
+	pass2, err := readPasswordFromStdTerminal("Retype password: ")
 	if err != nil {
 		return nil, err
 	}
-	if !bytes.Equal(pass, pass2) {
+	if pass != pass2 {
 		return nil, errors.New("password mismatch")
 	}
 
-	return pass, nil
+	return []byte(pass), nil
 }
 
 func generateSalt() ([]byte, error) {

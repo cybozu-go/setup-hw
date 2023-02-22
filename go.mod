@@ -6,10 +6,10 @@ require (
 	github.com/cybozu-go/log v1.7.0
 	github.com/cybozu-go/well v1.11.2
 	github.com/google/go-cmp v0.5.9
-	github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef
 	github.com/prometheus/client_golang v1.14.0
 	github.com/prometheus/client_model v0.3.0
 	github.com/spf13/cobra v1.6.1
+	golang.org/x/term v0.5.0
 	gopkg.in/ini.v1 v1.67.0
 	sigs.k8s.io/yaml v1.3.0
 )
@@ -37,10 +37,8 @@ require (
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/vishvananda/netlink v1.2.1-beta.2 // indirect
 	github.com/vishvananda/netns v0.0.3 // indirect
-	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
 	golang.org/x/net v0.5.0 // indirect
-	golang.org/x/sys v0.4.0 // indirect
-	golang.org/x/term v0.4.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
 	golang.org/x/text v0.6.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
