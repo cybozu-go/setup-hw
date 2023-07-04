@@ -6,7 +6,7 @@ Hardware setup container
 This repository contains a Dockerfile and associated tools to build a
 container image for configuring/monitoring server [BMC][] and [BIOS][].
 
-Specifically, the image bundles `idracadm7` from [OMSA][] for Dell servers.
+Specifically, the image bundles `racadm` from [OMSA][] for Dell servers.
 
 Usage
 -----
@@ -14,12 +14,13 @@ Usage
 ### Build
 
 ```console
-$ docker build -t setup-hw:latest docker
+$ cd setup-hw
+$ make build-image
 ```
 
 ### Run as a system service
 
-The container need to be run as a system service before using `idracadm7` or [`setup-hw`](docs/setup-hw.md).
+The container need to be run as a system service before using `racadm` or [`setup-hw`](docs/setup-hw.md).
 
 ```console
 $ sudo mkdir -p /var/lib/setup-hw
@@ -48,10 +49,10 @@ by default.
 You must prepare [configuration files](docs/config.md) before running
 `monitor-hw`.
 
-### Run idracadm7
+### Run racadm
 
 ```console
-$ docker exec setup-hw idracadm7 ...
+$ docker exec setup-hw racadm ...
 ```
 
 ### Run `setup-hw`
@@ -60,7 +61,9 @@ $ docker exec setup-hw idracadm7 ...
 See the [document](docs/setup-hw.md) for details.
 
 
-[BMC]: https://en.wikipedia.org/wiki/Intelligent_Platform_Management_Interface#Baseboard_management_controller
-[BIOS]: https://en.wikipedia.org/wiki/BIOS
-[OMSA]: https://en.wikipedia.org/wiki/OpenManage#OMSA_%E2%80%93_OpenManage_Server_Administrator
-[Prometheus]: https://prometheus.io/
+### Link
+* [BMC](https://en.wikipedia.org/wiki/Intelligent_Platform_Management_Interface#Baseboard_management_controller)
+* [BIOS](https://en.wikipedia.org/wiki/BIOS)
+* [OMSA](https://en.wikipedia.org/wiki/OpenManage#OMSA_%E2%80%93_OpenManage_Server_Administrator)
+* [Prometheus](https://prometheus.io/)
+* [Dell Remote Access Controller 9 RACADM CLI Guide](https://www.dell.com/support/manuals/ja-jp/poweredge-r7415/idrac9_7.xx_racadm_pub/introduction)

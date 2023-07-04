@@ -48,12 +48,12 @@ func initDell(ctx context.Context) error {
 	if err := well.CommandContext(ctx, "/usr/libexec/instsvcdrv-helper", "start").Run(); err != nil {
 		return err
 	}
-	if err := well.CommandContext(ctx, "/opt/dell/srvadmin/bin/idracadm7", "remoteimage", "-d").Run(); err != nil {
+	if err := well.CommandContext(ctx, "/usr/bin/racadm", "remoteimage", "-d").Run(); err != nil {
 		return err
 	}
 	return nil
 }
 
 func resetDell(ctx context.Context) error {
-	return well.CommandContext(ctx, "/opt/dell/srvadmin/bin/idracadm7", "racreset", "soft").Run()
+	return well.CommandContext(ctx, "/usr/bin/racadm", "racreset", "soft").Run()
 }

@@ -36,7 +36,7 @@ Vendor specific behaviors
 
 ### Dell actions
 
-`monitor-hw` invokes `instsvcdrv-helper` for `idracadm7`.
+`monitor-hw` invokes `instsvcdrv-helper` for `racadm`.
 
 `monitor-hw` periodically resets iDRAC because it occasionally hangs.
 
