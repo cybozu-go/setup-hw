@@ -1,0 +1,431 @@
+Traverse:
+  Root: /redfish/v1
+  Excludes:
+  - /JsonSchemas
+  - /Accounts
+  - /Certificates
+  - /Jobs
+  - /Logs
+  - /Registries
+  - /Roles
+  - /Sessions
+  - /Settings
+  - /AccountService
+  - /CertificateService
+  - /EventService
+  - /JobService
+  - /LicenseService
+  - /LogServices
+  - /SessionService
+  - /TaskService
+  - /TelemetryService
+  - /UpdateService
+  - /Power/
+  - /Power#/
+  - /Thermal#/
+  - /Assembly#/
+  - /redfish/v1/Chassis/$
+Metrics:
+- Path: /redfish/v1/Chassis/System.Embedded.1/NetworkAdapters/NIC.Embedded.1
+  Properties:
+  - Name: chassis_systemembedded1_networkadapters_nicembedded1_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: chassis_systemembedded1_networkadapters_nicembedded1_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Chassis/System.Embedded.1/NetworkAdapters/NIC.Embedded.1/NetworkDeviceFunctions/{nic-dev-id}
+  Properties:
+  - Name: chassis_systemembedded1_networkadapters_nicembedded1_networkdevicefunctions_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: chassis_systemembedded1_networkadapters_nicembedded1_networkdevicefunctions_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Chassis/System.Embedded.1/NetworkAdapters/NIC.Embedded.1/NetworkPorts/{nic-dev-pid}
+  Properties:
+  - Name: chassis_systemembedded1_networkadapters_nicembedded1_networkports_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: chassis_systemembedded1_networkadapters_nicembedded1_networkports_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Chassis/System.Embedded.1/NetworkAdapters/NIC.Embedded.1/Ports/{nic-dev-pid}
+  Properties:
+  - Name: chassis_systemembedded1_networkadapters_nicembedded1_ports_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: chassis_systemembedded1_networkadapters_nicembedded1_ports_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Chassis/System.Embedded.1/NetworkAdapters/NIC.Integrated.1
+  Properties:
+  - Name: chassis_systemembedded1_networkadapters_nicintegrated1_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: chassis_systemembedded1_networkadapters_nicintegrated1_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Chassis/System.Embedded.1/NetworkAdapters/NIC.Integrated.1/NetworkDeviceFunctions/{nic-int-dev-id}
+  Properties:
+  - Name: chassis_systemembedded1_networkadapters_nicintegrated1_networkdevicefunctions_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: chassis_systemembedded1_networkadapters_nicintegrated1_networkdevicefunctions_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Chassis/System.Embedded.1/NetworkAdapters/NIC.Integrated.1/NetworkPorts/{nic-int-dev-pid}
+  Properties:
+  - Name: chassis_systemembedded1_networkadapters_nicintegrated1_networkports_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: chassis_systemembedded1_networkadapters_nicintegrated1_networkports_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Chassis/System.Embedded.1/NetworkAdapters/NIC.Integrated.1/Ports/{nic-int-dev-pid}
+  Properties:
+  - Name: chassis_systemembedded1_networkadapters_nicintegrated1_ports_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: chassis_systemembedded1_networkadapters_nicintegrated1_ports_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Chassis/System.Embedded.1/PCIeDevices/{dev-id}/PCIeFunctions/{dev-addr}
+  Properties:
+  - Name: chassis_systemembedded1_pciedevices_pciefunctions_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: chassis_systemembedded1_pciedevices_pciefunctions_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Chassis/System.Embedded.1/PCIeDevices/{device}
+  Properties:
+  - Name: chassis_systemembedded1_pciedevices_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: chassis_systemembedded1_pciedevices_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Chassis/System.Embedded.1/PCIeSlots
+  Properties:
+  - Name: chassis_systemembedded1_pcieslots_slots_status_state
+    Pointer: /Slots/{slot}/Status/State
+    Type: state
+- Path: /redfish/v1/Chassis/System.Embedded.1/Power
+  Properties:
+  - Name: chassis_systemembedded1_power_powersupplies_redundancy_status_health
+    Pointer: /PowerSupplies/{powersupply}/Redundancy/{redundancy}/Status/Health
+    Type: health
+  - Name: chassis_systemembedded1_power_powersupplies_redundancy_status_state
+    Pointer: /PowerSupplies/{powersupply}/Redundancy/{redundancy}/Status/State
+    Type: state
+  - Name: chassis_systemembedded1_power_powersupplies_status_health
+    Pointer: /PowerSupplies/{powersupply}/Status/Health
+    Type: health
+  - Name: chassis_systemembedded1_power_powersupplies_status_state
+    Pointer: /PowerSupplies/{powersupply}/Status/State
+    Type: state
+  - Name: chassis_systemembedded1_power_redundancy_status_health
+    Pointer: /Redundancy/{redundancy}/Status/Health
+    Type: health
+  - Name: chassis_systemembedded1_power_redundancy_status_state
+    Pointer: /Redundancy/{redundancy}/Status/State
+    Type: state
+  - Name: chassis_systemembedded1_power_voltages_status_health
+    Pointer: /Voltages/{voltage}/Status/Health
+    Type: health
+  - Name: chassis_systemembedded1_power_voltages_status_state
+    Pointer: /Voltages/{voltage}/Status/State
+    Type: state
+- Path: /redfish/v1/Chassis/System.Embedded.1/PowerSubsystem
+  Properties:
+  - Name: chassis_systemembedded1_powersubsystem_powersupplyredundancy_status_health
+    Pointer: /PowerSupplyRedundancy/{powersupplyredundancy}/Status/Health
+    Type: health
+  - Name: chassis_systemembedded1_powersubsystem_powersupplyredundancy_status_state
+    Pointer: /PowerSupplyRedundancy/{powersupplyredundancy}/Status/State
+    Type: state
+  - Name: chassis_systemembedded1_powersubsystem_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: chassis_systemembedded1_powersubsystem_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Chassis/System.Embedded.1/PowerSubsystem/PowerSupplies/{psu-slot}
+  Properties:
+  - Name: chassis_systemembedded1_powersubsystem_powersupplies_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: chassis_systemembedded1_powersubsystem_powersupplies_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Chassis/System.Embedded.1/PowerSubsystem/PowerSupplies/{psu-slot}/Metrics
+  Properties:
+  - Name: chassis_systemembedded1_powersubsystem_powersupplies_metrics_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: chassis_systemembedded1_powersubsystem_powersupplies_metrics_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Chassis/System.Embedded.1/Sensors/{fan.embedded}
+  Properties:
+  - Name: chassis_systemembedded1_sensors_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: chassis_systemembedded1_sensors_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Chassis/System.Embedded.1/Thermal
+  Properties:
+  - Name: chassis_systemembedded1_thermal_fans_status_health
+    Pointer: /Fans/{fan}/Status/Health
+    Type: health
+  - Name: chassis_systemembedded1_thermal_fans_status_state
+    Pointer: /Fans/{fan}/Status/State
+    Type: state
+  - Name: chassis_systemembedded1_thermal_redundancy_status_health
+    Pointer: /Redundancy/{redundancy}/Status/Health
+    Type: health
+  - Name: chassis_systemembedded1_thermal_redundancy_status_state
+    Pointer: /Redundancy/{redundancy}/Status/State
+    Type: state
+  - Name: chassis_systemembedded1_thermal_temperatures_status_health
+    Pointer: /Temperatures/{temperature}/Status/Health
+    Type: health
+  - Name: chassis_systemembedded1_thermal_temperatures_status_state
+    Pointer: /Temperatures/{temperature}/Status/State
+    Type: state
+- Path: /redfish/v1/Chassis/System.Embedded.1/ThermalSubsystem
+  Properties:
+  - Name: chassis_systemembedded1_thermalsubsystem_fanredundancy_status_health
+    Pointer: /FanRedundancy/{fanredundancy}/Status/Health
+    Type: health
+  - Name: chassis_systemembedded1_thermalsubsystem_fanredundancy_status_state
+    Pointer: /FanRedundancy/{fanredundancy}/Status/State
+    Type: state
+  - Name: chassis_systemembedded1_thermalsubsystem_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: chassis_systemembedded1_thermalsubsystem_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Chassis/{System.Embedded}/ThermalSubsystem/Fans/{Fan.Embedded}
+  Properties:
+  - Name: chassis_thermalsubsystem_fans_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: chassis_thermalsubsystem_fans_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Chassis/{chassis}
+  Properties:
+  - Name: chassis_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: chassis_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Fabrics/PCIe
+  Properties:
+  - Name: fabrics_pcie_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: fabrics_pcie_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Managers/iDRAC.Embedded.1
+  Properties:
+  - Name: managers_idracembedded1_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: managers_idracembedded1_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Managers/iDRAC.Embedded.1/EthernetInterfaces/NIC.1
+  Properties:
+  - Name: managers_idracembedded1_ethernetinterfaces_nic1_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: managers_idracembedded1_ethernetinterfaces_nic1_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Managers/iDRAC.Embedded.1/NetworkProtocol
+  Properties:
+  - Name: managers_idracembedded1_networkprotocol_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: managers_idracembedded1_networkprotocol_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Systems/System.Embedded.1
+  Properties:
+  - Name: systems_systemembedded1_hostwatchdogtimer_status_state
+    Pointer: /HostWatchdogTimer/Status/State
+    Type: state
+  - Name: systems_systemembedded1_memorysummary_status_health
+    Pointer: /MemorySummary/Status/Health
+    Type: health
+  - Name: systems_systemembedded1_memorysummary_status_state
+    Pointer: /MemorySummary/Status/State
+    Type: state
+  - Name: systems_systemembedded1_processorsummary_status_health
+    Pointer: /ProcessorSummary/Status/Health
+    Type: health
+  - Name: systems_systemembedded1_processorsummary_status_state
+    Pointer: /ProcessorSummary/Status/State
+    Type: state
+  - Name: systems_systemembedded1_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: systems_systemembedded1_status_state
+    Pointer: /Status/State
+    Type: state
+  - Name: systems_systemembedded1_trustedmodules_status_state
+    Pointer: /TrustedModules/{trustedmodule}/Status/State
+    Type: state
+- Path: /redfish/v1/Systems/System.Embedded.1/EthernetInterfaces/{nic.dev}
+  Properties:
+  - Name: systems_systemembedded1_ethernetinterfaces_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: systems_systemembedded1_ethernetinterfaces_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Systems/System.Embedded.1/Memory/{dimm.socket}
+  Properties:
+  - Name: systems_systemembedded1_memory_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: systems_systemembedded1_memory_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Systems/System.Embedded.1/NetworkInterfaces/NIC.Embedded.1
+  Properties:
+  - Name: systems_systemembedded1_networkinterfaces_nicembedded1_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: systems_systemembedded1_networkinterfaces_nicembedded1_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Systems/System.Embedded.1/NetworkInterfaces/NIC.Integrated.1
+  Properties:
+  - Name: systems_systemembedded1_networkinterfaces_nicintegrated1_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: systems_systemembedded1_networkinterfaces_nicintegrated1_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Systems/System.Embedded.1/Processors/CPU.Socket.1
+  Properties:
+  - Name: systems_systemembedded1_processors_cpusocket1_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: systems_systemembedded1_processors_cpusocket1_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Systems/System.Embedded.1/Processors/CPU.Socket.2
+  Properties:
+  - Name: systems_systemembedded1_processors_cpusocket2_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: systems_systemembedded1_processors_cpusocket2_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Systems/System.Embedded.1/SimpleStorage/AHCI.Embedded.1-1
+  Properties:
+  - Name: systems_systemembedded1_simplestorage_ahciembedded11_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: systems_systemembedded1_simplestorage_ahciembedded11_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Systems/System.Embedded.1/SimpleStorage/CPU.1
+  Properties:
+  - Name: systems_systemembedded1_simplestorage_cpu1_devices_status_health
+    Pointer: /Devices/{device}/Status/Health
+    Type: health
+  - Name: systems_systemembedded1_simplestorage_cpu1_devices_status_state
+    Pointer: /Devices/{device}/Status/State
+    Type: state
+  - Name: systems_systemembedded1_simplestorage_cpu1_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: systems_systemembedded1_simplestorage_cpu1_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Systems/System.Embedded.1/Storage/AHCI.Embedded.1-1
+  Properties:
+  - Name: systems_systemembedded1_storage_ahciembedded11_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: systems_systemembedded1_storage_ahciembedded11_status_state
+    Pointer: /Status/State
+    Type: state
+  - Name: systems_systemembedded1_storage_ahciembedded11_storagecontrollers_status_health
+    Pointer: /StorageControllers/{storagecontroller}/Status/Health
+    Type: health
+  - Name: systems_systemembedded1_storage_ahciembedded11_storagecontrollers_status_state
+    Pointer: /StorageControllers/{storagecontroller}/Status/State
+    Type: state
+- Path: /redfish/v1/Systems/System.Embedded.1/Storage/AHCI.Embedded.1-1#/StorageControllers/0
+  Properties:
+  - Name: systems_systemembedded1_storage_ahciembedded11_storagecontrollers_0_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: systems_systemembedded1_storage_ahciembedded11_storagecontrollers_0_status_state
+    Pointer: /Status/State
+    Type: state
+  - Name: systems_systemembedded1_storage_ahciembedded11_storagecontrollers_0_storagecontrollers_status_health
+    Pointer: /StorageControllers/{storagecontroller}/Status/Health
+    Type: health
+  - Name: systems_systemembedded1_storage_ahciembedded11_storagecontrollers_0_storagecontrollers_status_state
+    Pointer: /StorageControllers/{storagecontroller}/Status/State
+    Type: state
+- Path: /redfish/v1/Systems/System.Embedded.1/Storage/AHCI.Embedded.1-1/Controllers/AHCI.Embedded.1-1
+  Properties:
+  - Name: systems_systemembedded1_storage_ahciembedded11_controllers_ahciembedded11_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: systems_systemembedded1_storage_ahciembedded11_controllers_ahciembedded11_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Systems/System.Embedded.1/Storage/CPU.1
+  Properties:
+  - Name: systems_systemembedded1_storage_cpu1_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: systems_systemembedded1_storage_cpu1_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Systems/System.Embedded.1/Storage/CPU.1/Drives/Disk.Bay.0:Enclosure.Internal.0-1
+  Properties:
+  - Name: systems_systemembedded1_storage_cpu1_drives_diskbay0enclosureinternal01_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: systems_systemembedded1_storage_cpu1_drives_diskbay0enclosureinternal01_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Systems/System.Embedded.1/Storage/CPU.1/Drives/Disk.Bay.1:Enclosure.Internal.0-1
+  Properties:
+  - Name: systems_systemembedded1_storage_cpu1_drives_diskbay1enclosureinternal01_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: systems_systemembedded1_storage_cpu1_drives_diskbay1enclosureinternal01_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Systems/System.Embedded.1/Storage/CPU.1/Volumes/Disk.Bay.0:Enclosure.Internal.0-1
+  Properties:
+  - Name: systems_systemembedded1_storage_cpu1_volumes_diskbay0enclosureinternal01_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: systems_systemembedded1_storage_cpu1_volumes_diskbay0enclosureinternal01_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Systems/System.Embedded.1/Storage/CPU.1/Volumes/Disk.Bay.1:Enclosure.Internal.0-1
+  Properties:
+  - Name: systems_systemembedded1_storage_cpu1_volumes_diskbay1enclosureinternal01_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: systems_systemembedded1_storage_cpu1_volumes_diskbay1enclosureinternal01_status_state
+    Pointer: /Status/State
+    Type: state

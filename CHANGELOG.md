@@ -5,6 +5,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+
+## [1.14.0] - 2023-07-10
+
+### Changed
+
+- Update dependencies
+    - Upgrade OMSA v11.0.0.0 and iSM v5.1.0.0
+    - Change container base image from CentOS:7 to Ubuntu:22.04
+    - Add rules for Redfish version 1.17.0 on iDRAC 7.00.00.00 or iDRAC 6.10.80.00
+
+
 ## [1.13.2] - 2023-02-24
 
 ### Changed
