@@ -5,6 +5,7 @@ COPY monitor-hw /usr/local/sbin/monitor-hw
 COPY collector /usr/local/sbin/collector
 COPY setup-apply-firmware /usr/local/sbin/setup-apply-firmware
 COPY setup-isoreboot /usr/local/sbin/setup-isoreboot
+COPY systemctl-dummy /usr/bin/systemctl
 CMD ["/usr/local/sbin/monitor-hw"]
 
 # Install vendor tools
@@ -20,12 +21,6 @@ RUN apt update -y && apt-get install wget pgp apt-utils -y \
     && wget https://linux.dell.com/repo/pgp_pubkeys/0x1285491434D8786F.asc \
     && apt-key add 0x1285491434D8786F.asc \
     && rm 0x1285491434D8786F.asc
-
-## Make the dummy systemctl to avoid error in post-install script 
-RUN cat <<EOF > /usr/bin/systemctl
-!/bin/bash
-/bin/true
-EOF
 
 # Install DELL's tools
 # the installation of dcism will failed due to no GUI in the container. Therefore added "exit 0" to avoid stopping job.
