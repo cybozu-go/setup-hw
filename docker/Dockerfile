@@ -5,7 +5,6 @@ COPY monitor-hw /usr/local/sbin/monitor-hw
 COPY collector /usr/local/sbin/collector
 COPY setup-apply-firmware /usr/local/sbin/setup-apply-firmware
 COPY setup-isoreboot /usr/local/sbin/setup-isoreboot
-COPY systemctl-dummy /usr/bin/systemctl
 CMD ["/usr/local/sbin/monitor-hw"]
 
 # Install vendor tools
@@ -16,19 +15,20 @@ ARG OMSA_VERSION=11000
 ARG UBUNTU_VERSION=jammy
 
 # Setup DELL repository
-RUN apt update -y && apt-get install wget pgp apt-utils -y \
+RUN apt update -y && apt-get install wget pgp -y \
     && echo "deb http://linux.dell.com/repo/community/openmanage/${OMSA_VERSION}/${UBUNTU_VERSION} ${UBUNTU_VERSION} main" | tee -a /etc/apt/sources.list.d/linux.dell.com.sources.list \
     && wget https://linux.dell.com/repo/pgp_pubkeys/0x1285491434D8786F.asc \
     && apt-key add 0x1285491434D8786F.asc \
     && rm 0x1285491434D8786F.asc
 
+# To avoid error postinstall script of srvadmin-all in the contaioner enviroment.
+COPY systemctl-dummy /usr/bin/systemctl
+
 # Install DELL's tools
 # the installation of dcism will failed due to no GUI in the container. Therefore added "exit 0" to avoid stopping job.
 RUN apt-get update -y \
-    && chmod +x /usr/bin/systemctl \
     && ln -s /usr/lib/x86_64-linux-gnu/libssl.so.3 /usr/lib/libssl.so \
     && DEBIAN_FRONTEND=noninteractive apt-get install srvadmin-all -y \
-    && DEBIAN_FRONTEND=noninteractive apt-get install dcism -y; exit 0 \
     && rm /usr/bin/systemctl
     
 ENV PATH /opt/dell/srvadmin/bin:$PATH
