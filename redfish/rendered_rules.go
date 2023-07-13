@@ -838,12 +838,12 @@ var Rules = map[string]*CollectRule{
 				"/CertificateService",
 				"/EventService",
 				"/JobService",
-				"/LicenseService",
 				"/LogServices",
 				"/SessionService",
 				"/TaskService",
 				"/TelemetryService",
 				"/UpdateService",
+				"/LicenseService",
 				"/Power/",
 				"/Power#/",
 				"/Thermal#/",
@@ -986,6 +986,12 @@ var Rules = map[string]*CollectRule{
 				Path: "/redfish/v1/Chassis/{chassis}/Power",
 				PropertyRules: []*PropertyRule{
 					{
+						Pointer: "/PowerControl/{powercontrol}/PowerConsumedWatts",
+						Name:    "chassis_power_powercontrol_powerconsumedwatts",
+						Help:    "",
+						Type:    "number",
+					},
+					{
 						Pointer: "/PowerSupplies/{powersupply}/Redundancy/{redundancy}/Status/Health",
 						Name:    "chassis_power_powersupplies_redundancy_status_health",
 						Help:    "",
@@ -1085,6 +1091,36 @@ var Rules = map[string]*CollectRule{
 				Path: "/redfish/v1/Chassis/{chassis}/PowerSubsystem/PowerSupplies/{unit}/Metrics",
 				PropertyRules: []*PropertyRule{
 					{
+						Pointer: "/FrequencyHz/Reading",
+						Name:    "chassis_powersubsystem_powersupplies_metrics_frequencyhz_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/InputCurrentAmps/Reading",
+						Name:    "chassis_powersubsystem_powersupplies_metrics_inputcurrentamps_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/InputPowerWatts/Reading",
+						Name:    "chassis_powersubsystem_powersupplies_metrics_inputpowerwatts_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/InputVoltage/Reading",
+						Name:    "chassis_powersubsystem_powersupplies_metrics_inputvoltage_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/OutputPowerWatts/Reading",
+						Name:    "chassis_powersubsystem_powersupplies_metrics_outputpowerwatts_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
 						Pointer: "/Status/Health",
 						Name:    "chassis_powersubsystem_powersupplies_metrics_status_health",
 						Help:    "",
@@ -1102,6 +1138,12 @@ var Rules = map[string]*CollectRule{
 				Path: "/redfish/v1/Chassis/{chassis}/Sensors/{sensor}",
 				PropertyRules: []*PropertyRule{
 					{
+						Pointer: "/Reading",
+						Name:    "chassis_sensors_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
 						Pointer: "/Status/Health",
 						Name:    "chassis_sensors_status_health",
 						Help:    "",
@@ -1113,11 +1155,41 @@ var Rules = map[string]*CollectRule{
 						Help:    "",
 						Type:    "state",
 					},
+					{
+						Pointer: "/Thresholds/LowerCaution/Reading",
+						Name:    "chassis_sensors_thresholds_lowercaution_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/Thresholds/LowerCritical/Reading",
+						Name:    "chassis_sensors_thresholds_lowercritical_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/Thresholds/UpperCaution/Reading",
+						Name:    "chassis_sensors_thresholds_uppercaution_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/Thresholds/UpperCritical/Reading",
+						Name:    "chassis_sensors_thresholds_uppercritical_reading",
+						Help:    "",
+						Type:    "number",
+					},
 				},
 			},
 			{
 				Path: "/redfish/v1/Chassis/{chassis}/Thermal",
 				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Fans/{fan}/Reading",
+						Name:    "chassis_thermal_fans_reading",
+						Help:    "",
+						Type:    "number",
+					},
 					{
 						Pointer: "/Fans/{fan}/Status/Health",
 						Name:    "chassis_thermal_fans_status_health",
@@ -1141,6 +1213,12 @@ var Rules = map[string]*CollectRule{
 						Name:    "chassis_thermal_redundancy_status_state",
 						Help:    "",
 						Type:    "state",
+					},
+					{
+						Pointer: "/Temperatures/{temperature}/ReadingCelsius",
+						Name:    "chassis_thermal_temperatures_readingcelsius",
+						Help:    "",
+						Type:    "number",
 					},
 					{
 						Pointer: "/Temperatures/{temperature}/Status/Health",
@@ -1199,6 +1277,35 @@ var Rules = map[string]*CollectRule{
 						Name:    "chassis_thermalsubsystem_fans_status_state",
 						Help:    "",
 						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Chassis/{chassis}/ThermalSubsystem/ThermalMetrics",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/TemperatureReadingsCelsius/{temperaturereadingscelsiu}/Reading",
+						Name:    "chassis_thermalsubsystem_thermalmetrics_temperaturereadingscelsius_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/TemperatureSummaryCelsius/Exhaust/Reading",
+						Name:    "chassis_thermalsubsystem_thermalmetrics_temperaturesummarycelsius_exhaust_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/TemperatureSummaryCelsius/Intake/Reading",
+						Name:    "chassis_thermalsubsystem_thermalmetrics_temperaturesummarycelsius_intake_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/TemperatureSummaryCelsius/Internal/Reading",
+						Name:    "chassis_thermalsubsystem_thermalmetrics_temperaturesummarycelsius_internal_reading",
+						Help:    "",
+						Type:    "number",
 					},
 				},
 			},
@@ -1265,6 +1372,57 @@ var Rules = map[string]*CollectRule{
 					{
 						Pointer: "/Status/State",
 						Name:    "managers_networkprotocol_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/System.Embedded.1/Storage/AHCI.Embedded.1-1/Controllers/AHCI.Embedded.1-1",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "systems_systemembedded1_storage_ahciembedded11_controllers_ahciembedded11_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "systems_systemembedded1_storage_ahciembedded11_controllers_ahciembedded11_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/System.Embedded.1/Storage/AHCI.SL.7-1/Controllers/AHCI.SL.7-1",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "systems_systemembedded1_storage_ahcisl71_controllers_ahcisl71_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "systems_systemembedded1_storage_ahcisl71_controllers_ahcisl71_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/System.Embedded.1/Storage/NonRAID.Slot.3-1/Controllers/NonRAID.Slot.3-1",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "systems_systemembedded1_storage_nonraidslot31_controllers_nonraidslot31_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "systems_systemembedded1_storage_nonraidslot31_controllers_nonraidslot31_status_state",
 						Help:    "",
 						Type:    "state",
 					},
@@ -1358,6 +1516,53 @@ var Rules = map[string]*CollectRule{
 				},
 			},
 			{
+				Path: "/redfish/v1/Systems/{system}/Memory/{memory}/MemoryMetrics",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/HealthData/AlarmTrips/AddressParityError",
+						Name:    "systems_memory_memorymetrics_healthdata_alarmtrips_addressparityerror",
+						Help:    "",
+						Type:    "bool",
+					},
+					{
+						Pointer: "/HealthData/AlarmTrips/CorrectableECCError",
+						Name:    "systems_memory_memorymetrics_healthdata_alarmtrips_correctableeccerror",
+						Help:    "",
+						Type:    "bool",
+					},
+					{
+						Pointer: "/HealthData/AlarmTrips/SpareBlock",
+						Name:    "systems_memory_memorymetrics_healthdata_alarmtrips_spareblock",
+						Help:    "",
+						Type:    "bool",
+					},
+					{
+						Pointer: "/HealthData/AlarmTrips/Temperature",
+						Name:    "systems_memory_memorymetrics_healthdata_alarmtrips_temperature",
+						Help:    "",
+						Type:    "bool",
+					},
+					{
+						Pointer: "/HealthData/AlarmTrips/UncorrectableECCError",
+						Name:    "systems_memory_memorymetrics_healthdata_alarmtrips_uncorrectableeccerror",
+						Help:    "",
+						Type:    "bool",
+					},
+					{
+						Pointer: "/HealthData/DataLossDetected",
+						Name:    "systems_memory_memorymetrics_healthdata_datalossdetected",
+						Help:    "",
+						Type:    "bool",
+					},
+					{
+						Pointer: "/HealthData/PredictedMediaLifeLeftPercent",
+						Name:    "systems_memory_memorymetrics_healthdata_predictedmedialifeleftpercent",
+						Help:    "",
+						Type:    "number",
+					},
+				},
+			},
+			{
 				Path: "/redfish/v1/Systems/{system}/NetworkInterfaces/{nic}",
 				PropertyRules: []*PropertyRule{
 					{
@@ -1395,18 +1600,6 @@ var Rules = map[string]*CollectRule{
 				Path: "/redfish/v1/Systems/{system}/SimpleStorage/{controller}",
 				PropertyRules: []*PropertyRule{
 					{
-						Pointer: "/Devices/{device}/Status/Health",
-						Name:    "systems_simplestorage_devices_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-					{
-						Pointer: "/Devices/{device}/Status/State",
-						Name:    "systems_simplestorage_devices_status_state",
-						Help:    "",
-						Type:    "state",
-					},
-					{
 						Pointer: "/Status/Health",
 						Name:    "systems_simplestorage_status_health",
 						Help:    "",
@@ -1415,6 +1608,18 @@ var Rules = map[string]*CollectRule{
 					{
 						Pointer: "/Status/State",
 						Name:    "systems_simplestorage_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+					{
+						Pointer: "/Devices/{device}/Status/Health",
+						Name:    "systems_simplestorage_devices_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Devices/{device}/Status/State",
+						Name:    "systems_simplestorage_devices_status_state",
 						Help:    "",
 						Type:    "state",
 					},
@@ -1450,25 +1655,20 @@ var Rules = map[string]*CollectRule{
 				},
 			},
 			{
-				Path: "/redfish/v1/Systems/{system}/Storage/{storage}/Controllers/{controller}",
-				PropertyRules: []*PropertyRule{
-					{
-						Pointer: "/Status/Health",
-						Name:    "systems_storage_controllers_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-					{
-						Pointer: "/Status/State",
-						Name:    "systems_storage_controllers_status_state",
-						Help:    "",
-						Type:    "state",
-					},
-				},
-			},
-			{
 				Path: "/redfish/v1/Systems/{system}/Storage/{storage}/Drives/{device}",
 				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/FailurePredicted",
+						Name:    "systems_storage_drives_failurepredicted",
+						Help:    "",
+						Type:    "bool",
+					},
+					{
+						Pointer: "/PredictedMediaLifeLeftPercent",
+						Name:    "systems_storage_drives_predictedmedialifeleftpercent",
+						Help:    "",
+						Type:    "number",
+					},
 					{
 						Pointer: "/Status/Health",
 						Name:    "systems_storage_drives_status_health",
@@ -1524,40 +1724,6 @@ var Rules = map[string]*CollectRule{
 					{
 						Pointer: "/Status/State",
 						Name:    "systems_storage_volumes_status_state",
-						Help:    "",
-						Type:    "state",
-					},
-				},
-			},
-			{
-				Path: "/redfish/v1/Systems/{system}/PCIeDevices/{device}",
-				PropertyRules: []*PropertyRule{
-					{
-						Pointer: "/Status/Health",
-						Name:    "systems_pciedevices_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-					{
-						Pointer: "/Status/State",
-						Name:    "systems_pciedevices_status_state",
-						Help:    "",
-						Type:    "state",
-					},
-				},
-			},
-			{
-				Path: "/redfish/v1/Systems/{system}/PCIeDevices/{device}/PCIeFunctions/{function}",
-				PropertyRules: []*PropertyRule{
-					{
-						Pointer: "/Status/Health",
-						Name:    "systems_pciedevices_pciefunctions_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-					{
-						Pointer: "/Status/State",
-						Name:    "systems_pciedevices_pciefunctions_status_state",
 						Help:    "",
 						Type:    "state",
 					},

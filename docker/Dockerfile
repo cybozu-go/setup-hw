@@ -30,5 +30,3 @@ RUN apt-get update -y \
     && ln -s /usr/lib/x86_64-linux-gnu/libssl.so.3 /usr/lib/libssl.so \
     && DEBIAN_FRONTEND=noninteractive apt-get install srvadmin-all -y \
     && rm /usr/bin/systemctl
-    
-ENV PATH /opt/dell/srvadmin/bin:$PATH

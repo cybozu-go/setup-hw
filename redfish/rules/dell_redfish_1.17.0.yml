@@ -7,7 +7,7 @@ Metrics:
   - Name: chassis_status_state
     Pointer: /Status/State
     Type: state
-- Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}
+- Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{function}
   Properties:
   - Name: chassis_networkadapters_status_health
     Pointer: /Status/Health
@@ -15,7 +15,7 @@ Metrics:
   - Name: chassis_networkadapters_status_state
     Pointer: /Status/State
     Type: state
-- Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/NetworkDeviceFunctions/{function}
+- Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{function}/NetworkDeviceFunctions/{nic}
   Properties:
   - Name: chassis_networkadapters_networkdevicefunctions_status_health
     Pointer: /Status/Health
@@ -23,7 +23,7 @@ Metrics:
   - Name: chassis_networkadapters_networkdevicefunctions_status_state
     Pointer: /Status/State
     Type: state
-- Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/NetworkPorts/{port}
+- Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{function}/NetworkPorts/{port}
   Properties:
   - Name: chassis_networkadapters_networkports_status_health
     Pointer: /Status/Health
@@ -62,6 +62,9 @@ Metrics:
     Type: state
 - Path: /redfish/v1/Chassis/{chassis}/Power
   Properties:
+  - Name: chassis_power_powercontrol_powerconsumedwatts
+    Pointer: /PowerControl/{powercontrol}/PowerConsumedWatts
+    Type: number
   - Name: chassis_power_powersupplies_redundancy_status_health
     Pointer: /PowerSupplies/{powersupply}/Redundancy/{redundancy}/Status/Health
     Type: health
@@ -110,6 +113,21 @@ Metrics:
     Type: state
 - Path: /redfish/v1/Chassis/{chassis}/PowerSubsystem/PowerSupplies/{unit}/Metrics
   Properties:
+  - Name: chassis_powersubsystem_powersupplies_metrics_frequencyhz_reading
+    Pointer: /FrequencyHz/Reading
+    Type: number
+  - Name: chassis_powersubsystem_powersupplies_metrics_inputcurrentamps_reading
+    Pointer: /InputCurrentAmps/Reading
+    Type: number
+  - Name: chassis_powersubsystem_powersupplies_metrics_inputpowerwatts_reading
+    Pointer: /InputPowerWatts/Reading
+    Type: number
+  - Name: chassis_powersubsystem_powersupplies_metrics_inputvoltage_reading
+    Pointer: /InputVoltage/Reading
+    Type: number
+  - Name: chassis_powersubsystem_powersupplies_metrics_outputpowerwatts_reading
+    Pointer: /OutputPowerWatts/Reading
+    Type: number
   - Name: chassis_powersubsystem_powersupplies_metrics_status_health
     Pointer: /Status/Health
     Type: health
@@ -118,14 +136,32 @@ Metrics:
     Type: state
 - Path: /redfish/v1/Chassis/{chassis}/Sensors/{sensor}
   Properties:
+  - Name: chassis_sensors_reading
+    Pointer: /Reading
+    Type: number
   - Name: chassis_sensors_status_health
     Pointer: /Status/Health
     Type: health
   - Name: chassis_sensors_status_state
     Pointer: /Status/State
     Type: state
+  - Name: chassis_sensors_thresholds_lowercaution_reading
+    Pointer: /Thresholds/LowerCaution/Reading
+    Type: number
+  - Name: chassis_sensors_thresholds_lowercritical_reading
+    Pointer: /Thresholds/LowerCritical/Reading
+    Type: number
+  - Name: chassis_sensors_thresholds_uppercaution_reading
+    Pointer: /Thresholds/UpperCaution/Reading
+    Type: number
+  - Name: chassis_sensors_thresholds_uppercritical_reading
+    Pointer: /Thresholds/UpperCritical/Reading
+    Type: number
 - Path: /redfish/v1/Chassis/{chassis}/Thermal
   Properties:
+  - Name: chassis_thermal_fans_reading
+    Pointer: /Fans/{fan}/Reading
+    Type: number
   - Name: chassis_thermal_fans_status_health
     Pointer: /Fans/{fan}/Status/Health
     Type: health
@@ -138,6 +174,9 @@ Metrics:
   - Name: chassis_thermal_redundancy_status_state
     Pointer: /Redundancy/{redundancy}/Status/State
     Type: state
+  - Name: chassis_thermal_temperatures_readingcelsius
+    Pointer: /Temperatures/{temperature}/ReadingCelsius
+    Type: number
   - Name: chassis_thermal_temperatures_status_health
     Pointer: /Temperatures/{temperature}/Status/Health
     Type: health
@@ -166,6 +205,20 @@ Metrics:
   - Name: chassis_thermalsubsystem_fans_status_state
     Pointer: /Status/State
     Type: state
+- Path: /redfish/v1/Chassis/{chassis}/ThermalSubsystem/ThermalMetrics
+  Properties:
+  - Name: chassis_thermalsubsystem_thermalmetrics_temperaturereadingscelsius_reading
+    Pointer: /TemperatureReadingsCelsius/{temperaturereadingscelsiu}/Reading
+    Type: number
+  - Name: chassis_thermalsubsystem_thermalmetrics_temperaturesummarycelsius_exhaust_reading
+    Pointer: /TemperatureSummaryCelsius/Exhaust/Reading
+    Type: number
+  - Name: chassis_thermalsubsystem_thermalmetrics_temperaturesummarycelsius_intake_reading
+    Pointer: /TemperatureSummaryCelsius/Intake/Reading
+    Type: number
+  - Name: chassis_thermalsubsystem_thermalmetrics_temperaturesummarycelsius_internal_reading
+    Pointer: /TemperatureSummaryCelsius/Internal/Reading
+    Type: number
 - Path: /redfish/v1/Fabrics/{fabric}
   Properties:
   - Name: fabrics_status_health
@@ -196,6 +249,30 @@ Metrics:
     Pointer: /Status/Health
     Type: health
   - Name: managers_networkprotocol_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Systems/System.Embedded.1/Storage/AHCI.Embedded.1-1/Controllers/AHCI.Embedded.1-1
+  Properties:
+  - Name: systems_systemembedded1_storage_ahciembedded11_controllers_ahciembedded11_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: systems_systemembedded1_storage_ahciembedded11_controllers_ahciembedded11_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Systems/System.Embedded.1/Storage/AHCI.SL.7-1/Controllers/AHCI.SL.7-1
+  Properties:
+  - Name: systems_systemembedded1_storage_ahcisl71_controllers_ahcisl71_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: systems_systemembedded1_storage_ahcisl71_controllers_ahcisl71_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Systems/System.Embedded.1/Storage/NonRAID.Slot.3-1/Controllers/NonRAID.Slot.3-1
+  Properties:
+  - Name: systems_systemembedded1_storage_nonraidslot31_controllers_nonraidslot31_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: systems_systemembedded1_storage_nonraidslot31_controllers_nonraidslot31_status_state
     Pointer: /Status/State
     Type: state
 - Path: /redfish/v1/Systems/{system}
@@ -240,6 +317,29 @@ Metrics:
   - Name: systems_memory_status_state
     Pointer: /Status/State
     Type: state
+- Path: /redfish/v1/Systems/{system}/Memory/{memory}/MemoryMetrics
+  Properties:
+  - Name: systems_memory_memorymetrics_healthdata_alarmtrips_addressparityerror
+    Pointer: /HealthData/AlarmTrips/AddressParityError
+    Type: bool
+  - Name: systems_memory_memorymetrics_healthdata_alarmtrips_correctableeccerror
+    Pointer: /HealthData/AlarmTrips/CorrectableECCError
+    Type: bool
+  - Name: systems_memory_memorymetrics_healthdata_alarmtrips_spareblock
+    Pointer: /HealthData/AlarmTrips/SpareBlock
+    Type: bool
+  - Name: systems_memory_memorymetrics_healthdata_alarmtrips_temperature
+    Pointer: /HealthData/AlarmTrips/Temperature
+    Type: bool
+  - Name: systems_memory_memorymetrics_healthdata_alarmtrips_uncorrectableeccerror
+    Pointer: /HealthData/AlarmTrips/UncorrectableECCError
+    Type: bool
+  - Name: systems_memory_memorymetrics_healthdata_datalossdetected
+    Pointer: /HealthData/DataLossDetected
+    Type: bool
+  - Name: systems_memory_memorymetrics_healthdata_predictedmedialifeleftpercent
+    Pointer: /HealthData/PredictedMediaLifeLeftPercent
+    Type: number
 - Path: /redfish/v1/Systems/{system}/NetworkInterfaces/{nic}
   Properties:
   - Name: systems_networkinterfaces_status_health
@@ -284,16 +384,14 @@ Metrics:
   - Name: systems_storage_storagecontrollers_status_state
     Pointer: /StorageControllers/{storagecontroller}/Status/State
     Type: state
-- Path: /redfish/v1/Systems/{system}/Storage/{storage}/Controllers/{controller}
-  Properties:
-  - Name: systems_storage_controllers_status_health
-    Pointer: /Status/Health
-    Type: health
-  - Name: systems_storage_controllers_status_state
-    Pointer: /Status/State
-    Type: state
 - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Drives/{device}
   Properties:
+  - Name: systems_storage_drives_failurepredicted
+    Pointer: /FailurePredicted
+    Type: bool
+  - Name: systems_storage_drives_predictedmedialifeleftpercent
+    Pointer: /PredictedMediaLifeLeftPercent
+    Type: number
   - Name: systems_storage_drives_status_health
     Pointer: /Status/Health
     Type: health
@@ -322,22 +420,6 @@ Metrics:
   - Name: systems_storage_volumes_status_state
     Pointer: /Status/State
     Type: state
-- Path: /redfish/v1/Systems/{system}/PCIeDevices/{device}
-  Properties:
-  - Name: systems_pciedevices_status_health
-    Pointer: /Status/Health
-    Type: health
-  - Name: systems_pciedevices_status_state
-    Pointer: /Status/State
-    Type: state
-- Path: /redfish/v1/Systems/{system}/PCIeDevices/{device}/PCIeFunctions/{function}
-  Properties:
-  - Name: systems_pciedevices_pciefunctions_status_health
-    Pointer: /Status/Health
-    Type: health
-  - Name: systems_pciedevices_pciefunctions_status_state
-    Pointer: /Status/State
-    Type: state
 Traverse:
   Excludes:
   - /JsonSchemas
@@ -353,12 +435,12 @@ Traverse:
   - /CertificateService
   - /EventService
   - /JobService
-  - /LicenseService
   - /LogServices
   - /SessionService
   - /TaskService
   - /TelemetryService
   - /UpdateService
+  - /LicenseService
   - /Power/
   - /Power#/
   - /Thermal#/
