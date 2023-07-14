@@ -870,7 +870,7 @@ var Rules = map[string]*CollectRule{
 				},
 			},
 			{
-				Path: "/redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}",
+				Path: "/redfish/v1/Chassis/{chassis}/NetworkAdapters/{function}",
 				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
@@ -887,7 +887,7 @@ var Rules = map[string]*CollectRule{
 				},
 			},
 			{
-				Path: "/redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/NetworkDeviceFunctions/{function}",
+				Path: "/redfish/v1/Chassis/{chassis}/NetworkAdapters/{function}/NetworkDeviceFunctions/{nic}",
 				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
@@ -904,7 +904,7 @@ var Rules = map[string]*CollectRule{
 				},
 			},
 			{
-				Path: "/redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/NetworkPorts/{port}",
+				Path: "/redfish/v1/Chassis/{chassis}/NetworkAdapters/{function}/NetworkPorts/{port}",
 				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
@@ -1611,18 +1611,6 @@ var Rules = map[string]*CollectRule{
 						Help:    "",
 						Type:    "state",
 					},
-					{
-						Pointer: "/Devices/{device}/Status/Health",
-						Name:    "systems_simplestorage_devices_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-					{
-						Pointer: "/Devices/{device}/Status/State",
-						Name:    "systems_simplestorage_devices_status_state",
-						Help:    "",
-						Type:    "state",
-					},
 				},
 			},
 			{
@@ -1724,6 +1712,40 @@ var Rules = map[string]*CollectRule{
 					{
 						Pointer: "/Status/State",
 						Name:    "systems_storage_volumes_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/{system}/PCIeDevices/{device}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "systems_pciedevices_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "systems_pciedevices_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/{system}/PCIeDevices/{device}/PCIeFunctions/{function}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "systems_pciedevices_pciefunctions_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "systems_pciedevices_pciefunctions_status_state",
 						Help:    "",
 						Type:    "state",
 					},

@@ -251,30 +251,6 @@ Metrics:
   - Name: managers_networkprotocol_status_state
     Pointer: /Status/State
     Type: state
-- Path: /redfish/v1/Systems/System.Embedded.1/Storage/AHCI.Embedded.1-1/Controllers/AHCI.Embedded.1-1
-  Properties:
-  - Name: systems_systemembedded1_storage_ahciembedded11_controllers_ahciembedded11_status_health
-    Pointer: /Status/Health
-    Type: health
-  - Name: systems_systemembedded1_storage_ahciembedded11_controllers_ahciembedded11_status_state
-    Pointer: /Status/State
-    Type: state
-- Path: /redfish/v1/Systems/System.Embedded.1/Storage/AHCI.SL.7-1/Controllers/AHCI.SL.7-1
-  Properties:
-  - Name: systems_systemembedded1_storage_ahcisl71_controllers_ahcisl71_status_health
-    Pointer: /Status/Health
-    Type: health
-  - Name: systems_systemembedded1_storage_ahcisl71_controllers_ahcisl71_status_state
-    Pointer: /Status/State
-    Type: state
-- Path: /redfish/v1/Systems/System.Embedded.1/Storage/NonRAID.Slot.3-1/Controllers/NonRAID.Slot.3-1
-  Properties:
-  - Name: systems_systemembedded1_storage_nonraidslot31_controllers_nonraidslot31_status_health
-    Pointer: /Status/Health
-    Type: health
-  - Name: systems_systemembedded1_storage_nonraidslot31_controllers_nonraidslot31_status_state
-    Pointer: /Status/State
-    Type: state
 - Path: /redfish/v1/Systems/{system}
   Properties:
   - Name: systems_hostwatchdogtimer_status_state
@@ -384,6 +360,14 @@ Metrics:
   - Name: systems_storage_storagecontrollers_status_state
     Pointer: /StorageControllers/{storagecontroller}/Status/State
     Type: state
+- Path: /redfish/v1/Systems/{system}/Storage/{storage}/Controllers/{controller}
+  Properties:
+  - Name: systems_storage_controllers_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: systems_storage_controllers_status_state
+    Pointer: /Status/State
+    Type: state
 - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Drives/{device}
   Properties:
   - Name: systems_storage_drives_failurepredicted
@@ -418,6 +402,22 @@ Metrics:
     Pointer: /Status/Health
     Type: health
   - Name: systems_storage_volumes_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Systems/{system}/PCIeDevices/{device}
+  Properties:
+  - Name: systems_pciedevices_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: systems_pciedevices_status_state
+    Pointer: /Status/State
+    Type: state
+- Path: /redfish/v1/Systems/{system}/PCIeDevices/{device}/PCIeFunctions/{function}
+  Properties:
+  - Name: systems_pciedevices_pciefunctions_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: systems_pciedevices_pciefunctions_status_state
     Pointer: /Status/State
     Type: state
 Traverse:
