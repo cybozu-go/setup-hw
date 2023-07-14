@@ -15,9 +15,6 @@ var typeToConverters = map[string]converter{
 }
 
 func numberConverter(data interface{}) (float64, error) {
-	if data == nil {
-		return -1, nil
-	}
 	value, ok := data.(float64)
 	if !ok {
 		return 0, errors.New("value was not float64")
