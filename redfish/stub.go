@@ -35,33 +35,33 @@ func (m metrics) key() string {
 	return key
 }
 
-type actualData map[string]map[string]interface{}
+type stubData map[string]map[string]interface{}
 
-var defaultActualData []byte
+var defaultStubData []byte
 
-type actualClient struct {
+type stubClient struct {
 	filename   string
 	actualData dataMap
 }
 
 // NewMockClient create a mock client mock.
-func NewActualClient(filename string) Client {
-	return &actualClient{
+func NewStubClient(filename string) Client {
+	return &stubClient{
 		filename:   filename,
-		actualData: makeActualMap([]byte(defaultActualData)),
+		actualData: makeStubMap([]byte(defaultStubData)),
 	}
 }
 
-func makeActualMap(data []byte) dataMap {
+func makeStubMap(data []byte) dataMap {
 	dataMap := make(dataMap)
-	var actualMetrics actualData
-	if err := json.Unmarshal(data, &actualMetrics); err != nil {
+	var stubMetrics stubData
+	if err := json.Unmarshal(data, &stubMetrics); err != nil {
 		log.Error("cannot unmarshal actual data", map[string]interface{}{
 			log.FnError: err,
 		})
 		return dataMap
 	}
-	for key, value := range actualMetrics {
+	for key, value := range stubMetrics {
 		container, err := gabs.Consume(value)
 		if err != nil {
 			log.Error("failed to consume", map[string]interface{}{
@@ -74,7 +74,7 @@ func makeActualMap(data []byte) dataMap {
 	return dataMap
 }
 
-func (c *actualClient) Traverse(ctx context.Context, rule *CollectRule) Collected {
+func (c *stubClient) Traverse(ctx context.Context, rule *CollectRule) Collected {
 	cBytes, err := os.ReadFile(c.filename)
 
 	if err != nil {
@@ -83,9 +83,9 @@ func (c *actualClient) Traverse(ctx context.Context, rule *CollectRule) Collecte
 		})
 		return Collected{data: c.actualData, rule: rule}
 	}
-	return Collected{data: makeActualMap(cBytes), rule: rule}
+	return Collected{data: makeStubMap(cBytes), rule: rule}
 }
 
-func (c *actualClient) GetVersion(ctx context.Context) (string, error) {
+func (c *stubClient) GetVersion(ctx context.Context) (string, error) {
 	return "1.0.0", nil
 }

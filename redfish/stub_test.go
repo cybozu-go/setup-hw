@@ -8,7 +8,7 @@ import (
 	prommodel "github.com/prometheus/client_model/go"
 )
 
-func TestActualClient(t *testing.T) {
+func TestStubClient(t *testing.T) {
 	t.Parallel()
 
 	expectedSet := []*metrics{
@@ -769,7 +769,7 @@ func TestActualClient(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	client := NewActualClient("../testdata/redfish-1.17-from-idrac9-v7.json")
+	client := NewStubClient("../testdata/redfish-1.17-from-idrac9-v7.json")
 
 	checkActualResult(t, rule, client, expectedSet)
 }
@@ -798,7 +798,7 @@ func checkActualResult(t *testing.T, rule *CollectRule, client Client, expectedS
 		t.Fatal(err)
 	}
 
-	actualSet := make([]*metrics, 0)
+	actualTestDataSet := make([]*metrics, 0)
 
 	for _, metricFamily := range metricFamilies {
 		for _, m := range metricFamily.GetMetric() {
@@ -815,20 +815,20 @@ func checkActualResult(t *testing.T, rule *CollectRule, client Client, expectedS
 			default:
 				t.Fatalf("unknown type: ")
 			}
-			actual := &metrics{
+			actualTestData := &metrics{
 				name:   metricFamily.GetName(),
 				labels: actualLabels,
 				typ:    *metricFamily.Type,
 				value:  val,
 			}
-			actualSet = append(actualSet, actual)
+			actualTestDataSet = append(actualTestDataSet, actualTestData)
 		}
 	}
 
 	for _, expected := range expectedSet {
 		found := false
-		for _, actual := range actualSet {
-			if expected.key() == actual.key() {
+		for _, testCase := range actualTestDataSet {
+			if expected.key() == testCase.key() {
 				found = true
 			}
 		}
