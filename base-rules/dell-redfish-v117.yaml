@@ -22,7 +22,7 @@ Traverse:
     - /TaskService
     - /TelemetryService
     - /UpdateService
-    - /LicenseService  # Add v1.17
+    - /LicenseService
     # Sub-metrics included in /Power or /Thermal
     - /Power/
     - /Power#/
@@ -35,22 +35,19 @@ Metrics:
   ## Chassis
   - Path: /redfish/v1/Chassis/{chassis}
   - Path: /redfish/v1/Chassis/{chassis}/Assembly
-  - Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{function}
-  - Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{function}/NetworkDeviceFunctions/{nic}
-  - Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{function}/NetworkPorts/{port}
-
+  - Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}
+  - Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/NetworkDeviceFunctions/{function}
+  - Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/NetworkPorts/{port}
+  - Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/Ports/{port}
+  - Path: /redfish/v1/Chassis/{chassis}/PCIeDevices/{device}
+  - Path: /redfish/v1/Chassis/{chassis}/PCIeDevices/{device}/PCIeFunctions/{function}
   - Path: /redfish/v1/Chassis/{chassis}/PCIeSlots
   - Path: /redfish/v1/Chassis/{chassis}/Power
-  - Path: /redfish/v1/Chassis/{chassis}/Sensors/{sensor}
-  - Path: /redfish/v1/Chassis/{chassis}/Thermal
-  # Added for v1.17
-  - Path: /redfish/v1/Chassis/{chassis}/PCIeDevices/{device}
-  - Path: /redfish/v1/Chassis/{chassis}/PCIeDevices/{device}/PCIeDevices/{function}
-  - Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/Ports/{port}
-  - Path: /redfish/v1/Chassis/{chassis}/PCIeDevices/{device}/PCIeFunctions/{function}
   - Path: /redfish/v1/Chassis/{chassis}/PowerSubsystem
   - Path: /redfish/v1/Chassis/{chassis}/PowerSubsystem/PowerSupplies/{unit}
   - Path: /redfish/v1/Chassis/{chassis}/PowerSubsystem/PowerSupplies/{unit}/Metrics
+  - Path: /redfish/v1/Chassis/{chassis}/Sensors/{sensor}
+  - Path: /redfish/v1/Chassis/{chassis}/Thermal
   - Path: /redfish/v1/Chassis/{chassis}/ThermalSubsystem
   - Path: /redfish/v1/Chassis/{chassis}/ThermalSubsystem/Fans/{unit}
   - Path: /redfish/v1/Chassis/{chassis}/ThermalSubsystem/ThermalMetrics
@@ -96,9 +93,8 @@ Metrics:
   - Path: /redfish/v1/Systems/{system}/Processors/{processor}
   - Path: /redfish/v1/Systems/{system}/SimpleStorage/{controller}
   - Path: /redfish/v1/Systems/{system}/Storage/{storage}
+  - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Controllers/{controller}
   - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Drives/{device}
   - Path: /redfish/v1/Systems/{system}/Storage/{storage}/StorageControllers/{controller}
   - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Volumes
   - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Volumes/{volume}
-  # Added for v1.17
-  - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Controllers/{controller}

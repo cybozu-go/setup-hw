@@ -15,7 +15,7 @@ ARG OMSA_VERSION=11000
 ARG UBUNTU_VERSION=jammy
 
 # Setup DELL repository
-RUN apt update -y && apt-get install wget pgp -y \
+RUN apt-get update -y && apt-get install -y --no-install-recommends wget gnupg ca-certificates \
     && echo "deb http://linux.dell.com/repo/community/openmanage/${OMSA_VERSION}/${UBUNTU_VERSION} ${UBUNTU_VERSION} main" | tee -a /etc/apt/sources.list.d/linux.dell.com.sources.list \
     && wget https://linux.dell.com/repo/pgp_pubkeys/0x1285491434D8786F.asc \
     && apt-key add 0x1285491434D8786F.asc \
@@ -25,7 +25,6 @@ RUN apt update -y && apt-get install wget pgp -y \
 COPY systemctl-dummy /usr/bin/systemctl
 
 # Install DELL's tools
-# the installation of dcism will failed due to no GUI in the container. Therefore added "exit 0" to avoid stopping job.
 RUN apt-get update -y \
     && ln -s /usr/lib/x86_64-linux-gnu/libssl.so.3 /usr/lib/libssl.so \
     && DEBIAN_FRONTEND=noninteractive apt-get install srvadmin-all -y \

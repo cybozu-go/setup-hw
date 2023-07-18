@@ -61,9 +61,8 @@ $ docker exec setup-hw racadm ...
 See the [document](docs/setup-hw.md) for details.
 
 
-### Link
-* [BMC](https://en.wikipedia.org/wiki/Intelligent_Platform_Management_Interface#Baseboard_management_controller)
-* [BIOS](https://en.wikipedia.org/wiki/BIOS)
-* [OMSA](https://en.wikipedia.org/wiki/OpenManage#OMSA_%E2%80%93_OpenManage_Server_Administrator)
-* [Prometheus](https://prometheus.io/)
-* [Dell Remote Access Controller 9 RACADM CLI Guide](https://www.dell.com/support/manuals/ja-jp/poweredge-r7415/idrac9_7.xx_racadm_pub/introduction)
+[BMC]: https://en.wikipedia.org/wiki/Intelligent_Platform_Management_Interface#Baseboard_management_controller
+[BIOS]: https://en.wikipedia.org/wiki/BIOS
+[OMSA]: https://en.wikipedia.org/wiki/OpenManage#OMSA_%E2%80%93_OpenManage_Server_Administrator
+[Prometheus]: https://prometheus.io/
+[Dell Remote Access Controller 9 RACADM CLI Guide]: https://www.dell.com/support/manuals/ja-jp/poweredge-r7415/idrac9_7.xx_racadm_pub/introduction

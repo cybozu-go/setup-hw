@@ -1378,57 +1378,6 @@ var Rules = map[string]*CollectRule{
 				},
 			},
 			{
-				Path: "/redfish/v1/Systems/System.Embedded.1/Storage/AHCI.Embedded.1-1/Controllers/AHCI.Embedded.1-1",
-				PropertyRules: []*PropertyRule{
-					{
-						Pointer: "/Status/Health",
-						Name:    "systems_systemembedded1_storage_ahciembedded11_controllers_ahciembedded11_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-					{
-						Pointer: "/Status/State",
-						Name:    "systems_systemembedded1_storage_ahciembedded11_controllers_ahciembedded11_status_state",
-						Help:    "",
-						Type:    "state",
-					},
-				},
-			},
-			{
-				Path: "/redfish/v1/Systems/System.Embedded.1/Storage/AHCI.SL.7-1/Controllers/AHCI.SL.7-1",
-				PropertyRules: []*PropertyRule{
-					{
-						Pointer: "/Status/Health",
-						Name:    "systems_systemembedded1_storage_ahcisl71_controllers_ahcisl71_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-					{
-						Pointer: "/Status/State",
-						Name:    "systems_systemembedded1_storage_ahcisl71_controllers_ahcisl71_status_state",
-						Help:    "",
-						Type:    "state",
-					},
-				},
-			},
-			{
-				Path: "/redfish/v1/Systems/System.Embedded.1/Storage/NonRAID.Slot.3-1/Controllers/NonRAID.Slot.3-1",
-				PropertyRules: []*PropertyRule{
-					{
-						Pointer: "/Status/Health",
-						Name:    "systems_systemembedded1_storage_nonraidslot31_controllers_nonraidslot31_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-					{
-						Pointer: "/Status/State",
-						Name:    "systems_systemembedded1_storage_nonraidslot31_controllers_nonraidslot31_status_state",
-						Help:    "",
-						Type:    "state",
-					},
-				},
-			},
-			{
 				Path: "/redfish/v1/Systems/{system}",
 				PropertyRules: []*PropertyRule{
 					{
@@ -1600,6 +1549,18 @@ var Rules = map[string]*CollectRule{
 				Path: "/redfish/v1/Systems/{system}/SimpleStorage/{controller}",
 				PropertyRules: []*PropertyRule{
 					{
+						Pointer: "/Devices/{device}/Status/Health",
+						Name:    "systems_simplestorage_devices_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Devices/{device}/Status/State",
+						Name:    "systems_simplestorage_devices_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+					{
 						Pointer: "/Status/Health",
 						Name:    "systems_simplestorage_status_health",
 						Help:    "",
@@ -1637,6 +1598,23 @@ var Rules = map[string]*CollectRule{
 					{
 						Pointer: "/StorageControllers/{storagecontroller}/Status/State",
 						Name:    "systems_storage_storagecontrollers_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/{system}/Storage/{storage}/Controllers/{controller}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "systems_storage_controllers_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "systems_storage_controllers_status_state",
 						Help:    "",
 						Type:    "state",
 					},
