@@ -9,10 +9,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 - Update dependencies in [#88](https://github.com/cybozu-go/setup-hw/pull/88)
-  - Change Container image Ubuntu:22.04
-  - Upgrade OpenManage Server Administrator v11.0.0.0
-  - Add rules for Redfish version 1.17.0
-  - Add test case of actual collected data from iDRAC9 / Redfish v1.17.0
+    - Change Container image Ubuntu:22.04 from CentOS:7
+    - Upgrade OpenManage Server Administrator v11.0.0.0 from v10.2.0.0
+    - Add rules for Redfish version 1.17.0
+    - Add test case of actual collected data from iDRAC9 / Redfish v1.17.0
 
 ## [1.13.2] - 2023-02-24
 
@@ -188,7 +188,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 ([#12](https://github.com/cybozu-go/setup-hw/pull/12))
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.13.2...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.14.0...HEAD
+[1.14.0]: https://github.com/cybozu-go/setup-hw/compare/v1.13.2...v1.14.0
 [1.13.2]: https://github.com/cybozu-go/setup-hw/compare/v1.13.1...v1.13.2
 [1.13.1]: https://github.com/cybozu-go/setup-hw/compare/v1.13.0...v1.13.1
 [1.13.0]: https://github.com/cybozu-go/setup-hw/compare/v1.12.1...v1.13.0
