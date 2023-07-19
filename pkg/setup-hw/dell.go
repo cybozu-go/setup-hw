@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	racadmPath = "/opt/dell/srvadmin/bin/idracadm7"
+	racadmPath = "/usr/bin/racadm"
 
 	retryCount = 5
 )
@@ -66,7 +66,7 @@ RETRY:
 
 	retries++
 	if retries == retryCount {
-		log.Error("idracadm7 failed", map[string]interface{}{
+		log.Error("racadm failed", map[string]interface{}{
 			log.FnError: err,
 			"output":    string(out),
 		})
@@ -95,6 +95,7 @@ RETRY:
 //
 //	$ sudo idracadm7 get System.ServerPwr.PSRapidOn
 //	Enabled
+
 func racadmGetConfig(ctx context.Context, key string) (string, error) {
 	cmd := well.CommandContext(ctx, racadmPath, "get", key)
 	cmd.Severity = log.LvDebug
@@ -160,6 +161,7 @@ func parseRacadmGetOutput(out, key string) (string, error) {
 //
 // If you want to get a commented key-value like 'iDRAC.SNMP.EngineID',
 // use 'racadmGetConfig()'.
+
 func racadmGetConfigs(ctx context.Context, key string) (map[string]string, error) {
 	cmd := well.CommandContext(ctx, racadmPath, "get", key)
 	cmd.Severity = log.LvDebug

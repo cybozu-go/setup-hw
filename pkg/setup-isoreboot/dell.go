@@ -10,7 +10,7 @@ import (
 	"github.com/cybozu-go/well"
 )
 
-const idracadm7Path = "/opt/dell/srvadmin/bin/idracadm7"
+const idracadm7Path = "/usr/bin/racadm"
 
 func setupDell(ctx context.Context, url string) error {
 	err := well.CommandContext(ctx, idracadm7Path, "vmdisconnect").Run()

@@ -15,12 +15,12 @@ import (
 
 func setupDell(ctx context.Context, files []string) error {
 	for _, f := range files {
-		cmd := well.CommandContext(ctx, "/opt/dell/srvadmin/bin/idracadm7", "update", "-f", f)
+		cmd := well.CommandContext(ctx, "/usr/bin/racadm", "update", "-f", f)
 		buf := bytes.Buffer{}
 		cmd.Stdout = &buf
 		cmd.Stderr = &buf
 		err := cmd.Run()
-		// we cannot use exit status to detect errors because `idracadm7 update` returns nonzero status even in case of successful update initiation.
+		// we cannot use exit status to detect errors because `racadm update` returns nonzero status even in case of successful update initiation.
 		var exitError *exec.ExitError
 		if err != nil && !errors.As(err, &exitError) {
 			return fmt.Errorf("racadm update failed at file %s: %w", f, err)
@@ -33,7 +33,7 @@ func setupDell(ctx context.Context, files []string) error {
 			"file": f,
 		})
 
-		// if the next `idracadm7 update` is executed immediately after the previous one, it will fail.
+		// if the next `racadm update` is executed immediately after the previous one, it will fail.
 		time.Sleep(time.Second * 10)
 	}
 
