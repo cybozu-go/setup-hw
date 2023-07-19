@@ -5,6 +5,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.14.0] - 2023-07-19
+
+### Changed
+- Update dependencies in [#88](https://github.com/cybozu-go/setup-hw/pull/88)
+  - Change Container image Ubuntu:22.04
+  - Upgrade OpenManage Server Administrator v11.0.0.0
+  - Add rules for Redfish version 1.17.0
+  - Add test case of actual collected data from iDRAC9 / Redfish v1.17.0
+
 ## [1.13.2] - 2023-02-24
 
 ### Changed
