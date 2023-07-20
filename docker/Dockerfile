@@ -25,7 +25,8 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends wget gnupg c
 COPY systemctl-dummy /usr/bin/systemctl
 
 # Install DELL's tools
+# monitor-hw call /usr/libexec/instsvcdrv-helper which depends on "kmod" package. We must install "kmod"
 RUN apt-get update -y \
     && ln -s /usr/lib/x86_64-linux-gnu/libssl.so.3 /usr/lib/libssl.so \
-    && DEBIAN_FRONTEND=noninteractive apt-get install srvadmin-all -y \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends srvadmin-all kmod \
     && rm /usr/bin/systemctl
