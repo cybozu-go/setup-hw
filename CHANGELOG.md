@@ -5,6 +5,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+
+## [1.14.1] - 2023-07-20
+- Update dependencies in [#90](https://github.com/cybozu-go/setup-hw/pull/90)
+   - Add ubuntu package kmod
+ 
 ## [1.14.0] - 2023-07-19
 
 ### Changed
