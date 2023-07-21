@@ -15,7 +15,7 @@ ARG OMSA_VERSION=11000
 ARG UBUNTU_VERSION=jammy
 
 # Setup DELL repository
-RUN apt-get update -y && apt-get install -y --no-install-recommends wget gnupg ca-certificates \
+RUN apt-get update -y && apt-get install -y --no-install-recommends wget gnupg ca-certificates curl\
     && echo "deb http://linux.dell.com/repo/community/openmanage/${OMSA_VERSION}/${UBUNTU_VERSION} ${UBUNTU_VERSION} main" | tee -a /etc/apt/sources.list.d/linux.dell.com.sources.list \
     && wget https://linux.dell.com/repo/pgp_pubkeys/0x1285491434D8786F.asc \
     && apt-key add 0x1285491434D8786F.asc \
