@@ -504,6 +504,10 @@ func (dc *dellConfigurator) configNIC(ctx context.Context) error {
 	if _, err := racadmSetConfig(ctx, "iDRAC.NIC.DNSRacName", hname+"-idrac"); err != nil {
 		return err
 	}
+	if _, err := racadmSetConfig(ctx, "iDRAC.OS-BMC.AdminState", "Disabled"); err != nil {
+		return err
+	}
+
 	return nil
 }
 
