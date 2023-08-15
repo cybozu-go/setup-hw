@@ -5,6 +5,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.14.3] - 2023-08-15
+- Disable "iDRAC path through I/F" in [#93](https://github.com/cybozu-go/setup-hw/pull/93)
+  - Factory setting has been changed that iDRAC path through I/F enabled, but it gives problem to neco setup. 
+
 ## [1.14.2] - 2023-07-24
 - Update dependencies in [#92](https://github.com/cybozu-go/setup-hw/pull/92)
    - Add ubuntu package curl, Ubuntu22.04 base image does not have curl package
@@ -196,7 +200,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 ([#12](https://github.com/cybozu-go/setup-hw/pull/12))
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.14.2...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.14.3...HEAD
+[1.14.3]: https://github.com/cybozu-go/setup-hw/compare/v1.14.2...v1.14.3
 [1.14.2]: https://github.com/cybozu-go/setup-hw/compare/v1.14.1...v1.14.2
 [1.14.1]: https://github.com/cybozu-go/setup-hw/compare/v1.14.0...v1.14.1
 [1.14.0]: https://github.com/cybozu-go/setup-hw/compare/v1.13.2...v1.14.0
