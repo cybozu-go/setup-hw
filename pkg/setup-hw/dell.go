@@ -526,15 +526,27 @@ func (dc *dellConfigurator) configIPMI(ctx context.Context) error {
 	return racadmRetry(ctx, "set", key, "1")
 }
 
+// configUser creates/updates an iDRAC user with specified parameters
+//
+// priv is the bitwise OR of the following privileges:
+// - 0x001 Login
+// - 0x002 Configure
+// - 0x004 Configure Users
+// - 0x008 Logs
+// - 0x010 System Control
+// - 0x020 Access Virtual Console
+// - 0x040 Access Virtual Media
+// - 0x080 System Operations
+// - 0x100 Debug
+//
+// ipmiPriv is one of the following privileges:
+// - 1 Callback level
+// - 2 User level
+// - 3 Operator level
+// - 4 Administrator level
+// - 5 OEM Proprietary level
+// - 15 No access
 func (dc *dellConfigurator) configUser(ctx context.Context, idx, name, priv, ipmiPriv string, cred config.Credentials) error {
-	// ipmipriv:
-	// - 1 Callback level
-	// - 2 User level
-	// - 3 Operator level
-	// - 4 Administrator level
-	// - 5 OEM Proprietary level
-	// - 15 No access
-
 	prefix := "iDRAC.Users." + idx + "."
 	if _, err := racadmSetConfig(ctx, prefix+"Username", name); err != nil {
 		return err
@@ -576,6 +588,9 @@ func (dc *dellConfigurator) configUsers(ctx context.Context) error {
 		return err
 	}
 	if err := dc.configUser(ctx, "4", "power", "0x11", "3", dc.userConfig.Power); err != nil {
+		return err
+	}
+	if err := dc.configUser(ctx, "5", "repair", "0x13", "15", dc.userConfig.Repair); err != nil {
 		return err
 	}
 	return nil

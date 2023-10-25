@@ -27,8 +27,11 @@ This file contains credentials of BMC users.
 BMC users are statically defined in `setup-hw` as follows:
 
 * `root`: The administrator of BMC.
-* `power`: Control power supply.
+* `repair`: Restricted user who can execute repair operations, e.g. BMC reset.
+* `power`: Restricted user who can control power supply.
 * `support`: Read-only account.
+
+All users are mandatory for iDRAC.
 
 Credential types are:
 
@@ -37,7 +40,7 @@ Credential types are:
     For iDRAC, use [`idrac-passwd-hash`](../pkg/idrac-passwd-hash) tool to generate them.
 
 Supported credential types varies by BMC types.
-iDRAC, BMC embedded in Dell servers, supports all credential types.
+iDRAC supports all credential types.
 
 Example:
 
