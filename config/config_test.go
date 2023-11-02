@@ -86,6 +86,12 @@ func TestUserConfig(t *testing.T) {
 	if uc.Root.Password.Salt != "593C31FF6D409480F032AA2FF6EC781E" {
 		t.Error("wrong root password salt")
 	}
+	if uc.Repair.Password.Hash != "78B13CF445B376D74BD1BEBA0B8802AD691D69483E752191D06D3C0AF362DAD8" {
+		t.Error("wrong repair password hash")
+	}
+	if uc.Repair.Password.Salt != "8E4934DDBEEE7C9AE9427A8283D7FA10" {
+		t.Error("wrong repair password salt")
+	}
 	if uc.Power.Password.Raw != "ranranran" {
 		t.Error("wrong power password")
 	}

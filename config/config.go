@@ -80,6 +80,7 @@ type Credentials struct {
 // UserConfig represents a set of BMC user credentials in JSON format.
 type UserConfig struct {
 	Root    Credentials `json:"root"`
+	Repair  Credentials `json:"repair"`
 	Power   Credentials `json:"power"`
 	Support Credentials `json:"support"`
 }

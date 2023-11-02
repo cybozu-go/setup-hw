@@ -5,6 +5,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+- Add "repair" BMC user in [#96](https://github.com/cybozu-go/setup-hw/pull/96)
+    - **Breaking change:** This user is mandatory for iDRAC.
+
 ## [1.14.3] - 2023-08-15
 - Disable "iDRAC path through I/F" in [#93](https://github.com/cybozu-go/setup-hw/pull/93)
   - Factory setting has been changed that iDRAC path through I/F enabled, but it gives problem to neco setup. 

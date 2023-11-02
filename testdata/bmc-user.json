@@ -5,6 +5,12 @@
             "salt": "593C31FF6D409480F032AA2FF6EC781E"
         }
     },
+    "repair": {
+        "password": {
+            "hash": "78B13CF445B376D74BD1BEBA0B8802AD691D69483E752191D06D3C0AF362DAD8",
+            "salt": "8E4934DDBEEE7C9AE9427A8283D7FA10"
+        }
+    },
     "power": {
         "password": {
             "raw": "ranranran"
