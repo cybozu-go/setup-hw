@@ -3,26 +3,40 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
 ## [1.15.0] - 2023-11-02
+
+### Added
 
 - Add "repair" BMC user in [#96](https://github.com/cybozu-go/setup-hw/pull/96)
     - **Breaking change:** This user is mandatory for iDRAC.
 
 ## [1.14.3] - 2023-08-15
+
+### Changed
+
 - Disable "iDRAC path through I/F" in [#93](https://github.com/cybozu-go/setup-hw/pull/93)
   - Factory setting has been changed that iDRAC path through I/F enabled, but it gives problem to neco setup. 
 
 ## [1.14.2] - 2023-07-24
+
+### Changed
+
 - Update dependencies in [#92](https://github.com/cybozu-go/setup-hw/pull/92)
    - Add ubuntu package curl, Ubuntu22.04 base image does not have curl package
 
 ## [1.14.1] - 2023-07-20
+
+### Changed
+
 - Update dependencies in [#90](https://github.com/cybozu-go/setup-hw/pull/90)
    - Add ubuntu package kmod
  
 ## [1.14.0] - 2023-07-19
 
 ### Changed
+
 - Update dependencies in [#88](https://github.com/cybozu-go/setup-hw/pull/88)
     - Change Container image Ubuntu:22.04 from CentOS:7
     - Upgrade OpenManage Server Administrator v11.0.0.0 from v10.2.0.0
