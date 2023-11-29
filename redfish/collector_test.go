@@ -3,7 +3,6 @@ package redfish
 import (
 	"context"
 	"errors"
-	"fmt"
 	"math"
 	"net/http"
 	"net/http/httptest"
@@ -105,7 +104,7 @@ func testDescribe(t *testing.T) {
 			t.Error("wrong help in description; expected:", expected.help, "actual in:", actual.String())
 		}
 
-		if !strings.Contains(actual.String(), fmt.Sprint(expected.labelNames)) {
+		if !strings.Contains(actual.String(), "{"+strings.Join(expected.labelNames, ",")+"}") {
 			t.Error("wrong variable label names in description; expected:", expected.labelNames, "actual in:", actual.String())
 		}
 	}
