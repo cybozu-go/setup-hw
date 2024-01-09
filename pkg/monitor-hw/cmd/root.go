@@ -16,15 +16,12 @@ import (
 var opts struct {
 	listenAddress string
 	interval      int
-	resetInterval int
 	noResetFile   string
 }
 
 const (
-	defaultAddress       = ":9105"
-	defaultInterval      = 60
-	defaultResetInterval = 24
-	defaultNoReset       = "/var/lib/setup-hw/no-reset"
+	defaultAddress  = ":9105"
+	defaultInterval = 60
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -125,6 +122,4 @@ func Execute() {
 func init() {
 	rootCmd.Flags().StringVar(&opts.listenAddress, "listen", defaultAddress, "listening address and port number")
 	rootCmd.Flags().IntVar(&opts.interval, "interval", defaultInterval, "interval of collecting metrics in seconds")
-	rootCmd.Flags().IntVar(&opts.resetInterval, "reset-interval", defaultResetInterval, "interval of resetting iDRAC in hours (dell servers only)")
-	rootCmd.Flags().StringVar(&opts.noResetFile, "no-reset", defaultNoReset, "path of the no-reset file")
 }
