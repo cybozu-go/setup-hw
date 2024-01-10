@@ -6,14 +6,14 @@ import (
 	"github.com/cybozu-go/well"
 )
 
-func monitorDell(ctx context.Context) error {
-	if err := initDell(ctx); err != nil {
+func initDell(ctx context.Context) error {
+	if err := setupDell(ctx); err != nil {
 		return err
 	}
 	return resetDell(ctx)
 }
 
-func initDell(ctx context.Context) error {
+func setupDell(ctx context.Context) error {
 	if err := well.CommandContext(ctx, "/usr/libexec/instsvcdrv-helper", "start").Run(); err != nil {
 		return err
 	}

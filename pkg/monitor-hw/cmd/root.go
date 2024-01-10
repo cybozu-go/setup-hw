@@ -51,12 +51,10 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
-		var monitor func(context.Context) error
 		var client redfish.Client
 		var ruleGetter redfish.RuleGetter
 		switch vendor {
 		case lib.QEMU:
-			monitor = monitorQEMU
 			client = redfish.NewMockClient(redfish.DummyRedfishFile)
 			ruleFile := "qemu.yml"
 			rule, ok := redfish.Rules[ruleFile]
@@ -68,7 +66,9 @@ var rootCmd = &cobra.Command{
 			}
 
 		case lib.Dell:
-			monitor = monitorDell
+			if err := initDell(cmd.Context()); err != nil {
+				return err
+			}
 			cc := &redfish.ClientConfig{
 				AddressConfig: ac,
 				UserConfig:    uc,
@@ -96,15 +96,12 @@ var rootCmd = &cobra.Command{
 			return errors.New("unsupported vendor hardware")
 		}
 
-		err = startExporter(ruleGetter, client)
-		if err != nil {
+		if err := startExporter(ruleGetter, client); err != nil {
 			return err
 		}
 
-		well.Go(monitor)
 		well.Stop()
-		err = well.Wait()
-		if err != nil && !well.IsSignaled(err) {
+		if err := well.Wait(); err != nil && !well.IsSignaled(err) {
 			return err
 		}
 		return nil
