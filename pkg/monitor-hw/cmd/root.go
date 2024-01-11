@@ -16,15 +16,12 @@ import (
 var opts struct {
 	listenAddress string
 	interval      int
-	resetInterval int
 	noResetFile   string
 }
 
 const (
-	defaultAddress       = ":9105"
-	defaultInterval      = 60
-	defaultResetInterval = 24
-	defaultNoReset       = "/var/lib/setup-hw/no-reset"
+	defaultAddress  = ":9105"
+	defaultInterval = 60
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -54,12 +51,10 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
-		var monitor func(context.Context) error
 		var client redfish.Client
 		var ruleGetter redfish.RuleGetter
 		switch vendor {
 		case lib.QEMU:
-			monitor = monitorQEMU
 			client = redfish.NewMockClient(redfish.DummyRedfishFile)
 			ruleFile := "qemu.yml"
 			rule, ok := redfish.Rules[ruleFile]
@@ -71,7 +66,9 @@ var rootCmd = &cobra.Command{
 			}
 
 		case lib.Dell:
-			monitor = monitorDell
+			if err := initDell(cmd.Context()); err != nil {
+				return err
+			}
 			cc := &redfish.ClientConfig{
 				AddressConfig: ac,
 				UserConfig:    uc,
@@ -99,15 +96,12 @@ var rootCmd = &cobra.Command{
 			return errors.New("unsupported vendor hardware")
 		}
 
-		err = startExporter(ruleGetter, client)
-		if err != nil {
+		if err := startExporter(ruleGetter, client); err != nil {
 			return err
 		}
 
-		well.Go(monitor)
 		well.Stop()
-		err = well.Wait()
-		if err != nil && !well.IsSignaled(err) {
+		if err := well.Wait(); err != nil && !well.IsSignaled(err) {
 			return err
 		}
 		return nil
@@ -125,6 +119,4 @@ func Execute() {
 func init() {
 	rootCmd.Flags().StringVar(&opts.listenAddress, "listen", defaultAddress, "listening address and port number")
 	rootCmd.Flags().IntVar(&opts.interval, "interval", defaultInterval, "interval of collecting metrics in seconds")
-	rootCmd.Flags().IntVar(&opts.resetInterval, "reset-interval", defaultResetInterval, "interval of resetting iDRAC in hours (dell servers only)")
-	rootCmd.Flags().StringVar(&opts.noResetFile, "no-reset", defaultNoReset, "path of the no-reset file")
 }
