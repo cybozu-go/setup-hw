@@ -21,18 +21,24 @@ jobs:
 
       - name: Build setup-hw image
         run: |
-          docker build -t quay.io/cybozu/setup-hw:latest --target stage1 docker
-          docker build -t quay.io/cybozu/setup-hw-secret:latest docker
+          docker build -t ghcr.io/cybozu-go/setup-hw:latest --target stage1 docker
+          docker build -t ghcr.io/cybozu-go/setup-hw-secret:latest docker
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push images
         run: |
-          echo ${{ secrets.QUAY_PASSWORD }} | docker login -u ${{ secrets.QUAY_USER }} --password-stdin quay.io
           tag=${GITHUB_REF#refs/tags/v}
           for name in setup-hw setup-hw-secret; do
               echo "pushing ${name}:v${tag} ..."
-              docker tag quay.io/cybozu/${name}:latest quay.io/cybozu/${name}:$tag
-              if ! echo $tag | grep -q -e '-'; then docker push quay.io/cybozu/${name}:latest; fi
-              docker push quay.io/cybozu/${name}:$tag
+              docker tag ghcr.io/cybozu-go/${name}:latest ghcr.io/cybozu-go/${name}:$tag
+              if ! echo $tag | grep -q -e '-'; then docker push ghcr.io/cybozu-go/${name}:latest; fi
+              docker push ghcr.io/cybozu-go/${name}:$tag
           done
 
       - name: Create release

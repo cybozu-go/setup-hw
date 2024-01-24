@@ -1,4 +1,5 @@
 FROM ubuntu:22.04 as stage1
+LABEL org.opencontainers.image.source="https://github.com/cybozu-go/setup-hw"
 
 COPY setup-hw /usr/local/bin/setup-hw
 COPY monitor-hw /usr/local/sbin/monitor-hw
@@ -9,6 +10,7 @@ CMD ["/usr/local/sbin/monitor-hw"]
 
 # Install vendor tools
 FROM stage1
+LABEL org.opencontainers.image.source="https://github.com/cybozu-go/setup-hw"
 
 # See https://linux.dell.com/repo/community/openmanage/
 ARG OMSA_VERSION=11000
