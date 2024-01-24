@@ -37,7 +37,7 @@ $ docker run -d --name=setup-hw \
 Docker images
 -------------
 
-Docker images are available on [Quay.io](https://quay.io/repository/cybozu/setup-hw)
+Docker images are available on [ghcr.io](https://github.com/cybozu-go/setup-hw/pkgs/container/setup-hw)
 
 ### Access `monitor-hw`
 

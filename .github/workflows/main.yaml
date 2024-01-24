@@ -31,5 +31,5 @@ jobs:
 
       - name: Build setup-hw image
         run: |
-          docker build -t quay.io/cybozu/setup-hw:latest --target stage1 docker
-          docker build -t quay.io/cybozu/setup-hw-secret:latest docker
+          docker build -t ghcr.io/cybozu-go/setup-hw:latest --target stage1 docker
+          docker build -t ghcr.io/cybozu-go/setup-hw-secret:latest docker

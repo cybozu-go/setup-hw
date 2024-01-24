@@ -49,6 +49,6 @@ ifdef GOBIN
 else
 	cp $(foreach f, $(BINS_IMAGE), $(GOPATH)/bin/$(f)) ./docker/
 endif
-	cd docker && docker build -t quay.io/cybozu/setup-hw:dev .
+	cd docker && docker build -t ghcr.io/cybozu-go/setup-hw:dev .
 
 .PHONY: all generate check-generate setup test install build-image
