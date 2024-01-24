@@ -5,6 +5,23 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.16.0] - 2024-01-24
+
+### Breaking Changes
+
+#### Migrate image registry
+
+We migrated the image repository of setup-hw to `ghcr.io`.
+From setup-hw v1.16.0, please use the following image.
+
+- https://github.com/cybozu-go/setup-hw/pkgs/container/setup-hw
+
+The [quay.io/cybozu/setup-hw](https://quay.io/repository/cybozu/setup-hw) will not be updated in the future.
+
+### Changed
+
+- Migrate to ghcr.io (#103)
+
 ## [1.15.2] - 2024-01-12
 
 ### Changed
@@ -229,7 +246,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 ([#12](https://github.com/cybozu-go/setup-hw/pull/12))
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.15.2...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.16.0...HEAD
+[1.16.0]: https://github.com/cybozu-go/setup-hw/compare/v1.15.2...v1.16.0
 [1.15.2]: https://github.com/cybozu-go/setup-hw/compare/v1.15.1...v1.15.2
 [1.15.1]: https://github.com/cybozu-go/setup-hw/compare/v1.15.0...v1.15.1
 [1.15.0]: https://github.com/cybozu-go/setup-hw/compare/v1.14.3...v1.15.0
