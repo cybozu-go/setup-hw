@@ -337,6 +337,7 @@ func testUpdate(t *testing.T) {
 
 	cc.AddressConfig = &config.AddressConfig{IPv4: config.IPv4Config{Address: hostAndPort[0]}}
 	cc.Port = hostAndPort[1]
+	cc.NoEscape = true
 
 	client, err := NewRedfishClient(cc)
 	if err != nil {
