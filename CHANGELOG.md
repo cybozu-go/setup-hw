@@ -5,6 +5,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.16.1] - 2024-03-15
+
+### Changed
+
+- Update dependencies ([#105](https://github.com/cybozu-go/setup-hw/pull/105))
+  - Update Dockerfile
+  - Update go module dependencies
+
 ## [1.16.0] - 2024-01-24
 
 ### Breaking Changes
@@ -46,7 +54,7 @@ The [quay.io/cybozu/setup-hw](https://quay.io/repository/cybozu/setup-hw) will n
 ### Changed
 
 - Disable "iDRAC path through I/F" in [#93](https://github.com/cybozu-go/setup-hw/pull/93)
-  - Factory setting has been changed that iDRAC path through I/F enabled, but it gives problem to neco setup. 
+  - Factory setting has been changed that iDRAC path through I/F enabled, but it gives problem to neco setup.
 
 ## [1.14.2] - 2023-07-24
 
@@ -61,7 +69,7 @@ The [quay.io/cybozu/setup-hw](https://quay.io/repository/cybozu/setup-hw) will n
 
 - Update dependencies in [#90](https://github.com/cybozu-go/setup-hw/pull/90)
    - Add ubuntu package kmod
- 
+
 ## [1.14.0] - 2023-07-19
 
 ### Changed
@@ -246,7 +254,8 @@ The [quay.io/cybozu/setup-hw](https://quay.io/repository/cybozu/setup-hw) will n
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 ([#12](https://github.com/cybozu-go/setup-hw/pull/12))
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.16.0...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.16.1...HEAD
+[1.16.1]: https://github.com/cybozu-go/setup-hw/compare/v1.16.0...v1.16.1
 [1.16.0]: https://github.com/cybozu-go/setup-hw/compare/v1.15.2...v1.16.0
 [1.15.2]: https://github.com/cybozu-go/setup-hw/compare/v1.15.1...v1.15.2
 [1.15.1]: https://github.com/cybozu-go/setup-hw/compare/v1.15.0...v1.15.1
