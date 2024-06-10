@@ -59,6 +59,18 @@ Metrics:
         Name: chassis_temperature_reading
         Type: number
 
+  - Path: /redfish/v1/Managers/{manager}
+    Properties:
+      - Pointer: /Status/Health
+        Name: manager_status_health
+        Type: health
+
+  - Path: /redfish/v1/Managers/{manager}/EthernetInterfaces/{interface}
+    Properties:
+      - Pointer: /Status/Health
+        Name: manager_network_status_health
+        Type: health
+
   - Path: /redfish/v1/Systems/{system}
     Properties:
       - Pointer: /Status/Health
@@ -86,26 +98,14 @@ Metrics:
         Name: processor_status_health
         Type: health
 
-  - Path: /redfish/v1/Systems/{system}/Storage/{controller}
-    Properties:
-      - Pointer: /Status/Health
-        Name: storage_controller_status_health
-        Type: health
-
   - Path: /redfish/v1/Systems/{system}/Storage/Drives/{device}
     Properties:
       - Pointer: /Status/Health
         Name: storage_device_status_health
         Type: health
 
-  - Path: /redfish/v1/Managers/{manager}
+  - Path: /redfish/v1/Systems/{system}/Storage/{controller}
     Properties:
       - Pointer: /Status/Health
-        Name: manager_status_health
-        Type: health
-
-  - Path: /redfish/v1/Managers/{manager}/EthernetInterfaces/{interface}
-    Properties:
-      - Pointer: /Status/Health
-        Name: manager_network_status_health
+        Name: storage_controller_status_health
         Type: health

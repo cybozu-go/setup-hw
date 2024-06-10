@@ -1,3 +1,27 @@
+Traverse:
+  Root: /redfish/v1
+  Excludes:
+  - /JSONSchemas
+  - /Accounts
+  - /Certificates
+  - /Jobs
+  - /Logs
+  - /Registries
+  - /Roles
+  - /Sessions
+  - /Settings
+  - /AccountService
+  - /EventService
+  - /LogServices
+  - /SessionService
+  - /TaskService
+  - /UpdateService
+  - /Power/
+  - /Sensors/
+  - /Thermal/
+  - /redfish/v1/Chassis/$
+  - /StorageControllers/PCIeSSD
+
 Metrics:
 - Path: /redfish/v1/Chassis/{chassis}
   Properties:
@@ -7,6 +31,7 @@ Metrics:
   - Name: chassis_status_state
     Pointer: /Status/State
     Type: state
+
 - Path: /redfish/v1/Chassis/{chassis}/Power
   Properties:
   - Name: chassis_power_powercontrol_powerconsumedwatts
@@ -36,6 +61,7 @@ Metrics:
   - Name: chassis_power_voltages_status_state
     Pointer: /Voltages/{voltage}/Status/State
     Type: state
+
 - Path: /redfish/v1/Chassis/{chassis}/Thermal
   Properties:
   - Name: chassis_thermal_fans_status_health
@@ -59,6 +85,7 @@ Metrics:
   - Name: chassis_thermal_temperatures_status_state
     Pointer: /Temperatures/{temperature}/Status/State
     Type: state
+
 - Path: /redfish/v1/Fabrics/{fabric}
   Properties:
   - Name: fabrics_status_health
@@ -67,6 +94,7 @@ Metrics:
   - Name: fabrics_status_state
     Pointer: /Status/State
     Type: state
+
 - Path: /redfish/v1/Managers/{manager}
   Properties:
   - Name: managers_status_health
@@ -75,6 +103,7 @@ Metrics:
   - Name: managers_status_state
     Pointer: /Status/State
     Type: state
+
 - Path: /redfish/v1/Managers/{manager}/EthernetInterfaces/{interface}
   Properties:
   - Name: managers_ethernetinterfaces_status_health
@@ -83,6 +112,7 @@ Metrics:
   - Name: managers_ethernetinterfaces_status_state
     Pointer: /Status/State
     Type: state
+
 - Path: /redfish/v1/Managers/{manager}/NetworkProtocol
   Properties:
   - Name: managers_networkprotocol_status_health
@@ -91,6 +121,7 @@ Metrics:
   - Name: managers_networkprotocol_status_state
     Pointer: /Status/State
     Type: state
+
 - Path: /redfish/v1/Systems/{system}
   Properties:
   - Name: systems_hostwatchdogtimer_status_state
@@ -117,6 +148,7 @@ Metrics:
   - Name: systems_trustedmodules_status_state
     Pointer: /TrustedModules/{trustedmodule}/Status/State
     Type: state
+
 - Path: /redfish/v1/Systems/{system}/EthernetInterfaces/{interface}
   Properties:
   - Name: systems_ethernetinterfaces_status_health
@@ -125,6 +157,7 @@ Metrics:
   - Name: systems_ethernetinterfaces_status_state
     Pointer: /Status/State
     Type: state
+
 - Path: /redfish/v1/Systems/{system}/Memory/{memory}
   Properties:
   - Name: systems_memory_status_health
@@ -133,6 +166,7 @@ Metrics:
   - Name: systems_memory_status_state
     Pointer: /Status/State
     Type: state
+
 - Path: /redfish/v1/Systems/{system}/Memory/{memory}/Metrics
   Properties:
   - Name: systems_memory_metrics_healthdata_alarmtrips_addressparityerror
@@ -156,6 +190,7 @@ Metrics:
   - Name: systems_memory_metrics_healthdata_predictedmedialifeleftpercent
     Pointer: /HealthData/PredictedMediaLifeLeftPercent
     Type: number
+
 - Path: /redfish/v1/Systems/{system}/NetworkAdapters/{nic}
   Properties:
   - Name: systems_networkadapters_status_health
@@ -164,6 +199,7 @@ Metrics:
   - Name: systems_networkadapters_status_state
     Pointer: /Status/State
     Type: state
+
 - Path: /redfish/v1/Systems/{system}/NetworkAdapters/{nic}/NetworkDeviceFunctions/{function}
   Properties:
   - Name: systems_networkadapters_networkdevicefunctions_status_health
@@ -172,6 +208,7 @@ Metrics:
   - Name: systems_networkadapters_networkdevicefunctions_status_state
     Pointer: /Status/State
     Type: state
+
 - Path: /redfish/v1/Systems/{system}/NetworkAdapters/{nic}/NetworkPorts/{port}
   Properties:
   - Name: systems_networkadapters_networkports_status_health
@@ -180,6 +217,7 @@ Metrics:
   - Name: systems_networkadapters_networkports_status_state
     Pointer: /Status/State
     Type: state
+
 - Path: /redfish/v1/Systems/{system}/NetworkInterfaces/{nic}
   Properties:
   - Name: systems_networkinterfaces_status_health
@@ -188,6 +226,7 @@ Metrics:
   - Name: systems_networkinterfaces_status_state
     Pointer: /Status/State
     Type: state
+
 - Path: /redfish/v1/Systems/{system}/PCIeDevice/{device}
   Properties:
   - Name: systems_pciedevice_status_health
@@ -196,6 +235,7 @@ Metrics:
   - Name: systems_pciedevice_status_state
     Pointer: /Status/State
     Type: state
+
 - Path: /redfish/v1/Systems/{system}/PCIeFunction/{function}
   Properties:
   - Name: systems_pciefunction_status_health
@@ -204,6 +244,7 @@ Metrics:
   - Name: systems_pciefunction_status_state
     Pointer: /Status/State
     Type: state
+
 - Path: /redfish/v1/Systems/{system}/Processors/{processor}
   Properties:
   - Name: systems_processors_status_health
@@ -212,6 +253,7 @@ Metrics:
   - Name: systems_processors_status_state
     Pointer: /Status/State
     Type: state
+
 - Path: /redfish/v1/Systems/{system}/SimpleStorage/Controllers/{controller}
   Properties:
   - Name: systems_simplestorage_controllers_devices_status_health
@@ -226,6 +268,7 @@ Metrics:
   - Name: systems_simplestorage_controllers_status_state
     Pointer: /Status/State
     Type: state
+
 - Path: /redfish/v1/Systems/{system}/Storage/Drives/{device}
   Properties:
   - Name: systems_storage_drives_failurepredicted
@@ -240,6 +283,7 @@ Metrics:
   - Name: systems_storage_drives_status_state
     Pointer: /Status/State
     Type: state
+
 - Path: /redfish/v1/Systems/{system}/Storage/Volumes/{volume}
   Properties:
   - Name: systems_storage_volumes_status_health
@@ -248,6 +292,7 @@ Metrics:
   - Name: systems_storage_volumes_status_state
     Pointer: /Status/State
     Type: state
+
 - Path: /redfish/v1/Systems/{system}/Storage/{storage}
   Properties:
   - Name: systems_storage_status_health
@@ -262,6 +307,7 @@ Metrics:
   - Name: systems_storage_storagecontrollers_status_state
     Pointer: /StorageControllers/{storagecontroller}/Status/State
     Type: state
+
 - Path: /redfish/v1/Systems/{system}/StorageControllers/{controller}
   Properties:
   - Name: systems_storagecontrollers_status_health
@@ -270,26 +316,3 @@ Metrics:
   - Name: systems_storagecontrollers_status_state
     Pointer: /Status/State
     Type: state
-Traverse:
-  Excludes:
-  - /JSONSchemas
-  - /Accounts
-  - /Certificates
-  - /Jobs
-  - /Logs
-  - /Registries
-  - /Roles
-  - /Sessions
-  - /Settings
-  - /AccountService
-  - /EventService
-  - /LogServices
-  - /SessionService
-  - /TaskService
-  - /UpdateService
-  - /Power/
-  - /Sensors/
-  - /Thermal/
-  - /redfish/v1/Chassis/$
-  - /StorageControllers/PCIeSSD
-  Root: /redfish/v1
