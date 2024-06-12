@@ -22,6 +22,7 @@ Traverse:
     - /TaskService
     - /TelemetryService
     - /UpdateService
+    - /LicenseService
     # Sub-metrics included in /Power or /Thermal
     - /Power/
     - /Power#/
@@ -31,15 +32,26 @@ Traverse:
     - /redfish/v1/Chassis/$
 
 Metrics:
+  ## Chassis
   - Path: /redfish/v1/Chassis/{chassis}
   - Path: /redfish/v1/Chassis/{chassis}/Assembly
   - Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}
   - Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/NetworkDeviceFunctions/{function}
   - Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/NetworkPorts/{port}
+  - Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/Ports/{port}
+  - Path: /redfish/v1/Chassis/{chassis}/PCIeDevices/{device}
+  - Path: /redfish/v1/Chassis/{chassis}/PCIeDevices/{device}/PCIeFunctions/{function}
   - Path: /redfish/v1/Chassis/{chassis}/PCIeSlots
   - Path: /redfish/v1/Chassis/{chassis}/Power
+  - Path: /redfish/v1/Chassis/{chassis}/PowerSubsystem
+  - Path: /redfish/v1/Chassis/{chassis}/PowerSubsystem/PowerSupplies/{unit}
+  - Path: /redfish/v1/Chassis/{chassis}/PowerSubsystem/PowerSupplies/{unit}/Metrics
   - Path: /redfish/v1/Chassis/{chassis}/Sensors/{sensor}
   - Path: /redfish/v1/Chassis/{chassis}/Thermal
+  - Path: /redfish/v1/Chassis/{chassis}/ThermalSubsystem
+  - Path: /redfish/v1/Chassis/{chassis}/ThermalSubsystem/Fans/{unit}
+  - Path: /redfish/v1/Chassis/{chassis}/ThermalSubsystem/ThermalMetrics
+  ## Dell
   - Path: /redfish/v1/Dell/Chassis/{system}/DellAssembly/{assembly}
   - Path: /redfish/v1/Dell/Systems/{system}/DellNumericSensor/{sensor}
   - Path: /redfish/v1/Dell/Systems/{system}/DellPCIeFunction/{function}
@@ -56,13 +68,16 @@ Metrics:
   - Path: /redfish/v1/Dell/Systems/{system}/Storage/DellPCIeSSD/{disk}
   - Path: /redfish/v1/Dell/Systems/{system}/Storage/Drives/DellPhysicalDisk/{disk}
   - Path: /redfish/v1/Dell/Systems/{system}/Storage/Volumes/DellVirtualDisk/{disk}
+  ## Fabrics
   - Path: /redfish/v1/Fabrics/{fabric}
   - Path: /redfish/v1/Fabrics/{fabric}/Switches
+  ## Managers
   - Path: /redfish/v1/Managers/{manager}
   - Path: /redfish/v1/Managers/{manager}/Attributes
   - Path: /redfish/v1/Managers/{manager}/EthernetInterfaces/{interface}
   - Path: /redfish/v1/Managers/{manager}/HostInterfaces/{host}
   - Path: /redfish/v1/Managers/{manager}/NetworkProtocol
+  ## Systems
   - Path: /redfish/v1/Systems/{system}
   - Path: /redfish/v1/Systems/{system}/BootOptions/{option}
   - Path: /redfish/v1/Systems/{system}/EthernetInterfaces/{interface}
@@ -77,22 +92,8 @@ Metrics:
   - Path: /redfish/v1/Systems/{system}/Processors/{processor}
   - Path: /redfish/v1/Systems/{system}/SimpleStorage/{controller}
   - Path: /redfish/v1/Systems/{system}/Storage/{storage}
+  - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Controllers/{controller}
   - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Drives/{device}
   - Path: /redfish/v1/Systems/{system}/Storage/{storage}/StorageControllers/{controller}
   - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Volumes
   - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Volumes/{volume}
-
-# ./collector generate-rule --base-rule=base-rules/dell.yaml \
-#   --key=Health:health \
-#   --key=FailurePredicted:bool \
-#   --key=PredictedMediaLifeLeftPercent:number \
-#   --key=AddressParityError:bool \
-#   --key=CorrectableECCError:bool \
-#   --key=SpareBlock:bool \
-#   --key=Temperature:bool \
-#   --key=UncorrectableECCError:bool \
-#   --key=DataLossDetected:bool \
-#   --key=State:state \
-#   --key=ReadingCelsius:number \
-#   --key=PowerConsumedWatts:number \
-#   <model-1-data>.json <model-2-data>.json ... > generated.yaml

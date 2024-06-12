@@ -1,33 +1,25 @@
 #!/usr/bin/bash
 #
-#  Shell for collector generate-rule execute on container
+#  Shell for collector generate-rule execute
 #
-#   2023/7/14  RedFish v1.17
+#  Usage: run_generate-rule.sh INPUT_FILES... > OUTPUT_FILE
 #
 
-# Please edit for your environment
-RULE="dell-redfish-v117.yaml"         # Base rule
-INPUT1="r7525-data-omsa1100.json"     # Output by "collector show" command 
-INPUT2="r6525-data-omsa1100.json"     #  for each PowerEdge Model
-OUTPUT="dell_redfish_1.17.0.yml"      # Output rule file for Promethus/Grafana 
-SETUP_HW="quay.io/neco_test/setup-hw:dev"  # Latest container image if there is dell command upgrade. 
+SCRIPT_DIR="$(cd $(dirname $0); pwd)"
 
-docker run -it --name=setup-hw \
-   -v ${PWD}:/mnt \
-   --rm \
-   ${SETUP_HW} collector generate-rule \
-     --base-rule=/mnt/${RULE} \
-     --key=Health:health \
-     --key=State:state \
-     --key=FailurePredicted:bool \
-     --key=PredictedMediaLifeLeftPercent:number \
-     --key=AddressParityError:bool \
-     --key=CorrectableECCError:bool \
-     --key=SpareBlock:bool \
-     --key=Temperature:bool \
-     --key=UncorrectableECCError:bool \
-     --key=DataLossDetected:bool \
-     --key=ReadingCelsius:number \
-     --key=PowerConsumedWatts:number \
-     --key=Reading:number \
-   /mnt/${INPUT1} /mnt/${INPUT2} > ${OUTPUT}
+collector generate-rule \
+  --base-rule=${SCRIPT_DIR}/dell.yaml \
+  --key=AddressParityError:bool \
+  --key=CorrectableECCError:bool \
+  --key=DataLossDetected:bool \
+  --key=FailurePredicted:bool \
+  --key=Health:health \
+  --key=PowerConsumedWatts:number \
+  --key=PredictedMediaLifeLeftPercent:number \
+  --key=Reading:number \
+  --key=ReadingCelsius:number \
+  --key=SpareBlock:bool \
+  --key=State:state \
+  --key=Temperature:bool \
+  --key=UncorrectableECCError:bool \
+  $@
