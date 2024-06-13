@@ -4,25 +4,24 @@ Traverse:
     # Schemas
     - /JsonSchemas
     # Non-metric properties
-    - /Accounts
+    - /Assembly
     - /Certificates
     - /Jobs
-    - /Logs
     - /Registries
-    - /Roles
-    - /Sessions
+    - /SecureBoot
     - /Settings
     # Services
     - /AccountService
     - /CertificateService
+    - /DellJobService
     - /EventService
     - /JobService
+    - /LicenseService
     - /LogServices
     - /SessionService
     - /TaskService
     - /TelemetryService
     - /UpdateService
-    - /LicenseService
     # Sub-metrics included in /Power or /Thermal
     - /Power/
     - /Power#/
