@@ -5,6 +5,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.17.0] - 2024-06-13
+
+### Added
+
+- Support Redfish API v1.18.0 ([#111](https://github.com/cybozu-go/setup-hw/pull/111))
+
+### Changed
+
+- Bump golang.org/x/net from 0.20.0 to 0.23.0 ([#108](https://github.com/cybozu-go/setup-hw/pull/108))
+- Merge base rules ([#110](https://github.com/cybozu-go/setup-hw/pull/110))
+
 ## [1.16.1] - 2024-03-15
 
 ### Changed
@@ -254,7 +265,8 @@ The [quay.io/cybozu/setup-hw](https://quay.io/repository/cybozu/setup-hw) will n
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 ([#12](https://github.com/cybozu-go/setup-hw/pull/12))
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.16.1...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.17.0...HEAD
+[1.17.0]: https://github.com/cybozu-go/setup-hw/compare/v1.16.1...v1.17.0
 [1.16.1]: https://github.com/cybozu-go/setup-hw/compare/v1.16.0...v1.16.1
 [1.16.0]: https://github.com/cybozu-go/setup-hw/compare/v1.15.2...v1.16.0
 [1.15.2]: https://github.com/cybozu-go/setup-hw/compare/v1.15.1...v1.15.2
