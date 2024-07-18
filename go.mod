@@ -1,15 +1,15 @@
 module github.com/cybozu-go/setup-hw
 
-go 1.22
+go 1.22.5
 
 require (
 	github.com/cybozu-go/log v1.7.0
 	github.com/cybozu-go/well v1.11.2
 	github.com/google/go-cmp v0.6.0
-	github.com/prometheus/client_golang v1.19.0
-	github.com/prometheus/client_model v0.6.0
-	github.com/spf13/cobra v1.8.0
-	golang.org/x/term v0.18.0
+	github.com/prometheus/client_golang v1.19.1
+	github.com/prometheus/client_model v0.6.1
+	github.com/spf13/cobra v1.8.1
+	golang.org/x/term v0.22.0
 	gopkg.in/ini.v1 v1.67.0
 	sigs.k8s.io/yaml v1.4.0
 )
@@ -36,8 +36,8 @@ require (
 	github.com/vishvananda/netlink v1.2.1-beta.2 // indirect
 	github.com/vishvananda/netns v0.0.3 // indirect
 	golang.org/x/net v0.23.0 // indirect
-	golang.org/x/sys v0.18.0 // indirect
+	golang.org/x/sys v0.22.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	google.golang.org/protobuf v1.32.0 // indirect
+	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
