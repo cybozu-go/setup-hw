@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Update release procedure to use gh command ([#114](https://github.com/cybozu-go/setup-hw/pull/114))
 - Update dependencies ([#113](https://github.com/cybozu-go/setup-hw/pull/113))
   - Update actions/setup-go
   - Update go module dependencies
