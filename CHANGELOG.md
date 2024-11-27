@@ -5,6 +5,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.17.2] - 2024-11-27
+
 ### Changed
 
 - Update dependencies ([#116](https://github.com/cybozu-go/setup-hw/pull/116))
@@ -280,7 +282,8 @@ The [quay.io/cybozu/setup-hw](https://quay.io/repository/cybozu/setup-hw) will n
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 ([#12](https://github.com/cybozu-go/setup-hw/pull/12))
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.17.1...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.17.2...HEAD
+[1.17.2]: https://github.com/cybozu-go/setup-hw/compare/v1.17.1...v1.17.2
 [1.17.1]: https://github.com/cybozu-go/setup-hw/compare/v1.17.0...v1.17.1
 [1.17.0]: https://github.com/cybozu-go/setup-hw/compare/v1.16.1...v1.17.0
 [1.16.1]: https://github.com/cybozu-go/setup-hw/compare/v1.16.0...v1.16.1
