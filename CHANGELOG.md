@@ -7,7 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-- Update dependencies ([#113](https://github.com/cybozu-go/setup-hw/pull/113))
+- Update dependencies ([#116](https://github.com/cybozu-go/setup-hw/pull/116))
   - Update go module dependencies
   - Update ubuntu version in Dockerfile
 
