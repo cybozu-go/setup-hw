@@ -5,13 +5,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## [1.17.2] - 2024-11-27
+## [1.17.2] - 2024-11-28
 
 ### Changed
 
 - Update dependencies ([#116](https://github.com/cybozu-go/setup-hw/pull/116))
   - Update go module dependencies
   - Update ubuntu version in Dockerfile
+- Fix release workflow ([#118](https://github.com/cybozu-go/setup-hw/pull/118))
 
 ## [1.17.1] - 2024-07-19
 
