@@ -15,6 +15,9 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+      
+      - name: setup
+        run: make setup 
 
       - name: Build binaries
         run: make install GOBIN=`pwd`/docker
