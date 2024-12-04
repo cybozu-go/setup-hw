@@ -43,6 +43,8 @@ const (
 	Other Product = iota
 	R6525
 	R7525
+	R6615
+	R7615
 )
 
 // DetectProduct detects product name.
@@ -57,6 +59,10 @@ func DetectProduct() (Product, error) {
 		return R6525, nil
 	case strings.Contains(product, "R7525"):
 		return R7525, nil
+	case strings.Contains(product, "R6615"):
+		return R6615, nil
+	case strings.Contains(product, "R7615"):
+		return R7615, nil
 	default:
 		return Other, nil
 	}
