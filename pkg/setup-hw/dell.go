@@ -335,7 +335,10 @@ func (dc *dellConfigurator) configPerformance(ctx context.Context) error {
 	case lib.R6615: // In 16G server, we cannot disable power saving function even if we set cpu-governor. We need set System Profile to Performance.
 		return dc.enqueueConfig(ctx, "BIOS.SysProfileSettings.SysProfile", "PerfOptimized")
 	default:
-		return fmt.Errorf("unsupported product: %v", product)
+		log.Warn("unsupported product, skipping setting of SysProfile", map[string]interface{}{
+			"product": product,
+		})
+		return nil
 	}
 }
 
