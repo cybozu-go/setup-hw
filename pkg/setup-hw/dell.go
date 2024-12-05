@@ -325,7 +325,21 @@ func (dc *dellConfigurator) configBIOS(ctx context.Context) error {
 }
 
 func (dc *dellConfigurator) configPerformance(ctx context.Context) error {
-	return dc.enqueueConfig(ctx, "BIOS.SysProfileSettings.SysProfile", "PerfPerWattOptimizedOs")
+	product, err := lib.DetectProduct()
+	if err != nil {
+		return err
+	}
+	switch product {
+	case lib.R6525, lib.R7525, lib.R7615:
+		return dc.enqueueConfig(ctx, "BIOS.SysProfileSettings.SysProfile", "PerfPerWattOptimizedOs")
+	case lib.R6615: // In 16G server, we cannot disable power saving function even if we set cpu-governor. We need set System Profile to Performance.
+		return dc.enqueueConfig(ctx, "BIOS.SysProfileSettings.SysProfile", "PerfOptimized")
+	default:
+		log.Warn("unsupported product, skipping setting of SysProfile", map[string]interface{}{
+			"product": product,
+		})
+		return nil
+	}
 }
 
 func (dc *dellConfigurator) configProcessor(ctx context.Context) error {
@@ -384,6 +398,8 @@ func (dc *dellConfigurator) configProcessor(ctx context.Context) error {
 			npsVal = "1"
 		}
 		return dc.enqueueConfig(ctx, "BIOS.ProcSettings.NumaNodesPerSocket", npsVal)
+	case lib.R6615, lib.R7615:
+		return dc.enqueueConfig(ctx, "BIOS.ProcSettings.NumaNodesPerSocket", "1")
 	default:
 		return nil
 	}
