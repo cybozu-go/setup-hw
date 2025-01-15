@@ -5,6 +5,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.19.0] - 2025-01-16
+
+### Added
+
+- Support RedFish 1.20.1 and Schema 2024.1 ([#121](https://github.com/cybozu-go/setup-hw/pull/121))
+
 ## [1.18.0] - 2024-12-05
 
 ### Added
