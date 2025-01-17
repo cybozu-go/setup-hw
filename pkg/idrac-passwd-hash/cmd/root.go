@@ -1,12 +1,14 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 )
 
+var salt []byte
 var jsonOutput bool
 
 var rootCmd = &cobra.Command{
@@ -25,9 +27,14 @@ https://www.dell.com/support/manuals/us/en/04/poweredge-r940/idrac_3.15.15.15_ug
 			return err
 		}
 
-		salt, err := generateSalt()
-		if err != nil {
-			return err
+		if len(salt) == 0 {
+			salt, err = generateSalt()
+			if err != nil {
+				return err
+			}
+		}
+		if len(salt) != 16 {
+			return errors.New("salt must be 16 bytes long")
 		}
 
 		hash, err := hashPassword(passwd, salt)
@@ -52,5 +59,6 @@ func Execute() {
 }
 
 func init() {
+	rootCmd.Flags().BytesHexVar(&salt, "salt", nil, "salt in 32-digit HEX")
 	rootCmd.Flags().BoolVar(&jsonOutput, "json", false, "output hash and salt in JSON")
 }
