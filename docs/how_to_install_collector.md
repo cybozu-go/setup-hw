@@ -43,7 +43,7 @@ Put a bmc-address.json file in /etc/neco.
 }
 ```
 
-please see [config.md]("config.md") file.
+please see [config.md](config.md) file.
 
 ## 4.Check 
 
