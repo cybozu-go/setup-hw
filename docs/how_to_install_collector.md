@@ -1,8 +1,8 @@
 How to install collector command
 =====================================
 
-The collector command can run in setup-hw container and bare metal linux server. 
-in this memo describe how to install bare metal server.
+The collector command can run in a setup-hw container or on a bare metal Linux server.
+This memo describes how to install the command on a bare metal server.
 
 ## 1.Clone code from github repository
 
@@ -19,13 +19,13 @@ $ make install
 
 ## 3.Setup config
 
-Put a bmc-user.json file in /etc/neco/ that must have "support" user due to use the collector command.
+Put a bmc-user.json file in /etc/neco/ that must have "support" user to use the collector command.
 
 ```
 {
   "support": {
     "password": {
-      "raw": "cybozu"
+      "raw": "raw password here"
     }
   }
 }
@@ -34,7 +34,13 @@ Put a bmc-user.json file in /etc/neco/ that must have "support" user due to use 
 Put a bmc-address.json file in /etc/neco. 
 
 ```
-{"ipv4":{"address":"10.210.152.197","netmask":"255.255.252.0","maskbits":22,"gateway":"10.210.152.198"}}
+{
+  "ipv4": {
+    "address": "192.0.2.3",
+    "netmask": "255.255.255.0",
+    "gateway": "192.0.2.1"
+  }
+}
 ```
 
 please see [config.md]("config.md") file.
@@ -47,4 +53,4 @@ By following the above steps, you can execute the collector command.
 $ collector show
 ```
 
-Next, see [how to generate rules](how_to_install_collector.md).
+Next, see [how to generate rules](how_to_generate_rules.md).
