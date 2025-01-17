@@ -2606,6 +2606,191 @@ var Rules = map[string]*CollectRule{
 			},
 		},
 	},
+	"dell_redfish_1.2.0.yml": {
+		TraverseRule: TraverseRule{
+			Root: "/redfish/v1",
+			ExcludeRules: []string{
+				"/JSONSchemas",
+				"/Accounts",
+				"/Certificates",
+				"/Jobs",
+				"/Logs",
+				"/Registries",
+				"/Roles",
+				"/Sessions",
+				"/AccountService",
+				"/EventService",
+				"/LogServices",
+				"/SessionService",
+				"/TaskService",
+				"/UpdateService",
+				"/Power/",
+				"/Sensors/",
+				"/Thermal/",
+				"/redfish/v1/Chassis/$",
+			},
+		},
+		MetricRules: []*MetricRule{
+			{
+				Path: "/redfish/v1/Chassis/{chassis}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "chassis_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Chassis/{chassis}/Power",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/PowerSupplies/{psu}/Status/Health",
+						Name:    "chassis_psu_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Redundancy/{set}/Status/Health",
+						Name:    "chassis_psu_redundancy_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Voltages/{sensor}/Status/Health",
+						Name:    "chassis_voltage_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Chassis/{chassis}/Thermal",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Fans/{fan}/Status/Health",
+						Name:    "chassis_fan_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Redundancy/{set}/Status/Health",
+						Name:    "chassis_fan_redundancy_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Temperatures/{sensor}/Status/Health",
+						Name:    "chassis_temperature_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Temperatures/{sensor}/ReadingCelsius",
+						Name:    "chassis_temperature_reading",
+						Help:    "",
+						Type:    "number",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Managers/{manager}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "manager_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Managers/{manager}/EthernetInterfaces/{interface}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "manager_network_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/{system}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "system_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/MemorySummary/Status/Health",
+						Name:    "system_memory_summary_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/ProcessorSummary/Status/Health",
+						Name:    "system_processor_summary_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/TrustedModules/{tpm}/Status/State",
+						Name:    "system_tpm_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/{system}/EthernetInterfaces/{interface}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "network_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/{system}/Processors/{processor}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "processor_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/{system}/Storage/Drives/{device}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "storage_device_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/{system}/Storage/{controller}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "storage_controller_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+				},
+			},
+		},
+	},
 	"dell_redfish_1.20.1.yml": {
 		TraverseRule: TraverseRule{
 			Root: "/redfish/v1",
@@ -3111,6 +3296,40 @@ var Rules = map[string]*CollectRule{
 				},
 			},
 			{
+				Path: "/redfish/v1/Fabrics/{fabric}/Switches/{switch}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "fabrics_switches_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "fabrics_switches_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Fabrics/{fabric}/Switches/{switch}/Ports/{switchport}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "fabrics_switches_ports_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "fabrics_switches_ports_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
 				Path: "/redfish/v1/Managers/{manager}",
 				PropertyRules: []*PropertyRule{
 					{
@@ -3476,191 +3695,6 @@ var Rules = map[string]*CollectRule{
 						Name:    "systems_storage_volumes_status_state",
 						Help:    "",
 						Type:    "state",
-					},
-				},
-			},
-		},
-	},
-	"dell_redfish_1.2.0.yml": {
-		TraverseRule: TraverseRule{
-			Root: "/redfish/v1",
-			ExcludeRules: []string{
-				"/JSONSchemas",
-				"/Accounts",
-				"/Certificates",
-				"/Jobs",
-				"/Logs",
-				"/Registries",
-				"/Roles",
-				"/Sessions",
-				"/AccountService",
-				"/EventService",
-				"/LogServices",
-				"/SessionService",
-				"/TaskService",
-				"/UpdateService",
-				"/Power/",
-				"/Sensors/",
-				"/Thermal/",
-				"/redfish/v1/Chassis/$",
-			},
-		},
-		MetricRules: []*MetricRule{
-			{
-				Path: "/redfish/v1/Chassis/{chassis}",
-				PropertyRules: []*PropertyRule{
-					{
-						Pointer: "/Status/Health",
-						Name:    "chassis_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-				},
-			},
-			{
-				Path: "/redfish/v1/Chassis/{chassis}/Power",
-				PropertyRules: []*PropertyRule{
-					{
-						Pointer: "/PowerSupplies/{psu}/Status/Health",
-						Name:    "chassis_psu_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-					{
-						Pointer: "/Redundancy/{set}/Status/Health",
-						Name:    "chassis_psu_redundancy_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-					{
-						Pointer: "/Voltages/{sensor}/Status/Health",
-						Name:    "chassis_voltage_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-				},
-			},
-			{
-				Path: "/redfish/v1/Chassis/{chassis}/Thermal",
-				PropertyRules: []*PropertyRule{
-					{
-						Pointer: "/Fans/{fan}/Status/Health",
-						Name:    "chassis_fan_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-					{
-						Pointer: "/Redundancy/{set}/Status/Health",
-						Name:    "chassis_fan_redundancy_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-					{
-						Pointer: "/Temperatures/{sensor}/Status/Health",
-						Name:    "chassis_temperature_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-					{
-						Pointer: "/Temperatures/{sensor}/ReadingCelsius",
-						Name:    "chassis_temperature_reading",
-						Help:    "",
-						Type:    "number",
-					},
-				},
-			},
-			{
-				Path: "/redfish/v1/Managers/{manager}",
-				PropertyRules: []*PropertyRule{
-					{
-						Pointer: "/Status/Health",
-						Name:    "manager_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-				},
-			},
-			{
-				Path: "/redfish/v1/Managers/{manager}/EthernetInterfaces/{interface}",
-				PropertyRules: []*PropertyRule{
-					{
-						Pointer: "/Status/Health",
-						Name:    "manager_network_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-				},
-			},
-			{
-				Path: "/redfish/v1/Systems/{system}",
-				PropertyRules: []*PropertyRule{
-					{
-						Pointer: "/Status/Health",
-						Name:    "system_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-					{
-						Pointer: "/MemorySummary/Status/Health",
-						Name:    "system_memory_summary_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-					{
-						Pointer: "/ProcessorSummary/Status/Health",
-						Name:    "system_processor_summary_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-					{
-						Pointer: "/TrustedModules/{tpm}/Status/State",
-						Name:    "system_tpm_status_state",
-						Help:    "",
-						Type:    "state",
-					},
-				},
-			},
-			{
-				Path: "/redfish/v1/Systems/{system}/EthernetInterfaces/{interface}",
-				PropertyRules: []*PropertyRule{
-					{
-						Pointer: "/Status/Health",
-						Name:    "network_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-				},
-			},
-			{
-				Path: "/redfish/v1/Systems/{system}/Processors/{processor}",
-				PropertyRules: []*PropertyRule{
-					{
-						Pointer: "/Status/Health",
-						Name:    "processor_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-				},
-			},
-			{
-				Path: "/redfish/v1/Systems/{system}/Storage/Drives/{device}",
-				PropertyRules: []*PropertyRule{
-					{
-						Pointer: "/Status/Health",
-						Name:    "storage_device_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-				},
-			},
-			{
-				Path: "/redfish/v1/Systems/{system}/Storage/{controller}",
-				PropertyRules: []*PropertyRule{
-					{
-						Pointer: "/Status/Health",
-						Name:    "storage_controller_status_health",
-						Help:    "",
-						Type:    "health",
 					},
 				},
 			},

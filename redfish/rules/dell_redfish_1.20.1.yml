@@ -22,7 +22,7 @@ Traverse:
   - /Power/
   - /Power#/
   - /Thermal#/
-  - /Assembly#/ 
+  - /Assembly#/
   - /redfish/v1/Chassis/$
 
 Metrics:
@@ -95,6 +95,7 @@ Metrics:
     Pointer: /Slots/{slot}/Status/State
     Type: state
 
+# Inherited properties from v1.18.0 earlier
 - Path: /redfish/v1/Chassis/{chassis}/Power
   Properties:
   - Name: chassis_power_powercontrol_powerconsumedwatts
@@ -102,7 +103,7 @@ Metrics:
     Type: number
   - Name: chassis_power_powersupplies_redundancy_status_health
     Pointer: /PowerSupplies/{powersupply}/Redundancy/{redundancy}/Status/Health
-    Type: health   
+    Type: health
   - Name: chassis_power_powersupplies_redundancy_status_state
     Pointer: /PowerSupplies/{powersupply}/Redundancy/{redundancy}/Status/State
     Type: state
@@ -128,7 +129,7 @@ Metrics:
 - Path: /redfish/v1/Chassis/{chassis}/PowerSubsystem
   Properties:
   - Name: chassis_powersubsystem_powersupplyredundancy_status_health
-    Pointer: /PowerSupplyRedundancy/{powersupplyredundancy}/Status/Health 
+    Pointer: /PowerSupplyRedundancy/{powersupplyredundancy}/Status/Health
     Type: health
   - Name: chassis_powersubsystem_powersupplyredundancy_status_state
     Pointer: /PowerSupplyRedundancy/{powersupplyredundancy}/Status/State
@@ -149,6 +150,7 @@ Metrics:
     Pointer: /Status/State
     Type: state
 
+## Inherited properties from v1.18.0 or earlier
 - Path: /redfish/v1/Chassis/{chassis}/PowerSubsystem/PowerSupplies/{unit}/Metrics
   Properties:
   - Name: chassis_powersubsystem_powersupplies_metrics_frequencyhz_reading
@@ -163,7 +165,7 @@ Metrics:
   - Name: chassis_powersubsystem_powersupplies_metrics_inputvoltage_reading
     Pointer: /InputVoltage/Reading
     Type: number
-  - Name: chassis_powersubsystem_powersupplies_metrics_outputpowerwatts_readin
+  - Name: chassis_powersubsystem_powersupplies_metrics_outputpowerwatts_reading
     Pointer: /OutputPowerWatts/Reading
     Type: number
   - Name: chassis_powersubsystem_powersupplies_metrics_status_health
@@ -173,6 +175,7 @@ Metrics:
     Pointer: /Status/State
     Type: state
 
+## Inherited properties from v1.18.0 or earlier
 - Path: /redfish/v1/Chassis/{chassis}/Sensors/{sensor}
   Properties:
   - Name: chassis_sensors_reading
@@ -197,6 +200,7 @@ Metrics:
     Pointer: /Thresholds/UpperCritical/Reading
     Type: number
 
+## Inherited properties from v1.18.0 or earlier
 - Path: /redfish/v1/Chassis/{chassis}/Thermal
   Properties:
   - Name: chassis_thermal_fans_reading
@@ -248,6 +252,7 @@ Metrics:
     Pointer: /Status/State
     Type: state
 
+# Inherited properties from v1.18.0 or earlier
 - Path: /redfish/v1/Chassis/{chassis}/ThermalSubsystem/ThermalMetrics
   Properties:
   - Name: chassis_thermalsubsystem_thermalmetrics_temperaturereadingscelsius_reading
@@ -269,6 +274,26 @@ Metrics:
     Pointer: /Status/Health
     Type: health
   - Name: fabrics_status_state
+    Pointer: /Status/State
+    Type: state
+
+# Since RedFish 1.20.1
+- Path: /redfish/v1/Fabrics/{fabric}/Switches/{switch}
+  Properties:
+  - Name: fabrics_switches_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: fabrics_switches_status_state
+    Pointer: /Status/State
+    Type: state
+
+# Since RedFish 1.20.1
+- Path: /redfish/v1/Fabrics/{fabric}/Switches/{switch}/Ports/{switchport}
+  Properties:
+  - Name: fabrics_switches_ports_status_health
+    Pointer: /Status/Health
+    Type: health
+  - Name: fabrics_switches_ports_status_state
     Pointer: /Status/State
     Type: state
 
@@ -344,6 +369,7 @@ Metrics:
     Pointer: /Status/State
     Type: state
 
+# Inherited properties from v1.18.0 earlier
 - Path: /redfish/v1/Systems/{system}/Memory/{memory}/MemoryMetrics
   Properties:
   - Name: systems_memory_memorymetrics_healthdata_alarmtrips_addressparityerror
@@ -386,6 +412,7 @@ Metrics:
     Pointer: /Status/State
     Type: state
 
+# Inherited properties from v1.18.0 earlier
 - Path: /redfish/v1/Systems/{system}/SimpleStorage/{controller}
   Properties:
   - Name: systems_simplestorage_devices_status_health
@@ -401,6 +428,7 @@ Metrics:
     Pointer: /Status/State
     Type: state
 
+# Inherited properties from v1.18.0 earlier
 - Path: /redfish/v1/Systems/{system}/Storage/{storage}
   Properties:
   - Name: systems_storage_status_health
@@ -425,6 +453,7 @@ Metrics:
     Pointer: /Status/State
     Type: state
 
+# Inherited properties from v1.18.0 earlier
 - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Drives/{device}
   Properties:
   - Name: systems_storage_drives_failurepredicted
