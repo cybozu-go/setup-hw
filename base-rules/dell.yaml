@@ -70,6 +70,10 @@ Metrics:
   ## Fabrics
   - Path: /redfish/v1/Fabrics/{fabric}
   - Path: /redfish/v1/Fabrics/{fabric}/Switches
+  - Path: /redfish/v1/Fabrics/{fabric}/Switches/{switch}
+  - Path: /redfish/v1/Fabrics/{fabric}/Switches/{switch}/Ports
+  - Path: /redfish/v1/Fabrics/{fabric}/Switches/{switch}/Ports/{switchport}
+
   ## Managers
   - Path: /redfish/v1/Managers/{manager}
   - Path: /redfish/v1/Managers/{manager}/Attributes
