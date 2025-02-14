@@ -495,7 +495,10 @@ func (dc *dellConfigurator) configiDRAC(ctx context.Context) error {
 }
 
 func (dc *dellConfigurator) acceptEULA(ctx context.Context) error {
-	_, err := racadmSetConfig(ctx, "supportassist", "accepteula")
+	_, err := racadm(ctx, "supportassist", "accepteula")
+	if strings.Contains(err.Error(),"SRV095") {
+		return nil
+	}
 	return err
 }
 
