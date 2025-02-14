@@ -488,7 +488,15 @@ func (dc *dellConfigurator) configiDRAC(ctx context.Context) error {
 	if err := dc.configWebServer(ctx); err != nil {
 		return err
 	}
+	if err := dc.acceptEULA(ctx); err != nil {
+		return err
+	}
 	return nil
+}
+
+func (dc *dellConfigurator) acceptEULA(ctx context.Context) error {
+	_, err := racadmSetConfig(ctx, "supportassist", "accepteula")
+	return err
 }
 
 func (dc *dellConfigurator) configSNMP(ctx context.Context) error {
