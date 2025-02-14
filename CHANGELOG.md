@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [1.20.0] - 2025-02-14
+
+### Added
+
+- Add auto accepting EULA of DELL ([#128](https://github.com/cybozu-go/setup-hw/pull/128))
+
 ## [1.19.0] - 2025-01-20
 
 ### Added
@@ -295,7 +301,8 @@ The [quay.io/cybozu/setup-hw](https://quay.io/repository/cybozu/setup-hw) will n
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 ([#12](https://github.com/cybozu-go/setup-hw/pull/12))
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.19.0...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.20.0...HEAD
+[1.20.0]: https://github.com/cybozu-go/setup-hw/compare/v1.19.0...v1.20.0
 [1.19.0]: https://github.com/cybozu-go/setup-hw/compare/v1.18.0...v1.19.0
 [1.18.0]: https://github.com/cybozu-go/setup-hw/compare/v1.17.2...v1.18.0
 [1.17.2]: https://github.com/cybozu-go/setup-hw/compare/v1.17.1...v1.17.2
