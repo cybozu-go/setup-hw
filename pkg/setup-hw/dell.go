@@ -496,45 +496,24 @@ func (dc *dellConfigurator) configiDRAC(ctx context.Context) error {
 
 func (dc *dellConfigurator) acceptEULA(ctx context.Context) error {
 	/*
-		if already accepted EULA would be get this message
+		If we have already accepted EULA, we will get the following message:
 		    SRV074: The SupportAssist End User License Agreement (EULA)is accepted by iDRAC user root
 		    via iDRAC interface RACADM
 	*/
 	out, err := racadm(ctx, "supportassist", "geteulastatus")
-	if err == nil {
-		// Successful case
-		if strings.Contains(err.Error(), "SRV074") || strings.Contains(out, "SRV074") {
-			return nil
-		}
-	} else {
-		if len(err.Error()) > 0 {
-			return err
-		}
-		return errors.New("failed to get status EULA by racadm command")
+	if err != nil {
+		return fmt.Errorf("failed to get status EULA by racadm command: %w", err)
+	}
+	if strings.Contains(out, "SRV074:") {
+		// already accepted
+		return nil
 	}
 
-	/*
-		Accept EULA, when would be get this message
-			SRV074: The SupportAssist End User License Agreement (EULA)is accepted by iDRAC user root
-			via iDRAC interface RACADM
-
-		if already accepted EULA would be get this message
-			ERROR: SRV095:The SupportAssist End User License Agreement (EULA) is already accepted by iDRAC user root
-			via iDRAC interface RACADM
-	*/
-	out, err = racadm(ctx, "supportassist", "accepteula")
-	if err == nil {
-		if strings.Contains(err.Error(), "SRV074") || strings.Contains(out, "SRV074") {
-			return nil
-		}
-	} else {
-		if len(err.Error()) > 0 {
-			return err
-		}
-		return errors.New("failed to accept EULA by racadm command")
+	_, err = racadm(ctx, "supportassist", "accepteula")
+	if err != nil {
+		return fmt.Errorf("failed to accept EULA by racadm command: %w", err)
 	}
-
-	return errors.New("unexpected error from racadm command")
+	return nil
 }
 
 func (dc *dellConfigurator) configSNMP(ctx context.Context) error {
