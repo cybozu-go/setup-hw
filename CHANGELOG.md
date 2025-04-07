@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+### Changed
+
+- Update dependencies in [#133](https://github.com/cybozu-go/setup-hw/pull/133)
+    - Update go module dependencies
+
 ## [1.20.1] - 2025-02-19
 
 ### Changed
