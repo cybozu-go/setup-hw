@@ -1,6 +1,6 @@
 module github.com/cybozu-go/setup-hw
 
-go 1.24.2
+go 1.24.4
 
 require (
 	github.com/cybozu-go/log v1.7.0
