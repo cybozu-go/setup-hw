@@ -24,5 +24,5 @@ func setupDell(ctx context.Context) error {
 }
 
 func resetDell(ctx context.Context) error {
-	return well.CommandContext(ctx, "/usr/bin/racadm", "racreset", "soft").Run()
+	return well.CommandContext(ctx, "/usr/bin/racadm", "racreset").Run()
 }
