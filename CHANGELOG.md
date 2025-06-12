@@ -9,7 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-- Update for new F/W in [#133](https://github.com/cybozu-go/setup-hw/pull/135)
+- Update for new F/W in [#135](https://github.com/cybozu-go/setup-hw/pull/135)
     - Update DELL F/W ISO-Image 25.06.02
 
 ## [1.20.2] - 2025-04-09
