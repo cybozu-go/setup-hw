@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 	"regexp"
 	"strings"
@@ -94,11 +95,13 @@ var showCmd = &cobra.Command{
 					}
 				}
 			}
-
+			fmt.Println("=======================================================")
+			fmt.Println("================= result", result)
 			out, err := json.MarshalIndent(result, "", "    ")
 			if err != nil {
 				return err
 			}
+
 			_, err = os.Stdout.Write(out)
 			if err != nil {
 				return err

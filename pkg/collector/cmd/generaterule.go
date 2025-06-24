@@ -60,7 +60,10 @@ It takes one or more JSON file names that were dumped by "collector show" comman
 					MetricRules:  metricRules,
 				}
 				rules[i] = collectRule
+	
 			}
+
+
 
 			mergedRule := mergeCollectRules(rules)
 
@@ -68,6 +71,8 @@ It takes one or more JSON file names that were dumped by "collector show" comman
 			if err != nil {
 				return err
 			}
+	
+			fmt.Println("xxxxxxxxxxxxxxxxxxxx", out)
 			_, err = os.Stdout.Write(out)
 			if err != nil {
 				return err
