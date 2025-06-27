@@ -127,7 +127,28 @@ func (c *redfishClient) get(ctx context.Context, path string, cl Collected) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	switch resp.StatusCode {
+	case http.StatusOK: // 200 OK
+		parsed, err := gabs.ParseJSONBuffer(resp.Body)
+		if err != nil {
+			log.Warn("failed to parse Redfish data", map[string]interface{}{
+				"url":       req.URL.String(),
+				log.FnError: err,
+			})
+			return
+		}
+		cl.data[path] = parsed
+		c.follow(ctx, parsed, cl)
+		return
+	case http.StatusUnauthorized: // 401 Unauthorized
+		log.Warn("Redfish answered non-OK Unauthorized", map[string]interface{}{
+			"url":       req.URL.String(),
+			"status":    resp.StatusCode,
+			log.FnError: err,
+		})
+		cl.data[path] = nil
+		return
+	default: // Other status codes
 		log.Warn("Redfish answered non-OK", map[string]interface{}{
 			"url":       req.URL.String(),
 			"status":    resp.StatusCode,
@@ -135,18 +156,6 @@ func (c *redfishClient) get(ctx context.Context, path string, cl Collected) {
 		})
 		return
 	}
-
-	parsed, err := gabs.ParseJSONBuffer(resp.Body)
-	if err != nil {
-		log.Warn("failed to parse Redfish data", map[string]interface{}{
-			"url":       req.URL.String(),
-			log.FnError: err,
-		})
-		return
-	}
-	cl.data[path] = parsed
-
-	c.follow(ctx, parsed, cl)
 }
 
 func (c *redfishClient) newRequest(ctx context.Context, path string) (*http.Request, error) {
