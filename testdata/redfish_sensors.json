@@ -1,0 +1,15 @@
+{
+    "@odata.id": "/redfish/v1/Chassis/System.Embedded.1/Sensors/Device1",
+    "PhysicalContext": "PowerSupply",
+    "Thresholds": {
+        "UpperCaution": {
+            "Reading": 90
+        },
+        "UpperCritical": {
+            "Reading": null
+        },
+        "UpperFatal": {
+            "Reading": 200
+        }
+    }
+}
