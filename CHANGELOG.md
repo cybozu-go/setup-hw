@@ -5,6 +5,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Update dependencies in [#139](https://github.com/cybozu-go/setup-hw/pull/139)
+    - Update go module dependencies
+    - Update OSMA to v11.1.0.0
+    - Downgrade Ubuntu to 22.04
+
 ## [1.21.0] - 2025-06-12
 
 ### Changed
