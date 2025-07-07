@@ -13,7 +13,7 @@ FROM stage1
 LABEL org.opencontainers.image.source="https://github.com/cybozu-go/setup-hw"
 
 # See https://linux.dell.com/repo/community/openmanage/
-ARG OMSA_VERSION=11010
+ARG OMSA_VERSION=11100
 ARG UBUNTU_VERSION=jammy
 
 # Setup DELL repository
