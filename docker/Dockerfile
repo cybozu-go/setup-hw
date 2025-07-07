@@ -1,4 +1,4 @@
-FROM ghcr.io/cybozu/ubuntu:24.04 AS stage1
+FROM ghcr.io/cybozu/ubuntu:22.04 AS stage1
 LABEL org.opencontainers.image.source="https://github.com/cybozu-go/setup-hw"
 
 COPY setup-hw /usr/local/bin/setup-hw
