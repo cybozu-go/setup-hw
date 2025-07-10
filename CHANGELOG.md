@@ -5,6 +5,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.22.1] - 2025-07-10
+
 ### Fixed
 
 - racadm command does not exist [#141](https://github.com/cybozu-go/setup-hw/pull/141)
@@ -335,7 +337,8 @@ The [quay.io/cybozu/setup-hw](https://quay.io/repository/cybozu/setup-hw) will n
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 ([#12](https://github.com/cybozu-go/setup-hw/pull/12))
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.22.0...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.22.1...HEAD
+[1.22.1]: https://github.com/cybozu-go/setup-hw/compare/v1.22.0...v1.22.1
 [1.22.0]: https://github.com/cybozu-go/setup-hw/compare/v1.21.0...v1.22.0
 [1.21.0]: https://github.com/cybozu-go/setup-hw/compare/v1.20.2...v1.21.0
 [1.20.2]: https://github.com/cybozu-go/setup-hw/compare/v1.20.1...v1.20.2
