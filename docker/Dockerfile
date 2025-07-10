@@ -30,5 +30,5 @@ COPY systemctl-dummy /usr/bin/systemctl
 # monitor-hw call /usr/libexec/instsvcdrv-helper which depends on "kmod" package. We must install "kmod"
 RUN apt-get update -y \
     && ln -s /usr/lib/x86_64-linux-gnu/libssl.so.3 /usr/lib/libssl.so \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends srvadmin-all kmod \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends srvadmin-all srvadmin-idracadm8 kmod \
     && rm /usr/bin/systemctl
