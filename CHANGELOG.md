@@ -5,6 +5,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- racadm command does not exist [#141](https://github.com/cybozu-go/setup-hw/pull/141)
+
 ## [1.22.0] - 2025-07-07
 
 ### Changed
