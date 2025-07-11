@@ -1,15 +1,31 @@
 {
     "@odata.id": "/redfish/v1/Chassis/System.Embedded.1/Sensors/Device1",
     "PhysicalContext": "PowerSupply",
+    "Reading": 1.2,
+    "ReadingType": "Current",
+    "ReadingUnits": "A",
+    "Status": {
+        "Health": "OK",
+        "State": "Enabled"
+    },
     "Thresholds": {
+        "LowerCaution": {
+            "Reading": null
+        },
+        "LowerCritical": {
+            "Reading": null
+        },
+        "LowerFatal": {
+            "Reading": null
+        },
         "UpperCaution": {
-            "Reading": 90
+            "Reading": null
         },
         "UpperCritical": {
             "Reading": null
         },
         "UpperFatal": {
-            "Reading": 200
+            "Reading": 150
         }
     }
 }

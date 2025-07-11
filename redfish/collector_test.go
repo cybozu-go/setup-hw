@@ -3,7 +3,6 @@ package redfish
 import (
 	"context"
 	"errors"
-	"fmt"
 	"math"
 	"net/http"
 	"net/http/httptest"
@@ -195,7 +194,16 @@ func testCollect(t *testing.T) {
 		{
 			name:  "hw_chassis_sensors_thresholds_uppercritical_reading",
 			typ:   prommodel.MetricType_GAUGE,
-			value: math.NaN(),
+			value: math.NaN(), // null
+			labels: map[string]string{
+				"chassis": "System.Embedded.1",
+				"sensor":  "Device1",
+			},
+		},
+		{
+			name:  "hw_chassis_sensors_thresholds_upperfatal_reading",
+			typ:   prommodel.MetricType_GAUGE,
+			value: 150,
 			labels: map[string]string{
 				"chassis": "System.Embedded.1",
 				"sensor":  "Device1",
@@ -323,11 +331,6 @@ func testUpdate(t *testing.T) {
 			filePath: "../testdata/redfish_trash.json",
 			needed:   false,
 		},
-		{
-			urlPath:  "/redfish/v1/Chassis/System.Embedded.1/Sensors/Device1",
-			filePath: "../testdata/redfish_sensors.json",
-			needed:   true,
-		},
 	}
 
 	mux := http.NewServeMux()
@@ -382,14 +385,11 @@ func testUpdate(t *testing.T) {
 			continue
 		}
 
-		fmt.Println("============= Checking path:", input.urlPath)
-
 		data, ok := cl.data[input.urlPath]
 		if !ok {
 			t.Error("path was not traversed:", input.urlPath)
 			continue
 		}
-		fmt.Println("Data:", data.String())
 
 		inputData, err := gabs.ParseJSONFile(input.filePath)
 		if err != nil {

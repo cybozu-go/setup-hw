@@ -42,3 +42,6 @@ Metrics:
       - Pointer: /Thresholds/UpperCritical/Reading
         Name: chassis_sensors_thresholds_uppercritical_reading
         Type: number
+      - Pointer: /Thresholds/UpperFatal/Reading
+        Name: chassis_sensors_thresholds_upperfatal_reading
+        Type: number
