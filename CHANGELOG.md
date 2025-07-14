@@ -5,6 +5,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.23.1] - 2025-07-14
+
+### Changed
+
+- Enables processing of null metrics as math.NaN() [#138](https://github.com/cybozu-go/setup-hw/pull/138)
+  - Replaced with test data from the latest version of Redfish (v1.20)
+  - Remove metrics corresponding to obsolete redfish paths
+  - Fixed inappropriate test cases
+  - Add test case when metrics are returned null
+
 ## [1.22.1] - 2025-07-10
 
 ### Fixed
@@ -337,7 +347,8 @@ The [quay.io/cybozu/setup-hw](https://quay.io/repository/cybozu/setup-hw) will n
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 ([#12](https://github.com/cybozu-go/setup-hw/pull/12))
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.22.1...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.23.1...HEAD
+[1.23.1]: https://github.com/cybozu-go/setup-hw/compare/v1.22.1...v1.23.1
 [1.22.1]: https://github.com/cybozu-go/setup-hw/compare/v1.22.0...v1.22.1
 [1.22.0]: https://github.com/cybozu-go/setup-hw/compare/v1.21.0...v1.22.0
 [1.21.0]: https://github.com/cybozu-go/setup-hw/compare/v1.20.2...v1.21.0
