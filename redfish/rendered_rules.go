@@ -2839,7 +2839,7 @@ var Rules = map[string]*CollectRule{
 				},
 			},
 			{
-				Path: "/redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}",
+				Path: "/redfish/v1/Chassis/{chassis}/NetworkAdapters/{function}",
 				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
@@ -2856,7 +2856,7 @@ var Rules = map[string]*CollectRule{
 				},
 			},
 			{
-				Path: "/redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/NetworkDeviceFunctions/{function}",
+				Path: "/redfish/v1/Chassis/{chassis}/NetworkAdapters/{function}/NetworkDeviceFunctions/{nic}",
 				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
@@ -2873,7 +2873,7 @@ var Rules = map[string]*CollectRule{
 				},
 			},
 			{
-				Path: "/redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/NetworkPorts/{port}",
+				Path: "/redfish/v1/Chassis/{chassis}/NetworkAdapters/{function}/NetworkPorts/{port}",
 				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
@@ -2961,18 +2961,6 @@ var Rules = map[string]*CollectRule{
 						Type:    "number",
 					},
 					{
-						Pointer: "/PowerSupplies/{powersupply}/Redundancy/{redundancy}/Status/Health",
-						Name:    "chassis_power_powersupplies_redundancy_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-					{
-						Pointer: "/PowerSupplies/{powersupply}/Redundancy/{redundancy}/Status/State",
-						Name:    "chassis_power_powersupplies_redundancy_status_state",
-						Help:    "",
-						Type:    "state",
-					},
-					{
 						Pointer: "/PowerSupplies/{powersupply}/Status/Health",
 						Name:    "chassis_power_powersupplies_status_health",
 						Help:    "",
@@ -2981,18 +2969,6 @@ var Rules = map[string]*CollectRule{
 					{
 						Pointer: "/PowerSupplies/{powersupply}/Status/State",
 						Name:    "chassis_power_powersupplies_status_state",
-						Help:    "",
-						Type:    "state",
-					},
-					{
-						Pointer: "/Redundancy/{redundancy}/Status/Health",
-						Name:    "chassis_power_redundancy_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-					{
-						Pointer: "/Redundancy/{redundancy}/Status/State",
-						Name:    "chassis_power_redundancy_status_state",
 						Help:    "",
 						Type:    "state",
 					},
@@ -3013,18 +2989,6 @@ var Rules = map[string]*CollectRule{
 			{
 				Path: "/redfish/v1/Chassis/{chassis}/PowerSubsystem",
 				PropertyRules: []*PropertyRule{
-					{
-						Pointer: "/PowerSupplyRedundancy/{powersupplyredundancy}/Status/Health",
-						Name:    "chassis_powersubsystem_powersupplyredundancy_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-					{
-						Pointer: "/PowerSupplyRedundancy/{powersupplyredundancy}/Status/State",
-						Name:    "chassis_powersubsystem_powersupplyredundancy_status_state",
-						Help:    "",
-						Type:    "state",
-					},
 					{
 						Pointer: "/Status/Health",
 						Name:    "chassis_powersubsystem_status_health",
@@ -3589,18 +3553,6 @@ var Rules = map[string]*CollectRule{
 					{
 						Pointer: "/Status/State",
 						Name:    "systems_storage_status_state",
-						Help:    "",
-						Type:    "state",
-					},
-					{
-						Pointer: "/StorageControllers/{storagecontroller}/Status/Health",
-						Name:    "systems_storage_storagecontrollers_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-					{
-						Pointer: "/StorageControllers/{storagecontroller}/Status/State",
-						Name:    "systems_storage_storagecontrollers_status_state",
 						Help:    "",
 						Type:    "state",
 					},

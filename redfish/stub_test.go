@@ -2,6 +2,7 @@ package redfish
 
 import (
 	"context"
+	"math"
 	"testing"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -18,8 +19,8 @@ func TestStubClient(t *testing.T) {
 			value: 0.000000,
 			labels: map[string]string{
 				"chassis":  "System.Embedded.1",
-				"function": "NIC.Embedded.1",
-				"nic":      "NIC.Embedded.1-1-1",
+				"function": "NIC.Integrated.1",
+				"nic":      "NIC.Integrated.1-1-1",
 			},
 		},
 		{
@@ -28,8 +29,8 @@ func TestStubClient(t *testing.T) {
 			value: 0.000000,
 			labels: map[string]string{
 				"chassis":  "System.Embedded.1",
-				"function": "NIC.Embedded.1",
-				"nic":      "NIC.Embedded.1-1-1",
+				"function": "NIC.Integrated.1",
+				"nic":      "NIC.Integrated.1-2-1",
 			},
 		},
 		{
@@ -38,8 +39,8 @@ func TestStubClient(t *testing.T) {
 			value: 0.000000,
 			labels: map[string]string{
 				"chassis":  "System.Embedded.1",
-				"function": "NIC.Embedded.1",
-				"port":     "NIC.Embedded.1-1",
+				"function": "NIC.Integrated.1",
+				"port":     "NIC.Integrated.1-1",
 			},
 		},
 		{
@@ -48,26 +49,28 @@ func TestStubClient(t *testing.T) {
 			value: 0.000000,
 			labels: map[string]string{
 				"chassis":  "System.Embedded.1",
-				"function": "NIC.Embedded.1",
-				"port":     "NIC.Embedded.1-1",
+				"function": "NIC.Integrated.1",
+				"port":     "NIC.Integrated.1-1",
 			},
 		},
 		{
-			name:  "hw_chassis_networkadapters_status_health",
+			name:  "hw_chassis_networkadapters_networkports_status_health",
 			typ:   prommodel.MetricType_GAUGE,
 			value: 0.000000,
 			labels: map[string]string{
 				"chassis":  "System.Embedded.1",
-				"function": "NIC.Embedded.1",
+				"function": "NIC.Integrated.1",
+				"port":     "NIC.Integrated.1-2",
 			},
 		},
 		{
-			name:  "hw_chassis_networkadapters_status_state",
+			name:  "hw_chassis_networkadapters_networkports_status_state",
 			typ:   prommodel.MetricType_GAUGE,
 			value: 0.000000,
 			labels: map[string]string{
 				"chassis":  "System.Embedded.1",
-				"function": "NIC.Embedded.1",
+				"function": "NIC.Integrated.1",
+				"port":     "NIC.Integrated.1-2",
 			},
 		},
 		{
@@ -118,26 +121,6 @@ func TestStubClient(t *testing.T) {
 			},
 		},
 		{
-			name:  "hw_chassis_power_powersupplies_redundancy_status_health",
-			typ:   prommodel.MetricType_GAUGE,
-			value: 0.000000,
-			labels: map[string]string{
-				"chassis":     "System.Embedded.1",
-				"powersupply": "0",
-				"redundancy":  "0",
-			},
-		},
-		{
-			name:  "hw_chassis_power_powersupplies_redundancy_status_state",
-			typ:   prommodel.MetricType_GAUGE,
-			value: 0.000000,
-			labels: map[string]string{
-				"chassis":     "System.Embedded.1",
-				"powersupply": "0",
-				"redundancy":  "0",
-			},
-		},
-		{
 			name:  "hw_chassis_power_powersupplies_status_health",
 			typ:   prommodel.MetricType_GAUGE,
 			value: 0.000000,
@@ -153,24 +136,6 @@ func TestStubClient(t *testing.T) {
 			labels: map[string]string{
 				"chassis":     "System.Embedded.1",
 				"powersupply": "0",
-			},
-		},
-		{
-			name:  "hw_chassis_power_redundancy_status_health",
-			typ:   prommodel.MetricType_GAUGE,
-			value: 0.000000,
-			labels: map[string]string{
-				"redundancy": "0",
-				"chassis":    "System.Embedded.1",
-			},
-		},
-		{
-			name:  "hw_chassis_power_redundancy_status_state",
-			typ:   prommodel.MetricType_GAUGE,
-			value: 0.000000,
-			labels: map[string]string{
-				"chassis":    "System.Embedded.1",
-				"redundancy": "0",
 			},
 		},
 		{
@@ -228,25 +193,6 @@ func TestStubClient(t *testing.T) {
 			},
 		},
 		{
-			name:  "hw_chassis_powersubsystem_powersupplyredundancy_status_health",
-			typ:   prommodel.MetricType_GAUGE,
-			value: 0.000000,
-			labels: map[string]string{
-				"chassis":               "System.Embedded.1",
-				"powersupplyredundancy": "0",
-			},
-		},
-
-		{
-			name:  "hw_chassis_powersubsystem_powersupplyredundancy_status_state",
-			typ:   prommodel.MetricType_GAUGE,
-			value: 0.000000,
-			labels: map[string]string{
-				"chassis":               "System.Embedded.1",
-				"powersupplyredundancy": "0",
-			},
-		},
-		{
 			name:  "hw_chassis_powersubsystem_status_health",
 			typ:   prommodel.MetricType_GAUGE,
 			value: 0.000000,
@@ -278,6 +224,24 @@ func TestStubClient(t *testing.T) {
 			labels: map[string]string{
 				"chassis": "System.Embedded.1",
 				"sensor":  "CPU1MEMABCDVR",
+			},
+		},
+		{
+			name:  "hw_chassis_sensors_thresholds_lowercaution_reading",
+			typ:   prommodel.MetricType_GAUGE,
+			value: math.NaN(),
+			labels: map[string]string{
+				"chassis": "System.Embedded.1",
+				"sensor":  "PS1Current1",
+			},
+		},
+		{
+			name:  "hw_chassis_sensors_thresholds_lowercaution_reading",
+			typ:   prommodel.MetricType_GAUGE,
+			value: 0.000000,
+			labels: map[string]string{
+				"chassis": "System.Embedded.1",
+				"sensor":  "Fan.Embedded.4D",
 			},
 		},
 		{
@@ -572,7 +536,6 @@ func TestStubClient(t *testing.T) {
 				"system": "System.Embedded.1",
 			},
 		},
-
 		{
 			name:  "hw_systems_processorsummary_status_state",
 			typ:   prommodel.MetricType_GAUGE,
@@ -764,12 +727,12 @@ func TestStubClient(t *testing.T) {
 		},
 	}
 
-	rule, err := collectRule("../redfish/rules/dell_redfish_1.17.0.yml")
+	rule, err := collectRule("../redfish/rules/dell_redfish_1.20.1.yml")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	client := NewStubClient("../testdata/redfish-1.17-from-idrac9-v7.json")
+	client := NewStubClient("../testdata/redfish-1.20-from-idrac9-v11.json")
 
 	checkActualResult(t, rule, client, expectedSet)
 }

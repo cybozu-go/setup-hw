@@ -131,6 +131,10 @@ func testCollect(t *testing.T) {
 			urlPath:  "/redfish/v1/Chassis/System.Embedded.1/Blocks/0",
 			filePath: "../testdata/redfish_block.json",
 		},
+		{
+			urlPath:  "/redfish/v1/Chassis/System.Embedded.1/Sensors/Device1",
+			filePath: "../testdata/redfish_sensors.json",
+		},
 	}
 
 	expectedSet := []*struct {
@@ -176,16 +180,34 @@ func testCollect(t *testing.T) {
 			},
 		},
 		{
-			name:   "hw_last_update",
-			typ:    prommodel.MetricType_COUNTER,
-			value:  math.NaN(), // don't care
+			name: "hw_last_update",
+			typ:  prommodel.MetricType_COUNTER,
+			//value:  math.NaN(), // don't care
 			labels: map[string]string{},
 		},
 		{
-			name:   "hw_last_update_duration_minutes",
-			typ:    prommodel.MetricType_GAUGE,
-			value:  math.NaN(), // don't care
+			name: "hw_last_update_duration_minutes",
+			typ:  prommodel.MetricType_GAUGE,
+			//value:  math.NaN(), // don't care
 			labels: map[string]string{},
+		},
+		{
+			name:  "hw_chassis_sensors_thresholds_uppercritical_reading",
+			typ:   prommodel.MetricType_GAUGE,
+			value: math.NaN(), // null
+			labels: map[string]string{
+				"chassis": "System.Embedded.1",
+				"sensor":  "Device1",
+			},
+		},
+		{
+			name:  "hw_chassis_sensors_thresholds_upperfatal_reading",
+			typ:   prommodel.MetricType_GAUGE,
+			value: 150,
+			labels: map[string]string{
+				"chassis": "System.Embedded.1",
+				"sensor":  "Device1",
+			},
 		},
 	}
 
@@ -254,11 +276,18 @@ func testCollect(t *testing.T) {
 				default:
 					t.Fatalf("unknown type: ")
 				}
-				if actualMetricName == expected.name &&
-					(math.IsNaN(expected.value) || val == expected.value) &&
-					matchLabels(actualLabels, expected.labels) {
-					expected.matched = true
-					continue ActualLoop
+				if actualMetricName == expected.name && matchLabels(actualLabels, expected.labels) {
+					if actualMetricName == "hw_last_update" || actualMetricName == "hw_last_update_duration_minutes" {
+						expected.matched = true
+						continue ActualLoop
+					}
+					if math.IsNaN(expected.value) && math.IsNaN(val) {
+						expected.matched = true
+						continue ActualLoop
+					} else if expected.value == val {
+						expected.matched = true
+						continue ActualLoop
+					}
 				}
 			}
 			t.Error("unexpected metric; name:", actualMetricName, "value:", actual.GetGauge().GetValue(), "labels:", actualLabels)

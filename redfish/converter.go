@@ -3,6 +3,7 @@ package redfish
 import (
 	"errors"
 	"fmt"
+	"math"
 )
 
 type converter func(interface{}) (float64, error)
@@ -15,6 +16,10 @@ var typeToConverters = map[string]converter{
 }
 
 func numberConverter(data interface{}) (float64, error) {
+	// Redfish sometimes returns null for numeric values, so we handle that case.
+	if data == nil {
+		return math.NaN(), nil
+	}
 	value, ok := data.(float64)
 	if !ok {
 		return 0, errors.New("value was not float64")

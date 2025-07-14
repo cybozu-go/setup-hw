@@ -37,3 +37,11 @@ Metrics:
       - Pointer: /Status/Health
         Name: trash_status_health
         Type: health
+  - Path: /redfish/v1/Chassis/{chassis}/Sensors/{sensor}
+    Properties:
+      - Pointer: /Thresholds/UpperCritical/Reading
+        Name: chassis_sensors_thresholds_uppercritical_reading
+        Type: number
+      - Pointer: /Thresholds/UpperFatal/Reading
+        Name: chassis_sensors_thresholds_upperfatal_reading
+        Type: number
