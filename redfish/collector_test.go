@@ -180,15 +180,15 @@ func testCollect(t *testing.T) {
 			},
 		},
 		{
-			name:   "hw_last_update",
-			typ:    prommodel.MetricType_COUNTER,
-			value:  math.NaN(), // don't care
+			name: "hw_last_update",
+			typ:  prommodel.MetricType_COUNTER,
+			//value:  math.NaN(), // don't care
 			labels: map[string]string{},
 		},
 		{
-			name:   "hw_last_update_duration_minutes",
-			typ:    prommodel.MetricType_GAUGE,
-			value:  math.NaN(), // don't care
+			name: "hw_last_update_duration_minutes",
+			typ:  prommodel.MetricType_GAUGE,
+			//value:  math.NaN(), // don't care
 			labels: map[string]string{},
 		},
 		{
@@ -276,11 +276,18 @@ func testCollect(t *testing.T) {
 				default:
 					t.Fatalf("unknown type: ")
 				}
-				if actualMetricName == expected.name &&
-					(math.IsNaN(expected.value) || val == expected.value) &&
-					matchLabels(actualLabels, expected.labels) {
-					expected.matched = true
-					continue ActualLoop
+				if actualMetricName == expected.name && matchLabels(actualLabels, expected.labels) {
+					if actualMetricName == "hw_last_update" || actualMetricName == "hw_last_update_duration_minutes" {
+						expected.matched = true
+						continue ActualLoop
+					}
+					if math.IsNaN(expected.value) && math.IsNaN(val) {
+						expected.matched = true
+						continue ActualLoop
+					} else if expected.value == val {
+						expected.matched = true
+						continue ActualLoop
+					}
 				}
 			}
 			t.Error("unexpected metric; name:", actualMetricName, "value:", actual.GetGauge().GetValue(), "labels:", actualLabels)
