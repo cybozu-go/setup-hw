@@ -19,8 +19,8 @@ func TestStubClient(t *testing.T) {
 			value: 0.000000,
 			labels: map[string]string{
 				"chassis":  "System.Embedded.1",
-				"function": "NIC.Integrated.1",
-				"nic":      "NIC.Integrated.1-1-1",
+				"nic":      "NIC.Integrated.1",
+				"function": "NIC.Integrated.1-1-1",
 			},
 		},
 		{
@@ -29,8 +29,8 @@ func TestStubClient(t *testing.T) {
 			value: 0.000000,
 			labels: map[string]string{
 				"chassis":  "System.Embedded.1",
-				"function": "NIC.Integrated.1",
-				"nic":      "NIC.Integrated.1-2-1",
+				"nic":      "NIC.Integrated.1",
+				"function": "NIC.Integrated.1-1-1",
 			},
 		},
 		{
@@ -38,9 +38,9 @@ func TestStubClient(t *testing.T) {
 			typ:   prommodel.MetricType_GAUGE,
 			value: 0.000000,
 			labels: map[string]string{
-				"chassis":  "System.Embedded.1",
-				"function": "NIC.Integrated.1",
-				"port":     "NIC.Integrated.1-1",
+				"chassis": "System.Embedded.1",
+				"nic":     "NIC.Integrated.1",
+				"port":    "NIC.Integrated.1-1",
 			},
 		},
 		{
@@ -48,9 +48,9 @@ func TestStubClient(t *testing.T) {
 			typ:   prommodel.MetricType_GAUGE,
 			value: 0.000000,
 			labels: map[string]string{
-				"chassis":  "System.Embedded.1",
-				"function": "NIC.Integrated.1",
-				"port":     "NIC.Integrated.1-1",
+				"chassis": "System.Embedded.1",
+				"nic":     "NIC.Integrated.1",
+				"port":    "NIC.Integrated.1-1",
 			},
 		},
 		{
@@ -58,9 +58,9 @@ func TestStubClient(t *testing.T) {
 			typ:   prommodel.MetricType_GAUGE,
 			value: 0.000000,
 			labels: map[string]string{
-				"chassis":  "System.Embedded.1",
-				"function": "NIC.Integrated.1",
-				"port":     "NIC.Integrated.1-2",
+				"chassis": "System.Embedded.1",
+				"nic":     "NIC.Integrated.1",
+				"port":    "NIC.Integrated.1-2",
 			},
 		},
 		{
@@ -68,9 +68,9 @@ func TestStubClient(t *testing.T) {
 			typ:   prommodel.MetricType_GAUGE,
 			value: 0.000000,
 			labels: map[string]string{
-				"chassis":  "System.Embedded.1",
-				"function": "NIC.Integrated.1",
-				"port":     "NIC.Integrated.1-2",
+				"chassis": "System.Embedded.1",
+				"nic":     "NIC.Integrated.1",
+				"port":    "NIC.Integrated.1-2",
 			},
 		},
 		{
@@ -701,8 +701,8 @@ func TestStubClient(t *testing.T) {
 			typ:   prommodel.MetricType_GAUGE,
 			value: 0.000000,
 			labels: map[string]string{
-				"storage": "CPU.1",
 				"system":  "System.Embedded.1",
+				"storage": "CPU.1",
 				"volume":  "Disk.Bay.0:Enclosure.Internal.0-1",
 			},
 		},
@@ -711,8 +711,8 @@ func TestStubClient(t *testing.T) {
 			typ:   prommodel.MetricType_GAUGE,
 			value: 0.000000,
 			labels: map[string]string{
-				"storage": "CPU.1",
 				"system":  "System.Embedded.1",
+				"storage": "CPU.1",
 				"volume":  "Disk.Bay.0:Enclosure.Internal.0-1",
 			},
 		},
