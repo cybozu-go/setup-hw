@@ -26,8 +26,8 @@ Traverse:
   - /redfish/v1/Chassis/$
 
 Metrics:
-  - Path: /redfish/v1/Chassis/{chassis}
-    Properties:
+- Path: /redfish/v1/Chassis/{chassis}
+  Properties:
     - Name: chassis_status_health
       Pointer: /Status/Health
       Type: health
@@ -35,8 +35,8 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  - Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}
-    Properties:
+- Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}
+  Properties:
     - Name: chassis_networkadapters_status_health
       Pointer: /Status/Health
       Type: health
@@ -44,8 +44,8 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  - Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/NetworkDeviceFunctions/{function}
-    Properties:
+- Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/NetworkDeviceFunctions/{function}
+  Properties:
     - Name: chassis_networkadapters_networkdevicefunctions_status_health
       Pointer: /Status/Health
       Type: health
@@ -53,8 +53,8 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  - Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/NetworkPorts/{port}
-    Properties:
+- Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/NetworkPorts/{port}
+  Properties:
     - Name: chassis_networkadapters_networkports_status_health
       Pointer: /Status/Health
       Type: health
@@ -62,8 +62,8 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  - Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/Ports/{port}
-    Properties:
+- Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/Ports/{port}
+  Properties:
     - Name: chassis_networkadapters_ports_status_health
       Pointer: /Status/Health
       Type: health
@@ -71,8 +71,8 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  - Path: /redfish/v1/Chassis/{chassis}/PCIeDevices/{device}
-    Properties:
+- Path: /redfish/v1/Chassis/{chassis}/PCIeDevices/{device}
+  Properties:
     - Name: chassis_pciedevices_status_health
       Pointer: /Status/Health
       Type: health
@@ -80,8 +80,8 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  - Path: /redfish/v1/Chassis/{chassis}/PCIeDevices/{device}/PCIeFunctions/{function}
-    Properties:
+- Path: /redfish/v1/Chassis/{chassis}/PCIeDevices/{device}/PCIeFunctions/{function}
+  Properties:
     - Name: chassis_pciedevices_pciefunctions_status_health
       Pointer: /Status/Health
       Type: health
@@ -89,15 +89,15 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  - Path: /redfish/v1/Chassis/{chassis}/PCIeSlots
-    Properties:
+- Path: /redfish/v1/Chassis/{chassis}/PCIeSlots
+  Properties:
     - Name: chassis_pcieslots_slots_status_state
       Pointer: /Slots/{slot}/Status/State
       Type: state
 
-  # Inherited properties from v1.18.0 earlier
-  - Path: /redfish/v1/Chassis/{chassis}/Power
-    Properties:
+# Inherited properties from v1.18.0 earlier
+- Path: /redfish/v1/Chassis/{chassis}/Power
+  Properties:
     - Name: chassis_power_powercontrol_powerconsumedwatts
       Pointer: /PowerControl/{powercontrol}/PowerConsumedWatts
       Type: number
@@ -114,8 +114,8 @@ Metrics:
       Pointer: /Voltages/{voltage}/Status/State
       Type: state
 
-  - Path: /redfish/v1/Chassis/{chassis}/PowerSubsystem
-    Properties:
+- Path: /redfish/v1/Chassis/{chassis}/PowerSubsystem
+  Properties:
     - Name: chassis_powersubsystem_status_health
       Pointer: /Status/Health
       Type: health
@@ -123,8 +123,8 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  - Path: /redfish/v1/Chassis/{chassis}/PowerSubsystem/PowerSupplies/{unit}
-    Properties:
+- Path: /redfish/v1/Chassis/{chassis}/PowerSubsystem/PowerSupplies/{unit}
+  Properties:
     - Name: chassis_powersubsystem_powersupplies_status_health
       Pointer: /Status/Health
       Type: health
@@ -132,9 +132,9 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  ## Inherited properties from v1.18.0 or earlier
-  - Path: /redfish/v1/Chassis/{chassis}/PowerSubsystem/PowerSupplies/{unit}/Metrics
-    Properties:
+## Inherited properties from v1.18.0 or earlier
+- Path: /redfish/v1/Chassis/{chassis}/PowerSubsystem/PowerSupplies/{unit}/Metrics
+  Properties:
     - Name: chassis_powersubsystem_powersupplies_metrics_frequencyhz_reading
       Pointer: /FrequencyHz/Reading
       Type: number
@@ -157,9 +157,9 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  ## Inherited properties from v1.18.0 or earlier
-  - Path: /redfish/v1/Chassis/{chassis}/Sensors/{sensor}
-    Properties:
+## Inherited properties from v1.18.0 or earlier
+- Path: /redfish/v1/Chassis/{chassis}/Sensors/{sensor}
+  Properties:
     - Name: chassis_sensors_reading
       Pointer: /Reading
       Type: number
@@ -182,9 +182,9 @@ Metrics:
       Pointer: /Thresholds/UpperCritical/Reading
       Type: number
 
-  ## Inherited properties from v1.18.0 or earlier
-  - Path: /redfish/v1/Chassis/{chassis}/Thermal
-    Properties:
+## Inherited properties from v1.18.0 or earlier
+- Path: /redfish/v1/Chassis/{chassis}/Thermal
+  Properties:
     - Name: chassis_thermal_fans_reading
       Pointer: /Fans/{fan}/Reading
       Type: number
@@ -210,8 +210,8 @@ Metrics:
       Pointer: /Temperatures/{temperature}/Status/State
       Type: state
 
-  - Path: /redfish/v1/Chassis/{chassis}/ThermalSubsystem
-    Properties:
+- Path: /redfish/v1/Chassis/{chassis}/ThermalSubsystem
+  Properties:
     - Name: chassis_thermalsubsystem_fanredundancy_status_health
       Pointer: /FanRedundancy/{fanredundancy}/Status/Health
       Type: health
@@ -225,8 +225,8 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  - Path: /redfish/v1/Chassis/{chassis}/ThermalSubsystem/Fans/{unit}
-    Properties:
+- Path: /redfish/v1/Chassis/{chassis}/ThermalSubsystem/Fans/{unit}
+  Properties:
     - Name: chassis_thermalsubsystem_fans_status_health
       Pointer: /Status/Health
       Type: health
@@ -234,9 +234,9 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  # Inherited properties from v1.18.0 or earlier
-  - Path: /redfish/v1/Chassis/{chassis}/ThermalSubsystem/ThermalMetrics
-    Properties:
+# Inherited properties from v1.18.0 or earlier
+- Path: /redfish/v1/Chassis/{chassis}/ThermalSubsystem/ThermalMetrics
+  Properties:
     - Name: chassis_thermalsubsystem_thermalmetrics_temperaturereadingscelsius_reading
       Pointer: /TemperatureReadingsCelsius/{temperaturereadingscelsiu}/Reading
       Type: number
@@ -250,8 +250,8 @@ Metrics:
       Pointer: /TemperatureSummaryCelsius/Internal/Reading
       Type: number
 
-  - Path: /redfish/v1/Fabrics/{fabric}
-    Properties:
+- Path: /redfish/v1/Fabrics/{fabric}
+  Properties:
     - Name: fabrics_status_health
       Pointer: /Status/Health
       Type: health
@@ -259,9 +259,9 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  # Since RedFish 1.20.1
-  - Path: /redfish/v1/Fabrics/{fabric}/Switches/{switch}
-    Properties:
+# Since RedFish 1.20.1
+- Path: /redfish/v1/Fabrics/{fabric}/Switches/{switch}
+  Properties:
     - Name: fabrics_switches_status_health
       Pointer: /Status/Health
       Type: health
@@ -269,9 +269,9 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  # Since RedFish 1.20.1
-  - Path: /redfish/v1/Fabrics/{fabric}/Switches/{switch}/Ports/{switchport}
-    Properties:
+# Since RedFish 1.20.1
+- Path: /redfish/v1/Fabrics/{fabric}/Switches/{switch}/Ports/{switchport}
+  Properties:
     - Name: fabrics_switches_ports_status_health
       Pointer: /Status/Health
       Type: health
@@ -279,8 +279,8 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  - Path: /redfish/v1/Managers/{manager}
-    Properties:
+- Path: /redfish/v1/Managers/{manager}
+  Properties:
     - Name: managers_status_health
       Pointer: /Status/Health
       Type: health
@@ -288,8 +288,8 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  - Path: /redfish/v1/Managers/{manager}/EthernetInterfaces/{interface}
-    Properties:
+- Path: /redfish/v1/Managers/{manager}/EthernetInterfaces/{interface}
+  Properties:
     - Name: managers_ethernetinterfaces_status_health
       Pointer: /Status/Health
       Type: health
@@ -297,8 +297,8 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  - Path: /redfish/v1/Managers/{manager}/NetworkProtocol
-    Properties:
+- Path: /redfish/v1/Managers/{manager}/NetworkProtocol
+  Properties:
     - Name: managers_networkprotocol_status_health
       Pointer: /Status/Health
       Type: health
@@ -306,8 +306,8 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  - Path: /redfish/v1/Systems/{system}
-    Properties:
+- Path: /redfish/v1/Systems/{system}
+  Properties:
     - Name: systems_hostwatchdogtimer_status_state
       Pointer: /HostWatchdogTimer/Status/State
       Type: state
@@ -333,8 +333,8 @@ Metrics:
       Pointer: /TrustedModules/{trustedmodule}/Status/State
       Type: state
 
-  - Path: /redfish/v1/Systems/{system}/EthernetInterfaces/{interface}
-    Properties:
+- Path: /redfish/v1/Systems/{system}/EthernetInterfaces/{interface}
+  Properties:
     - Name: systems_ethernetinterfaces_status_health
       Pointer: /Status/Health
       Type: health
@@ -342,8 +342,8 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  - Path: /redfish/v1/Systems/{system}/Memory/{memory}
-    Properties:
+- Path: /redfish/v1/Systems/{system}/Memory/{memory}
+  Properties:
     - Name: systems_memory_status_health
       Pointer: /Status/Health
       Type: health
@@ -351,9 +351,9 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  # Inherited properties from v1.18.0 earlier
-  - Path: /redfish/v1/Systems/{system}/Memory/{memory}/MemoryMetrics
-    Properties:
+# Inherited properties from v1.18.0 earlier
+- Path: /redfish/v1/Systems/{system}/Memory/{memory}/MemoryMetrics
+  Properties:
     - Name: systems_memory_memorymetrics_healthdata_alarmtrips_addressparityerror
       Pointer: /HealthData/AlarmTrips/AddressParityError
       Type: bool
@@ -376,8 +376,8 @@ Metrics:
       Pointer: /HealthData/PredictedMediaLifeLeftPercent
       Type: number
 
-  - Path: /redfish/v1/Systems/{system}/NetworkInterfaces/{nic}
-    Properties:
+- Path: /redfish/v1/Systems/{system}/NetworkInterfaces/{nic}
+  Properties:
     - Name: systems_networkinterfaces_status_health
       Pointer: /Status/Health
       Type: health
@@ -385,8 +385,8 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  - Path: /redfish/v1/Systems/{system}/Processors/{processor}
-    Properties:
+- Path: /redfish/v1/Systems/{system}/Processors/{processor}
+  Properties:
     - Name: systems_processors_status_health
       Pointer: /Status/Health
       Type: health
@@ -394,9 +394,9 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  # Inherited properties from v1.18.0 earlier
-  - Path: /redfish/v1/Systems/{system}/SimpleStorage/{controller}
-    Properties:
+# Inherited properties from v1.18.0 earlier
+- Path: /redfish/v1/Systems/{system}/SimpleStorage/{controller}
+  Properties:
     - Name: systems_simplestorage_devices_status_health
       Pointer: /Devices/{device}/Status/Health
       Type: health
@@ -410,9 +410,9 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  # Inherited properties from v1.18.0 earlier
-  - Path: /redfish/v1/Systems/{system}/Storage/{storage}
-    Properties:
+# Inherited properties from v1.18.0 earlier
+- Path: /redfish/v1/Systems/{system}/Storage/{storage}
+  Properties:
     - Name: systems_storage_status_health
       Pointer: /Status/Health
       Type: health
@@ -420,8 +420,8 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Controllers/{controller}
-    Properties:
+- Path: /redfish/v1/Systems/{system}/Storage/{storage}/Controllers/{controller}
+  Properties:
     - Name: systems_storage_controllers_status_health
       Pointer: /Status/Health
       Type: health
@@ -429,9 +429,9 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  # Inherited properties from v1.18.0 earlier
-  - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Drives/{device}
-    Properties:
+# Inherited properties from v1.18.0 earlier
+- Path: /redfish/v1/Systems/{system}/Storage/{storage}/Drives/{device}
+  Properties:
     - Name: systems_storage_drives_failurepredicted
       Pointer: /FailurePredicted
       Type: bool
@@ -445,8 +445,8 @@ Metrics:
       Pointer: /Status/State
       Type: state
 
-  - Path: /redfish/v1/Systems/{system}/Storage/{storage}/StorageControllers/{controller}
-    Properties:
+- Path: /redfish/v1/Systems/{system}/Storage/{storage}/StorageControllers/{controller}
+  Properties:
     - Name: systems_storage_storagecontrollers_status_health
       Pointer: /Status/Health
       Type: health
@@ -460,8 +460,8 @@ Metrics:
       Pointer: /StorageControllers/{storagecontroller}/Status/State
       Type: state
 
-  - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Volumes/{volume}
-    Properties:
+- Path: /redfish/v1/Systems/{system}/Storage/{storage}/Volumes/{volume}
+  Properties:
     - Name: systems_storage_volumes_status_health
       Pointer: /Status/Health
       Type: health
