@@ -2839,7 +2839,7 @@ var Rules = map[string]*CollectRule{
 				},
 			},
 			{
-				Path: "/redfish/v1/Chassis/{chassis}/NetworkAdapters/{function}",
+				Path: "/redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}",
 				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
@@ -2856,7 +2856,7 @@ var Rules = map[string]*CollectRule{
 				},
 			},
 			{
-				Path: "/redfish/v1/Chassis/{chassis}/NetworkAdapters/{function}/NetworkDeviceFunctions/{nic}",
+				Path: "/redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/NetworkDeviceFunctions/{function}",
 				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
@@ -2873,7 +2873,7 @@ var Rules = map[string]*CollectRule{
 				},
 			},
 			{
-				Path: "/redfish/v1/Chassis/{chassis}/NetworkAdapters/{function}/NetworkPorts/{port}",
+				Path: "/redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/NetworkPorts/{port}",
 				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
