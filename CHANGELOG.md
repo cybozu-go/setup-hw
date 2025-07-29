@@ -5,6 +5,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.23.0] - 2025-07-29
+
+### Fixed
+
+- Update redfish testdata and rule [#144](https://github.com/cybozu-go/setup-hw/pull/144)
+- Add handle for Redfish null reply [#138](https://github.com/cybozu-go/setup-hw/pull/138)
+
 ## [1.22.1] - 2025-07-10
 
 ### Fixed
@@ -337,7 +344,8 @@ The [quay.io/cybozu/setup-hw](https://quay.io/repository/cybozu/setup-hw) will n
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 ([#12](https://github.com/cybozu-go/setup-hw/pull/12))
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.22.1...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.23.0...HEAD
+[1.23.0]: https://github.com/cybozu-go/setup-hw/compare/v1.22.1...v1.23.0
 [1.22.1]: https://github.com/cybozu-go/setup-hw/compare/v1.22.0...v1.22.1
 [1.22.0]: https://github.com/cybozu-go/setup-hw/compare/v1.21.0...v1.22.0
 [1.21.0]: https://github.com/cybozu-go/setup-hw/compare/v1.20.2...v1.21.0
