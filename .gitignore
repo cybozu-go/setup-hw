@@ -3,3 +3,5 @@
 \#*#
 .*.swp
 /.vscode
+download/*.tar.gz
+*.tar.gz

@@ -26,10 +26,13 @@ jobs:
       - name: Run test
         run: make test
 
+      - name: Download iDRAC Tools
+        run: make download-idractools
+
       - name: Build binaries
         run: make install GOBIN=`pwd`/docker
 
       - name: Build setup-hw image
         run: |
           docker build -t ghcr.io/cybozu-go/setup-hw:latest --target stage1 docker
-          docker build -t ghcr.io/cybozu-go/setup-hw-secret:latest docker
+          docker build -t ghcr.io/cybozu-go/setup-hw-secret:latest docker 
