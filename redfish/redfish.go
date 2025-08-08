@@ -1,10 +1,12 @@
 package redfish
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -21,6 +23,8 @@ type redfishClient struct {
 	password   string
 	httpClient *http.Client
 	noEscape   bool
+	token      string
+	sessionId  string
 }
 
 // ClientConfig is a set of configurations for redfishClient.
@@ -95,7 +99,6 @@ func (c *redfishClient) GetVersion(ctx context.Context) (string, error) {
 		RedfishVersion string
 	}
 	err = json.NewDecoder(resp.Body).Decode(&result)
-
 	return result.RedfishVersion, err
 }
 
@@ -126,7 +129,6 @@ func (c *redfishClient) get(ctx context.Context, path string, cl Collected) {
 		return
 	}
 	defer resp.Body.Close()
-
 	if resp.StatusCode != http.StatusOK {
 		log.Warn("Redfish answered non-OK", map[string]interface{}{
 			"url":       req.URL.String(),
@@ -145,7 +147,6 @@ func (c *redfishClient) get(ctx context.Context, path string, cl Collected) {
 		return
 	}
 	cl.data[path] = parsed
-
 	c.follow(ctx, parsed, cl)
 }
 
@@ -163,10 +164,9 @@ func (c *redfishClient) newRequest(ctx context.Context, path string) (*http.Requ
 	if err != nil {
 		return nil, err
 	}
-	req.SetBasicAuth(c.user, c.password)
+	req.Header.Set("X-auth-token", c.token)
 	req.Header.Set("Accept", "application/json")
 	req = req.WithContext(ctx)
-
 	return req, nil
 }
 
@@ -193,4 +193,77 @@ func (c *redfishClient) follow(ctx context.Context, parsed *gabs.Container, cl C
 		}
 		return
 	}
+}
+
+type sessionLoginRequest struct {
+	Username string `json:"UserName"`
+	Password string `json:"Password"`
+}
+
+type sessionLoginResponse struct {
+	Id string `json:"Id"`
+}
+
+func (c *redfishClient) Login(ctx context.Context) error {
+	if c.checkSession(ctx) == nil {
+		return nil
+	}
+	bAuth := sessionLoginRequest{
+		Username: c.user,
+		Password: c.password,
+	}
+	jsonBody, err := json.Marshal(bAuth)
+	if err != nil {
+		return fmt.Errorf("error marshaling JSON: %s", err)
+	}
+
+	u := c.endpoint.JoinPath("/redfish/v1/SessionService/Sessions")
+	req, err := http.NewRequestWithContext(ctx, "POST", u.String(), bytes.NewBuffer(jsonBody))
+	if err != nil {
+		return fmt.Errorf("error making NewRequest: %s", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("error accessing rest service: %s", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusCreated {
+		return fmt.Errorf("error response from rest service: %d", resp.StatusCode)
+	}
+
+	byteJSON, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("error reading http body: %s", err)
+	}
+
+	var ses sessionLoginResponse
+	err = json.Unmarshal(byteJSON, &ses)
+	if err != nil {
+		return fmt.Errorf("error when unmarshaling iDRAC response: %s", err)
+	}
+	c.sessionId = ses.Id
+	c.token = resp.Header.Get("X-auth-token")
+	return nil
+}
+
+func (c *redfishClient) checkSession(ctx context.Context) error {
+	u := c.endpoint.JoinPath("/redfish/v1/SessionService/Sessions", c.sessionId)
+	req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
+	if err != nil {
+		return fmt.Errorf("error making NewRequest: %s", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-auth-token", c.token)
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("error accessing Redfish service: %s", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("error response from Redfish service: %d", resp.StatusCode)
+	}
+	return nil
 }
