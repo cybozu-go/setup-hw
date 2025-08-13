@@ -44,10 +44,10 @@ endif
 
 .PHONY: download-idractools
 download-idractools:
-	## Must change the URL to the latest version of iDRAC Tools.
-	## Please see https://www.dell.com/support/home/ja-jp/drivers/driversdetails?driverid=mfv7t&msockid=2f4827c6031868db216b3232026069ad
-	curl 'https://dl.dell.com/FOLDER12638439M/1/Dell-iDRACTools-Web-LX-11.3.0.0-795_A00.tar.gz?uid=a19a6035-6a13-48b9-1fd5-4587c4944a96&fn=Dell-iDRACTools-Web-LX-11.3.0.0-795_A00.tar.gz' \
-		-H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36' \
+	# Must change the URL to the latest version of iDRAC Tools.
+	# Please see https://www.dell.com/support/home/ja-jp/drivers/driversdetails?driverid=mfv7t
+	curl 'https://dl.dell.com/FOLDER12638439M/1/Dell-iDRACTools-Web-LX-11.3.0.0-795_A00.tar.gz' \
+		-H 'user-agent: setup-hw' \
 		--output idrac-tools.tar.gz
 	tar -xzf idrac-tools.tar.gz -C docker
 

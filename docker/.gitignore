@@ -4,7 +4,6 @@ monitor-hw
 setup-apply-firmware
 setup-hw
 setup-isoreboot
-*.deb
 COPYRIGHT.txt
 iDRACTools/
 license.txt

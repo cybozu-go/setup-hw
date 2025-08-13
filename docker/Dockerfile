@@ -6,13 +6,15 @@ COPY monitor-hw /usr/local/sbin/monitor-hw
 COPY collector /usr/local/sbin/collector
 COPY setup-apply-firmware /usr/local/sbin/setup-apply-firmware
 COPY setup-isoreboot /usr/local/sbin/setup-isoreboot
-COPY systemctl-dummy /usr/bin/systemctl
 
 CMD ["/usr/local/sbin/monitor-hw"]
 
 # Install vendor tools
 FROM stage1
 LABEL org.opencontainers.image.source="https://github.com/cybozu-go/setup-hw"
+
+# Do not delete the following line to prevent installation errors in a container environment.
+COPY systemctl-dummy /usr/bin/systemctl
 
 RUN apt-get update -y \
     && apt-get install -y --no-install-recommends pciutils libargtable2-0 kmod
