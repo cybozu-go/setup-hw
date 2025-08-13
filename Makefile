@@ -42,6 +42,15 @@ ifdef GOBIN
 endif
 	GOBIN=$(GOBIN) CGO_ENABLED=0 go install -ldflags="-s -w" $(foreach f, $(BINS), ./pkg/$(f))
 
+.PHONY: download-idractools
+download-idractools:
+	# Must change the URL to the latest version of iDRAC Tools.
+	# Please see https://www.dell.com/support/home/ja-jp/drivers/driversdetails?driverid=mfv7t
+	curl 'https://dl.dell.com/FOLDER12638439M/1/Dell-iDRACTools-Web-LX-11.3.0.0-795_A00.tar.gz' \
+		-H 'user-agent: setup-hw' \
+		--output idrac-tools.tar.gz
+	tar -xzf idrac-tools.tar.gz -C docker
+
 build-image: install
 ifdef GOBIN
 	mkdir -p $(GOBIN)
@@ -51,4 +60,4 @@ else
 endif
 	cd docker && docker build -t ghcr.io/cybozu-go/setup-hw:dev .
 
-.PHONY: all generate check-generate setup test install build-image
+.PHONY: all generate check-generate setup test install download-idractools build-image

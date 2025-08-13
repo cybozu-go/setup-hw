@@ -26,6 +26,9 @@ jobs:
       - name: Run test
         run: make test
 
+      - name: Download iDRAC Tools
+        run: make download-idractools
+
       - name: Build binaries
         run: make install GOBIN=`pwd`/docker
 
