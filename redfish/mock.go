@@ -116,3 +116,7 @@ func (c *mockClient) Traverse(ctx context.Context, rule *CollectRule) Collected 
 func (c *mockClient) GetVersion(ctx context.Context) (string, error) {
 	return "1.0.0", nil
 }
+
+func (c *mockClient) Login(ctx context.Context) error {
+	return nil
+}

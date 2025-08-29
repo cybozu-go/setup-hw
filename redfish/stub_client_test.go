@@ -89,3 +89,7 @@ func (c *stubClient) Traverse(ctx context.Context, rule *CollectRule) Collected 
 func (c *stubClient) GetVersion(ctx context.Context) (string, error) {
 	return "1.0.0", nil
 }
+
+func (c *stubClient) Login(ctx context.Context) error {
+	return nil
+}

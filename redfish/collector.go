@@ -16,6 +16,7 @@ const namespace = "hw"
 type Client interface {
 	Traverse(ctx context.Context, rule *CollectRule) Collected
 	GetVersion(ctx context.Context) (string, error)
+	Login(ctx context.Context) error
 }
 
 // NewCollected creates a new Collected instance
@@ -89,6 +90,7 @@ func (c Collector) Collect(ch chan<- prometheus.Metric) {
 // Update collects metrics from BMCs via Redfish.
 func (c *Collector) Update(ctx context.Context) {
 	log.Info("getting rule", nil)
+	c.client.Login(ctx)
 	rule, err := c.ruleGetter(ctx)
 	if err != nil {
 		log.Error("failed to get rule", map[string]interface{}{
