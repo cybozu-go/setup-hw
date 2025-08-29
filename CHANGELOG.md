@@ -12,7 +12,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Change authentication x-auth-token [#147](https://github.com/cybozu-go/setup-hw/pull/147)
 - Adapt racadm command version 11.0.1 [#146](https://github.com/cybozu-go/setup-hw/pull/146)
 
-
 ## [1.23.0] - 2025-07-29
 
 ### Fixed
