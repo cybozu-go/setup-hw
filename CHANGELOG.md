@@ -5,6 +5,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.24.0] - 2025-08-29
+
+### Changed
+
+- Change authentication x-auth-token [#147](https://github.com/cybozu-go/setup-hw/pull/147)
+- Adapt racadm command version 11.0.1 [#146](https://github.com/cybozu-go/setup-hw/pull/146)
+
 ## [1.23.0] - 2025-07-29
 
 ### Fixed
@@ -344,7 +351,8 @@ The [quay.io/cybozu/setup-hw](https://quay.io/repository/cybozu/setup-hw) will n
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 ([#12](https://github.com/cybozu-go/setup-hw/pull/12))
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.23.0...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.24.0...HEAD
+[1.24.0]: https://github.com/cybozu-go/setup-hw/compare/v1.23.1...v1.24.0
 [1.23.0]: https://github.com/cybozu-go/setup-hw/compare/v1.22.1...v1.23.0
 [1.22.1]: https://github.com/cybozu-go/setup-hw/compare/v1.22.0...v1.22.1
 [1.22.0]: https://github.com/cybozu-go/setup-hw/compare/v1.21.0...v1.22.0
