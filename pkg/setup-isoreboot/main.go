@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/cybozu-go/log"
 	"github.com/cybozu-go/setup-hw/lib"
@@ -13,7 +14,8 @@ import (
 
 func main() {
 	well.LogConfig{}.Apply()
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
 
 	if len(os.Args) < 2 {
 		log.ErrorExit(fmt.Errorf("specify iso image file"))
