@@ -17,7 +17,7 @@ LABEL org.opencontainers.image.source="https://github.com/cybozu-go/setup-hw"
 COPY systemctl-dummy /usr/bin/systemctl
 
 RUN apt-get update -y \
-    && apt-get install -y --no-install-recommends pciutils libargtable2-0 kmod
+    && apt-get install -y --no-install-recommends pciutils libargtable2-0 kmod dmidecode
 
 RUN mkdir /pkg
 COPY iDRACTools/racadm/UBUNTU22/x86_64/*.deb /pkg/
