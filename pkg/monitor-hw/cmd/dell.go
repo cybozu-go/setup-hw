@@ -7,10 +7,7 @@ import (
 )
 
 func initDell(ctx context.Context) error {
-	if err := setupDell(ctx); err != nil {
-		return err
-	}
-	return nil
+	return setupDell(ctx)
 }
 
 func setupDell(ctx context.Context) error {
