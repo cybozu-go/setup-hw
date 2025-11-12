@@ -5,6 +5,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.25.0] - 2025-11-12
+
+### Changed
+
+- Disable idrac reset on boot and update dependencies in [#152](https://github.com/cybozu-go/setup-hw/pull/152)
+
 ## [1.24.1] - 2025-09-03
 
 ### Fixed
@@ -357,7 +363,8 @@ The [quay.io/cybozu/setup-hw](https://quay.io/repository/cybozu/setup-hw) will n
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 ([#12](https://github.com/cybozu-go/setup-hw/pull/12))
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.24.1...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.25.0...HEAD
+[1.25.0]: https://github.com/cybozu-go/setup-hw/compare/v1.24.1...v1.25.0
 [1.24.1]: https://github.com/cybozu-go/setup-hw/compare/v1.24.0...v1.24.1
 [1.24.0]: https://github.com/cybozu-go/setup-hw/compare/v1.23.0...v1.24.0
 [1.23.0]: https://github.com/cybozu-go/setup-hw/compare/v1.22.1...v1.23.0
