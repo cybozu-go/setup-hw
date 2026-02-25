@@ -570,7 +570,6 @@ func (dc *dellConfigurator) configIPMI(ctx context.Context) error {
 	return racadmRetry(ctx, "set", key, "1")
 }
 
-// 追加中、実機でコマンドを手打ちして確認する
 func (dc *dellConfigurator) configTimeServer(ctx context.Context) error {
 	// Set time zone
 	key := "iDRAC.Time.Timezone"
