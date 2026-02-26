@@ -572,14 +572,12 @@ func (dc *dellConfigurator) configIPMI(ctx context.Context) error {
 
 func (dc *dellConfigurator) configTimeServer(ctx context.Context) error {
 	// Set time zone
-	key := "iDRAC.Time.Timezone"
 	if _, err := racadmSetConfig(ctx, "iDRAC.Time.Timezone", "UTC"); err != nil {
 		return err
 	}
 
 	// Enable refer to time-servers
-	key = "iDRAC.NTPConfigGroup.NTPEnable"
-	if _, err := racadmSetConfig(ctx, key, "Enabled"); err != nil {
+	if _, err := racadmSetConfig(ctx, "iDRAC.NTPConfigGroup.NTPEnable", "Enabled"); err != nil {
 		return err
 	}
 
