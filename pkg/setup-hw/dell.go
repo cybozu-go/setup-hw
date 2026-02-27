@@ -470,6 +470,9 @@ func (dc *dellConfigurator) configFanSpeed(ctx context.Context) error {
 }
 
 func (dc *dellConfigurator) configiDRAC(ctx context.Context) error {
+	if err := dc.configTimeServer(ctx); err != nil {
+		return err
+	}
 	if err := dc.configSNMP(ctx); err != nil {
 		return err
 	}
@@ -565,6 +568,47 @@ func (dc *dellConfigurator) configIPMI(ctx context.Context) error {
 		return nil
 	}
 	return racadmRetry(ctx, "set", key, "1")
+}
+
+func (dc *dellConfigurator) configTimeServer(ctx context.Context) error {
+	// Set time zone
+	if _, err := racadmSetConfig(ctx, "iDRAC.Time.Timezone", "UTC"); err != nil {
+		return err
+	}
+
+	// Enable refer to time-servers
+	if _, err := racadmSetConfig(ctx, "iDRAC.NTPConfigGroup.NTPEnable", "Enabled"); err != nil {
+		return err
+	}
+
+	// Set time-servers
+	type timeServer struct {
+		timeServer string
+		ipAddress  string
+	}
+	// 10.71.255.6: Active boot server's VIP
+	// 10.71.255.1: bootserver's VIP (1)
+	// 10.71.255.3: bootserver's VIP (3)
+	var timeServers = []timeServer{
+		{
+			timeServer: "iDRAC.NTPConfigGroup.NTP1",
+			ipAddress:  "10.71.255.6",
+		},
+		{
+			timeServer: "iDRAC.NTPConfigGroup.NTP2",
+			ipAddress:  "10.71.255.1",
+		},
+		{
+			timeServer: "iDRAC.NTPConfigGroup.NTP3",
+			ipAddress:  "10.71.255.3",
+		},
+	}
+	for _, ts := range timeServers {
+		if _, err := racadmSetConfig(ctx, ts.timeServer, ts.ipAddress); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // configUser creates/updates an iDRAC user with specified parameters
