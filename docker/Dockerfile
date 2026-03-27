@@ -1,4 +1,4 @@
-FROM ghcr.io/cybozu/ubuntu:22.04 AS stage1
+FROM ghcr.io/cybozu/ubuntu:24.04 AS stage1
 LABEL org.opencontainers.image.source="https://github.com/cybozu-go/setup-hw"
 
 COPY setup-hw /usr/local/bin/setup-hw
@@ -21,9 +21,9 @@ RUN apt-get update -y \
 
 RUN mkdir /pkg
 COPY iDRACTools/racadm/UBUNTU22/x86_64/*.deb /pkg/
-RUN dpkg -i /pkg/srvadmin-hapi_11.3.0.0_amd64.deb \
-    && dpkg -i /pkg/srvadmin-idracadm7_11.3.0.0_all.deb \
-    && dpkg -i /pkg/srvadmin-idracadm8_11.3.0.0_amd64.deb
+RUN dpkg -i /pkg/srvadmin-hapi_11.4.0.0_amd64.deb \
+    && dpkg -i /pkg/srvadmin-idracadm7_11.4.0.0_all.deb \
+    && dpkg -i /pkg/srvadmin-idracadm8_11.4.0.0_amd64.deb
 
 RUN apt-get clean \
     && rm -rf /pkg \
