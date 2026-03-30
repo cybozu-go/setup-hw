@@ -5,6 +5,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.27.0] - 2026-03-30
+
+### Changed
+
+- Update dependencies in [#157](https://github.com/cybozu-go/setup-hw/pull/157)
+    - Update go module dependencies
+    - Update Actions
+    - Update iDRAC tools to v11.4.0.0
+    - Update Ubuntu to 24.04
+
 ## [1.26.0] - 2026-02-27
 
 ### Changed
@@ -369,7 +379,8 @@ The [quay.io/cybozu/setup-hw](https://quay.io/repository/cybozu/setup-hw) will n
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 ([#12](https://github.com/cybozu-go/setup-hw/pull/12))
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.26.0...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.27.0...HEAD
+[1.27.0]: https://github.com/cybozu-go/setup-hw/compare/v1.26.0...v1.27.0
 [1.26.0]: https://github.com/cybozu-go/setup-hw/compare/v1.25.0...v1.26.0
 [1.25.0]: https://github.com/cybozu-go/setup-hw/compare/v1.24.1...v1.25.0
 [1.24.1]: https://github.com/cybozu-go/setup-hw/compare/v1.24.0...v1.24.1
