@@ -20,14 +20,15 @@ generate: $(GENERATED)
 $(GENERATED): $(GENERATE_SRC) pkg/render-rules/main.go
 	go generate ./redfish/...
 
-check-generate:
+check-generated:
 	$(MAKE) generate
 	go mod tidy
 	git diff --exit-code --name-only
 
 setup:
-	env GOFLAGS= go install golang.org/x/tools/cmd/goimports@latest
-	env GOFLAGS= go install honnef.co/go/tools/cmd/staticcheck@latest
+	# goimports is called by pkg/render-rules
+	env GOFLAGS= go install golang.org/x/tools/cmd/goimports@24a8e95f9d7ae2696f66314da5e50c0d98ccaa90 # v0.43.0
+	env GOFLAGS= go install honnef.co/go/tools/cmd/staticcheck@ff63afafc529279f454e02f1d060210bd4263951 # v0.7.0
 
 test:
 	test -z "$$(gofmt -s -l . | tee /dev/stderr)"
@@ -49,6 +50,7 @@ download-idractools:
 	curl 'https://dl.dell.com/FOLDER13988164M/1/Dell-iDRACTools-Web-LX-11.4.0.0-1435_A00.tar.gz' \
 		-H 'user-agent: setup-hw' \
 		--output idrac-tools.tar.gz
+	echo "b706d0ac3f09e74a32a9e6dfa883641e1edb0a8d2cbdd85908766f502417c3ca  idrac-tools.tar.gz" | sha256sum -c
 	tar -xzf idrac-tools.tar.gz -C docker
 
 build-image: install
