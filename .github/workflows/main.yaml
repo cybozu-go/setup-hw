@@ -21,7 +21,7 @@ jobs:
         run: make setup
 
       - name: Check auto-generated files
-        run: make check-generate
+        run: make check-generated
 
       - name: Run test
         run: make test
