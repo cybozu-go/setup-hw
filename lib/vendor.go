@@ -45,6 +45,7 @@ const (
 	R7525
 	R6615
 	R7615
+	R6625
 )
 
 // DetectProduct detects product name.
@@ -63,6 +64,8 @@ func DetectProduct() (Product, error) {
 		return R6615, nil
 	case strings.Contains(product, "R7615"):
 		return R7615, nil
+	case strings.Contains(product, "R6625"):
+		return R6625, nil
 	default:
 		return Other, nil
 	}
