@@ -5,6 +5,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.29.0] - 2026-04-22
+
+### Added
+
+- Add support for R6625 servers in [#161](https://github.com/cybozu-go/setup-hw/pull/161)
+
 ## [1.28.0] - 2026-04-13
 
 ### Changed
@@ -385,7 +391,8 @@ The [quay.io/cybozu/setup-hw](https://quay.io/repository/cybozu/setup-hw) will n
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 ([#12](https://github.com/cybozu-go/setup-hw/pull/12))
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.28.0...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.29.0...HEAD
+[1.29.0]: https://github.com/cybozu-go/setup-hw/compare/v1.28.0...v1.29.0
 [1.28.0]: https://github.com/cybozu-go/setup-hw/compare/v1.27.0...v1.28.0
 [1.27.0]: https://github.com/cybozu-go/setup-hw/compare/v1.26.0...v1.27.0
 [1.26.0]: https://github.com/cybozu-go/setup-hw/compare/v1.25.0...v1.26.0
