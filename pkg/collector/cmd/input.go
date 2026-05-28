@@ -52,6 +52,7 @@ func collectOrLoad(ctx context.Context, inputFile string, baseRule string) (*red
 		if err != nil {
 			return nil, err
 		}
+		client.Login(ctx)
 
 		collected := client.Traverse(ctx, rule)
 		return &collected, nil
