@@ -5,6 +5,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Use iDRAC packages for Ubuntu 24.04 in [#167](https://github.com/cybozu-go/setup-hw/pull/167)
+
 ## [1.30.0] - 2026-05-20
 
 ## Changed

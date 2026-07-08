@@ -20,7 +20,7 @@ RUN apt-get update -y \
     && apt-get install -y --no-install-recommends pciutils libargtable2-0 kmod dmidecode
 
 RUN mkdir /pkg
-COPY iDRACTools/racadm/UBUNTU22/x86_64/*.deb /pkg/
+COPY iDRACTools/racadm/UBUNTU24/x86_64/*.deb /pkg/
 RUN dpkg -i /pkg/srvadmin-hapi_11.4.0.0_amd64.deb \
     && dpkg -i /pkg/srvadmin-idracadm7_11.4.0.0_all.deb \
     && dpkg -i /pkg/srvadmin-idracadm8_11.4.0.0_amd64.deb
