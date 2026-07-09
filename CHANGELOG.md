@@ -5,9 +5,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.31.0] - 2026-07-09
+
 ### Changed
 
 - Use iDRAC packages for Ubuntu 24.04 in [#167](https://github.com/cybozu-go/setup-hw/pull/167)
+- Add login step before traversal in collectOrLoad [#165](https://github.com/cybozu-go/setup-hw/pull/165)
 
 ## [1.30.0] - 2026-05-20
 
@@ -401,7 +404,8 @@ The [quay.io/cybozu/setup-hw](https://quay.io/repository/cybozu/setup-hw) will n
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 ([#12](https://github.com/cybozu-go/setup-hw/pull/12))
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.30.0...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.31.0...HEAD
+[1.31.0]: https://github.com/cybozu-go/setup-hw/compare/v1.30.0...v1.31.0
 [1.30.0]: https://github.com/cybozu-go/setup-hw/compare/v1.29.0...v1.30.0
 [1.29.0]: https://github.com/cybozu-go/setup-hw/compare/v1.28.0...v1.29.0
 [1.28.0]: https://github.com/cybozu-go/setup-hw/compare/v1.27.0...v1.28.0
