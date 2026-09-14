@@ -7,6 +7,9 @@ jobs:
   build:
     name: Release
     runs-on: ubuntu-24.04 # Use the version of Ubuntu supported by Dell iDRAC Tools.
+    permissions:
+      contents: write # gh release create
+      packages: write # docker push to ghcr.io
     steps:
       - name: Checkout
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
