@@ -1,0 +1,5 @@
+/redfish-trace
+*.svg
+*.json
+/result/
+/dump/
