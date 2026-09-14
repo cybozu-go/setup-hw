@@ -85,6 +85,19 @@ improved   1          ...        1xx    ...    ...     9x      2xx       ...    
 improved   2          ...
 ```
 
+続けてリクエスト単位のレイテンシ分布 (kind = all / plain / `$expand`) と、サイクルごとに遅かった
+リクエスト上位 5 件が出る。`$expand` の p50 が plain の何倍かで、iDRAC 側の展開コストが読める。
+
+```
+mode       cycle  kind          n       p50       p90       p99       max
+current    2      plain       637     120ms     180ms     450ms     2.1s
+improved   2      plain        51     110ms     160ms     300ms     600ms
+improved   2      $expand      99     650ms     1.4s      3.2s      4.8s
+
+slowest requests per cycle:
+  current    2        2.1s  200 /redfish/v1/...
+```
+
 | 列 | 見る点 |
 |---|---|
 | `duration` | 1 サイクルのトラバース時間。current と improved の差が削減効果。2 サイクル目以降 (定常) で比較する |

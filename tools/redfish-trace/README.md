@@ -67,6 +67,19 @@ improved   2          540ms       148    148      0     98      261   572.5KiB  
 metrics: current=1038 improved=1038 (identical to current)
 ```
 
+続けてリクエスト単位のレイテンシ分布 (kind = all / plain / `$expand`) と、サイクルごとに遅かった
+リクエスト上位 5 件が出る。`$expand` の p50 が plain の何倍かで、iDRAC 側の展開コストが読める。
+
+```
+mode       cycle  kind          n       p50       p90       p99       max
+current    2      plain       637     120ms     180ms     450ms     2.1s
+improved   2      plain        51     110ms     160ms     300ms     600ms
+improved   2      $expand      99     650ms     1.4s      3.2s      4.8s
+
+slowest requests per cycle:
+  current    2        2.1s  200 /redfish/v1/...
+```
+
 SVG はサイクルごとに 1 パネル。上段はリクエストを 1 本のレーンに並べた帯 (時間軸は全パネル共通)、
 下段は 1 リクエスト 1 行のウォーターフォール。色: 緑 = GET 200、紫 = `$expand`、青 = 304、
 赤 = non-2xx、暗赤 = エラー/タイムアウト、橙 = セッション操作、茶 = version 取得。

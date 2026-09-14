@@ -45,11 +45,54 @@ type cycleStats struct {
 	Requests, OK, NotModified, Errors, Expand, Refetch, TLS, Reused, Expanded int
 	Bytes                                                                     int
 	Duration                                                                  time.Duration
+	Lat                                                                       latency // all requests
+	LatPlain                                                                  latency // GET without $expand
+	LatExpand                                                                 latency // GET with $expand
+	Slowest                                                                   []reqInfo
+}
+
+// latency holds percentiles of per-request durations.
+type latency struct {
+	N                         int
+	P50, P90, P99, Max, Total time.Duration
+}
+
+func percentiles(ds []time.Duration) latency {
+	if len(ds) == 0 {
+		return latency{}
+	}
+	sorted := append([]time.Duration(nil), ds...)
+	sort.Slice(sorted, func(i, j int) bool { return sorted[i] < sorted[j] })
+	pick := func(q float64) time.Duration {
+		i := int(q*float64(len(sorted)-1) + 0.5)
+		return sorted[i]
+	}
+	var total time.Duration
+	for _, d := range sorted {
+		total += d
+	}
+	return latency{N: len(sorted), P50: pick(0.50), P90: pick(0.90), P99: pick(0.99), Max: sorted[len(sorted)-1], Total: total}
+}
+
+func (l latency) String() string {
+	if l.N == 0 {
+		return "-"
+	}
+	return fmt.Sprintf("p50=%s p90=%s p99=%s max=%s", fmtDur(l.P50), fmtDur(l.P90), fmtDur(l.P99), fmtDur(l.Max))
 }
 
 func (c *cycleInfo) stats() cycleStats {
 	s := cycleStats{Duration: c.dur}
+	var all, plain, expand []time.Duration
 	for _, r := range c.reqs {
+		if r.kind == "request" {
+			all = append(all, r.dur)
+			if r.expand {
+				expand = append(expand, r.dur)
+			} else {
+				plain = append(plain, r.dur)
+			}
+		}
 		s.Requests++
 		s.Bytes += r.bytes
 		switch {
@@ -74,6 +117,13 @@ func (c *cycleInfo) stats() cycleStats {
 		}
 		s.Expanded += r.expanded
 	}
+	s.Lat, s.LatPlain, s.LatExpand = percentiles(all), percentiles(plain), percentiles(expand)
+	slow := append([]reqInfo(nil), c.reqs...)
+	sort.Slice(slow, func(i, j int) bool { return slow[i].dur > slow[j].dur })
+	if len(slow) > 5 {
+		slow = slow[:5]
+	}
+	s.Slowest = slow
 	return s
 }
 
@@ -167,7 +217,7 @@ func renderSVG(cycles []*cycleInfo, waterfall bool, title string) string {
 		right   = 12.0
 		rowH    = 7.0
 		stripH  = 16.0
-		headerH = 58.0
+		headerH = 74.0
 		gap     = 24.0
 	)
 	plotW := width - left - right
@@ -215,6 +265,8 @@ func renderSVG(cycles []*cycleInfo, waterfall bool, title string) string {
 		summary := fmt.Sprintf("duration=%s requests=%d ok=%d 304=%d errors=%d expand=%d(refetch %d, members inlined %d) bytes=%s tls_handshakes=%d conn_reused=%d/%d",
 			fmtDur(c.dur), st.Requests, st.OK, st.NotModified, st.Errors, st.Expand, st.Refetch, st.Expanded, fmtBytes(st.Bytes), st.TLS, st.Reused, st.Requests)
 		fmt.Fprintf(&b, `<text x="%.0f" y="%.0f" fill="#333">%s</text>`+"\n", left, top+30, html.EscapeString(summary))
+		lat := fmt.Sprintf("latency all: %s | plain: %s | $expand: %s", st.Lat, st.LatPlain, st.LatExpand)
+		fmt.Fprintf(&b, `<text x="%.0f" y="%.0f" fill="#333">%s</text>`+"\n", left, top+46, html.EscapeString(lat))
 
 		// time axis ticks
 		axisY := top + headerH - 12

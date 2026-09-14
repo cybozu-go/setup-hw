@@ -210,6 +210,32 @@ func run(host, addressFile, userFile, user, password, ruleName, ruleFile, modeLi
 		fmt.Printf("%-10s %-6d %9s %9d %6d %6d %6d %8d %10s %6d %8d\n", c.mode, c.cycle, fmtDur(st.Duration), st.Requests, st.OK, st.Errors, st.Expand, st.Expanded, fmtBytes(st.Bytes), st.TLS, st.Reused)
 	}
 
+	fmt.Printf("\n%-10s %-6s %-8s %6s %9s %9s %9s %9s\n", "mode", "cycle", "kind", "n", "p50", "p90", "p99", "max")
+	for _, c := range cyclesInfo {
+		st := c.stats()
+		for _, row := range []struct {
+			kind string
+			l    latency
+		}{{"all", st.Lat}, {"plain", st.LatPlain}, {"$expand", st.LatExpand}} {
+			if row.l.N == 0 {
+				continue
+			}
+			fmt.Printf("%-10s %-6d %-8s %6d %9s %9s %9s %9s\n", c.mode, c.cycle, row.kind, row.l.N, fmtDur(row.l.P50), fmtDur(row.l.P90), fmtDur(row.l.P99), fmtDur(row.l.Max))
+		}
+	}
+
+	fmt.Println("\nslowest requests per cycle:")
+	for _, c := range cyclesInfo {
+		st := c.stats()
+		for _, r := range st.Slowest {
+			q := ""
+			if r.expand {
+				q = "?$expand"
+			}
+			fmt.Printf("  %-10s %-3d %9s %4d %s%s\n", c.mode, c.cycle, fmtDur(r.dur), r.status, r.path, q)
+		}
+	}
+
 	// ---- metric equivalence ----
 	if len(results) > 1 {
 		fmt.Println()
