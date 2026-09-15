@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -33,12 +34,23 @@ type reqInfo struct {
 }
 
 type cycleInfo struct {
-	span  sdktrace.ReadOnlySpan
-	mode  string
-	cycle int
-	reqs  []reqInfo
-	start time.Time
-	dur   time.Duration
+	span     sdktrace.ReadOnlySpan
+	mode     string
+	cycle    int
+	reqs     []reqInfo
+	start    time.Time
+	dur      time.Duration
+	interval time.Duration
+}
+
+// ReqPerHour is the steady-state request rate a monitor-hw loop with the given interval
+// would put on the BMC: requests / (traversal duration + interval).
+func (s cycleStats) ReqPerHour(interval time.Duration) float64 {
+	period := s.Duration + interval
+	if period <= 0 {
+		return 0
+	}
+	return float64(s.Requests) * 3600 / period.Seconds()
 }
 
 type cycleStats struct {
@@ -49,6 +61,47 @@ type cycleStats struct {
 	LatPlain                                                                  latency // GET without $expand
 	LatExpand                                                                 latency // GET with $expand
 	Slowest                                                                   []reqInfo
+	ErrList                                                                   []reqInfo      // every failed request, in time order
+	ErrByKind                                                                 map[string]int // "404", "timeout", "connection", ...
+}
+
+// errKind classifies a failed request for reporting.
+func (r reqInfo) errKind() string {
+	if !r.err {
+		return ""
+	}
+	if r.status != 0 {
+		return strconv.Itoa(r.status)
+	}
+	d := r.span.Status().Description
+	switch {
+	case strings.Contains(d, "Client.Timeout") || strings.Contains(d, "deadline exceeded"):
+		return "timeout"
+	case strings.Contains(d, "context canceled"):
+		return "canceled"
+	case strings.Contains(d, "connection refused") || strings.Contains(d, "connection reset") || strings.Contains(d, "EOF"):
+		return "connection"
+	case strings.Contains(d, "tls"):
+		return "tls"
+	default:
+		return "error"
+	}
+}
+
+func (s cycleStats) errSummary() string {
+	if len(s.ErrByKind) == 0 {
+		return "none"
+	}
+	keys := make([]string, 0, len(s.ErrByKind))
+	for k := range s.ErrByKind {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	parts := make([]string, 0, len(keys))
+	for _, k := range keys {
+		parts = append(parts, fmt.Sprintf("%s×%d", k, s.ErrByKind[k]))
+	}
+	return strings.Join(parts, " ")
 }
 
 // latency holds percentiles of per-request durations.
@@ -82,9 +135,13 @@ func (l latency) String() string {
 }
 
 func (c *cycleInfo) stats() cycleStats {
-	s := cycleStats{Duration: c.dur}
+	s := cycleStats{Duration: c.dur, ErrByKind: map[string]int{}}
 	var all, plain, expand []time.Duration
 	for _, r := range c.reqs {
+		if r.err {
+			s.ErrList = append(s.ErrList, r)
+			s.ErrByKind[r.errKind()]++
+		}
 		if r.kind == "request" {
 			all = append(all, r.dur)
 			if r.expand {
@@ -145,7 +202,8 @@ func groupCycles(spans []sdktrace.ReadOnlySpan) []*cycleInfo {
 		}
 		a := attrs(s)
 		c := &cycleInfo{span: s, mode: a[attrMode].AsString(), cycle: int(a[attrCycle].AsInt64()),
-			start: s.StartTime(), dur: s.EndTime().Sub(s.StartTime())}
+			start: s.StartTime(), dur: s.EndTime().Sub(s.StartTime()),
+			interval: time.Duration(a[attrInterval].AsFloat64() * float64(time.Second))}
 		byID[s.SpanContext().SpanID()] = c
 		cycles = append(cycles, c)
 	}
@@ -262,10 +320,10 @@ func renderSVG(cycles []*cycleInfo, waterfall bool, title string) string {
 		top := panelTops[i]
 		st := c.stats()
 		fmt.Fprintf(&b, `<text x="%.0f" y="%.0f" font-size="13" font-weight="bold">mode=%s cycle=%d</text>`+"\n", left, top+14, html.EscapeString(c.mode), c.cycle)
-		summary := fmt.Sprintf("duration=%s requests=%d ok=%d 304=%d errors=%d expand=%d(refetch %d, members inlined %d) bytes=%s tls_handshakes=%d conn_reused=%d/%d",
-			fmtDur(c.dur), st.Requests, st.OK, st.NotModified, st.Errors, st.Expand, st.Refetch, st.Expanded, fmtBytes(st.Bytes), st.TLS, st.Reused, st.Requests)
+		summary := fmt.Sprintf("duration=%s requests=%d ok=%d errors=%d expand=%d(refetch %d, inlined %d) bytes=%s tls_handshakes=%d conn_reused=%d/%d | interval=%s -> %.0f req/h",
+			fmtDur(c.dur), st.Requests, st.OK, st.Errors, st.Expand, st.Refetch, st.Expanded, fmtBytes(st.Bytes), st.TLS, st.Reused, st.Requests, fmtDur(c.interval), st.ReqPerHour(c.interval))
 		fmt.Fprintf(&b, `<text x="%.0f" y="%.0f" fill="#333">%s</text>`+"\n", left, top+30, html.EscapeString(summary))
-		lat := fmt.Sprintf("latency all: %s | plain: %s | $expand: %s", st.Lat, st.LatPlain, st.LatExpand)
+		lat := fmt.Sprintf("latency all: %s | plain: %s | $expand: %s | errors: %s", st.Lat, st.LatPlain, st.LatExpand, st.errSummary())
 		fmt.Fprintf(&b, `<text x="%.0f" y="%.0f" fill="#333">%s</text>`+"\n", left, top+46, html.EscapeString(lat))
 
 		// time axis ticks

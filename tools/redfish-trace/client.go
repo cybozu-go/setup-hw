@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -23,14 +24,87 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-const expandQuery = "$expand=*($levels=1)"
-
 // Mode describes one traversal strategy to be measured.
 type Mode struct {
 	Name           string
-	ExtraExcludes  []string // additional exclude regexps on top of the rule (proposal 1)
-	Expand         bool     // use $expand on collections (proposal 2)
-	FollowNextLink bool     // also fetch paginated collection pages (Members@odata.nextLink)
+	ExtraExcludes  []string      // additional exclude regexps on top of the rule
+	Expand         bool          // use $expand
+	ExpandAll      bool          // expand every GET (default: only collections)
+	ExpandLevels   int           // $levels=N (default 1)
+	ExpandDot      bool          // $expand=.(...) (subordinate resources only) instead of *(...) (also Links)
+	FollowNextLink bool          // also fetch paginated collection pages (Members@odata.nextLink)
+	Interval       time.Duration // pause between cycles; 0 = the global -interval
+}
+
+// expandQuery returns the $expand query string for this mode.
+func (m Mode) expandQuery() string {
+	levels := m.ExpandLevels
+	if levels < 1 {
+		levels = 1
+	}
+	kind := "*"
+	if m.ExpandDot {
+		kind = "."
+	}
+	return fmt.Sprintf("$expand=%s($levels=%d)", kind, levels)
+}
+
+// parseMode parses "name[:opt+opt...][@interval]" (options joined with "+" because "," separates modes).
+//
+// Names: current, exclude, expand, improved (= expand:oem).
+// Options: levels=N, all, dot, oem, nextlink. Example: "expand:levels=2+all@5m".
+func parseMode(spec string, extraExcl []string, followNextLink bool) (Mode, error) {
+	spec = strings.TrimSpace(spec)
+	var m Mode
+	if i := strings.Index(spec, "@"); i >= 0 {
+		d, err := time.ParseDuration(spec[i+1:])
+		if err != nil {
+			return m, fmt.Errorf("mode %q: bad interval: %w", spec, err)
+		}
+		m.Interval = d
+		spec = spec[:i]
+	}
+	name, opts, _ := strings.Cut(spec, ":")
+	m.Name = spec
+	m.FollowNextLink = followNextLink
+	switch name {
+	case "current":
+	case "exclude":
+		m.ExtraExcludes = extraExcl
+	case "expand":
+		m.Expand = true
+	case "improved":
+		m.Expand = true
+		m.ExtraExcludes = extraExcl
+	default:
+		return m, fmt.Errorf("unknown mode %q (current, exclude, expand, improved)", name)
+	}
+	if opts != "" {
+		for _, o := range strings.Split(opts, "+") {
+			switch {
+			case o == "all":
+				m.ExpandAll = true
+			case o == "dot":
+				m.ExpandDot = true
+			case o == "oem":
+				m.ExtraExcludes = extraExcl
+			case o == "nextlink":
+				m.FollowNextLink = true
+			case strings.HasPrefix(o, "levels="):
+				n, err := strconv.Atoi(strings.TrimPrefix(o, "levels="))
+				if err != nil || n < 1 {
+					return m, fmt.Errorf("mode %q: bad levels %q", spec, o)
+				}
+				m.ExpandLevels = n
+			default:
+				return m, fmt.Errorf("mode %q: unknown option %q (levels=N, all, dot, oem, nextlink)", spec, o)
+			}
+		}
+	}
+	if (m.ExpandAll || m.ExpandLevels > 0 || m.ExpandDot) && !m.Expand {
+		return m, fmt.Errorf("mode %q: expand options need the expand or improved mode", spec)
+	}
+	return m, nil
 }
 
 // Attribute keys used on request spans. The SVG renderer reads them back.
@@ -49,6 +123,7 @@ const (
 	attrKind      = "redfish.kind" // request | login | session-check | version | logout
 	attrMode      = "redfish.mode"
 	attrCycle     = "redfish.cycle"
+	attrInterval  = "redfish.interval_s"
 )
 
 type traverser struct {
@@ -62,6 +137,8 @@ type traverser struct {
 	mode           Mode
 	rule           *redfish.CollectRule
 	extraExclude   *regexp.Regexp
+	noExpand       *regexp.Regexp   // paths never fetched with $expand (in all mode)
+	interval       time.Duration    // effective interval, recorded on the cycle span
 	collections    []*regexp.Regexp // collection paths derived from metric rule paths
 	learned        map[string]bool  // collection paths discovered at run time
 	notFound       map[string]bool  // predicted collections that turned out not to exist (e.g. Storage/X/Drives on older iDRAC)
@@ -69,7 +146,7 @@ type traverser struct {
 	verbose        bool
 }
 
-func newTraverser(endpoint *url.URL, user, password string, rt http.RoundTripper, timeout time.Duration, tracer trace.Tracer, mode Mode, rule *redfish.CollectRule, verbose bool) (*traverser, error) {
+func newTraverser(endpoint *url.URL, user, password string, rt http.RoundTripper, timeout time.Duration, tracer trace.Tracer, mode Mode, rule *redfish.CollectRule, noExpand string, interval time.Duration, verbose bool) (*traverser, error) {
 	t := &traverser{
 		endpoint: endpoint,
 		user:     user,
@@ -95,6 +172,17 @@ func newTraverser(endpoint *url.URL, user, password string, rt http.RoundTripper
 	}
 	if mode.Expand {
 		t.collections = collectionPatterns(rule)
+	}
+	if noExpand != "" {
+		r, err := regexp.Compile(noExpand)
+		if err != nil {
+			return nil, fmt.Errorf("bad -no-expand: %w", err)
+		}
+		t.noExpand = r
+	}
+	t.interval = interval
+	if mode.Interval > 0 {
+		t.interval = mode.Interval
 	}
 	return t, nil
 }
@@ -142,6 +230,17 @@ func (t *traverser) needTraverse(path string) bool {
 	return true
 }
 
+// shouldExpand decides whether a GET carries $expand.
+func (t *traverser) shouldExpand(path string) bool {
+	if !t.mode.Expand {
+		return false
+	}
+	if t.mode.ExpandAll {
+		return t.noExpand == nil || !t.noExpand.MatchString(path)
+	}
+	return t.isCollection(path)
+}
+
 func (t *traverser) isCollection(path string) bool {
 	if t.learned[path] {
 		return true
@@ -164,7 +263,8 @@ type cycleResult struct {
 // runCycle reproduces one monitor-hw Update(): session check (+login), version GET, traversal.
 func (t *traverser) runCycle(ctx context.Context, cycle int) cycleResult {
 	ctx, span := t.tracer.Start(ctx, "cycle "+t.mode.Name,
-		trace.WithAttributes(attribute.String(attrMode, t.mode.Name), attribute.Int(attrCycle, cycle)))
+		trace.WithAttributes(attribute.String(attrMode, t.mode.Name), attribute.Int(attrCycle, cycle),
+			attribute.Float64(attrInterval, t.interval.Seconds())))
 	defer span.End()
 	start := time.Now()
 
@@ -212,7 +312,7 @@ func (t *traverser) get(ctx context.Context, path string, data map[string]*gabs.
 		}
 	}
 
-	expand := t.mode.Expand && t.isCollection(path)
+	expand := t.shouldExpand(path)
 	parsed, span, err := t.fetch(ctx, path, expand, "request")
 	if err != nil {
 		if span != nil {
@@ -221,7 +321,7 @@ func (t *traverser) get(ctx context.Context, path string, data map[string]*gabs.
 		return
 	}
 
-	if t.mode.Expand && !expand {
+	if t.mode.Expand && !t.mode.ExpandAll && !expand {
 		// Not predicted as a collection but it is one: learn it and refetch expanded
 		// when that saves requests (N members >= 2 -> 1 extra request instead of N).
 		if n := memberCount(parsed); n >= 2 {
@@ -242,55 +342,63 @@ func (t *traverser) get(ctx context.Context, path string, data map[string]*gabs.
 
 	data[path] = parsed
 	if expand {
-		t.storeExpandedMembers(ctx, parsed, data, span)
+		t.storeExpanded(ctx, path, parsed, data, span)
 	}
 	span.End() // end before following links so the span measures this request only
 	t.follow(ctx, parsed, data)
 }
 
-// storeExpandedMembers registers expanded Members under their own @odata.id so metric
-// rules match exactly as in the per-resource traversal.
+// storeExpanded registers every resource the BMC inlined into an expanded response under
+// its own @odata.id, so metric rules match exactly as in the per-resource traversal. With
+// $levels>=2 this recurses into nested resources. Sub-objects addressed by a fragment
+// ("/Power#/PowerSupplies/0") are not separate resources and are left alone.
 //
 // iDRAC pages collections at 50 members and announces the rest via Members@odata.nextLink.
 // monitor-hw never follows nextLink (follow() only looks at @odata.id), so by default this
-// tool does not either; -follow-nextlink enables it.
-func (t *traverser) storeExpandedMembers(ctx context.Context, parsed *gabs.Container, data map[string]*gabs.Container, span trace.Span) {
+// tool does not either; -follow-nextlink (or the nextlink option) enables it.
+func (t *traverser) storeExpanded(ctx context.Context, self string, parsed *gabs.Container, data map[string]*gabs.Container, span trace.Span) {
 	stored := 0
-	visited := map[string]bool{}
-	var extraPages []*gabs.Container
-	page := parsed
-	for page != nil {
-		members, err := page.S("Members").Children()
-		if err == nil {
-			for _, m := range members {
-				mm, err := m.ChildrenMap()
-				if err != nil {
-					continue
+	var walk func(c *gabs.Container, top bool)
+	walk = func(c *gabs.Container, top bool) {
+		if m, err := c.ChildrenMap(); err == nil {
+			if !top {
+				if id, ok := m["@odata.id"]; ok {
+					if p, ok := id.Data().(string); ok && len(m) > 1 && !strings.Contains(p, "#") && p != self {
+						if _, dup := data[p]; !dup && t.needTraverse(p) {
+							data[p] = c
+							stored++
+						}
+					}
 				}
-				id, ok := mm["@odata.id"].Data().(string)
-				if !ok || len(mm) <= 1 {
-					continue // not expanded by the BMC; follow() will GET it individually
-				}
-				if !t.needTraverse(id) {
-					continue
-				}
-				if _, dup := data[id]; dup {
-					continue
-				}
-				data[id] = m
-				stored++
+			}
+			for _, v := range m {
+				walk(v, false)
+			}
+			return
+		}
+		if arr, err := c.Children(); err == nil {
+			for _, v := range arr {
+				walk(v, false)
 			}
 		}
+	}
+	walk(parsed, true)
+
+	// Paginated collection: fetch the remaining pages (opt-in).
+	var extraPages []*gabs.Container
+	visited := map[string]bool{}
+	page := parsed
+	for t.followNextLink {
 		next, ok := page.S("Members@odata.nextLink").Data().(string)
-		if !t.followNextLink || !ok || next == "" || visited[next] {
+		if !ok || next == "" || visited[next] {
 			break
 		}
 		visited[next] = true
 		if !strings.Contains(next, "$expand") {
 			if strings.Contains(next, "?") {
-				next += "&" + expandQuery
+				next += "&" + t.mode.expandQuery()
 			} else {
-				next += "?" + expandQuery
+				next += "?" + t.mode.expandQuery()
 			}
 		}
 		np, nspan, err := t.fetchRaw(ctx, next, "request", true)
@@ -300,6 +408,7 @@ func (t *traverser) storeExpandedMembers(ctx context.Context, parsed *gabs.Conta
 		if err != nil {
 			break
 		}
+		walk(np, true)
 		extraPages = append(extraPages, np)
 		page = np
 	}
@@ -357,7 +466,7 @@ func (t *traverser) follow(ctx context.Context, parsed *gabs.Container, data map
 func (t *traverser) fetch(ctx context.Context, path string, expand bool, kind string) (*gabs.Container, trace.Span, error) {
 	target := path
 	if expand {
-		target = path + "?" + expandQuery
+		target = path + "?" + t.mode.expandQuery()
 	}
 	return t.fetchRaw(ctx, target, kind, expand)
 }

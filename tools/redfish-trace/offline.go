@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -35,7 +36,11 @@ func newOfflineTransport(path string, latency time.Duration) (*offlineTransport,
 
 func (o *offlineTransport) respond(req *http.Request, status int, body []byte, hdr http.Header) *http.Response {
 	if o.latency > 0 {
-		time.Sleep(o.latency)
+		select {
+		case <-time.After(o.latency):
+		case <-req.Context().Done():
+			return nil
+		}
 	}
 	if hdr == nil {
 		hdr = http.Header{}
@@ -48,6 +53,14 @@ func (o *offlineTransport) respond(req *http.Request, status int, body []byte, h
 }
 
 func (o *offlineTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	resp, err := o.roundTrip(req)
+	if resp == nil && err == nil {
+		return nil, req.Context().Err()
+	}
+	return resp, err
+}
+
+func (o *offlineTransport) roundTrip(req *http.Request) (*http.Response, error) {
 	p := req.URL.Path
 	switch {
 	case req.Method == "POST" && p == "/redfish/v1/SessionService/Sessions":
@@ -71,8 +84,12 @@ func (o *offlineTransport) RoundTrip(req *http.Request) (*http.Response, error) 
 		n, _ := strconv.Atoi(skip)
 		body = o.page(p, body, n)
 	}
-	if strings.Contains(req.URL.RawQuery, "$expand") {
-		body = o.expand(body)
+	if q := req.URL.Query().Get("$expand"); q != "" {
+		levels := 1
+		if m := regexp.MustCompile(`\$levels=(\d+)`).FindStringSubmatch(q); m != nil {
+			levels, _ = strconv.Atoi(m[1])
+		}
+		body = o.expand(body, levels, strings.HasPrefix(q, "."), p)
 	}
 	return o.respond(req, http.StatusOK, body, nil), nil
 }
@@ -125,30 +142,40 @@ func (o *offlineTransport) page(path string, body json.RawMessage, n int) json.R
 	return out
 }
 
-// expand inlines Members one level, like iDRAC's $expand=*($levels=1) on a collection.
-func (o *offlineTransport) expand(body json.RawMessage) json.RawMessage {
-	var obj map[string]json.RawMessage
-	if json.Unmarshal(body, &obj) != nil {
+// expand inlines linked resources like iDRAC's $expand: "*" follows every @odata.id
+// (including Links), "." skips the Links section. levels controls the recursion depth.
+func (o *offlineTransport) expand(body json.RawMessage, levels int, dotOnly bool, self string) json.RawMessage {
+	var v interface{}
+	if json.Unmarshal(body, &v) != nil {
 		return body
 	}
-	var members []map[string]json.RawMessage
-	if raw, ok := obj["Members"]; !ok || json.Unmarshal(raw, &members) != nil {
-		return body
-	}
-	for i, m := range members {
-		var id string
-		if json.Unmarshal(m["@odata.id"], &id) != nil {
-			continue
-		}
-		if full, ok := o.lookup(id); ok {
-			var fm map[string]json.RawMessage
-			if json.Unmarshal(full, &fm) == nil {
-				members[i] = fm
+	var rec func(x interface{}, depth int, inLinks bool) interface{}
+	rec = func(x interface{}, depth int, inLinks bool) interface{} {
+		switch t := x.(type) {
+		case map[string]interface{}:
+			if id, ok := t["@odata.id"].(string); ok && len(t) == 1 && depth > 0 && !strings.Contains(id, "#") && id != self && !(dotOnly && inLinks) {
+				if full, ok := o.lookup(id); ok {
+					var fm map[string]interface{}
+					if json.Unmarshal(full, &fm) == nil {
+						return rec(fm, depth-1, false)
+					}
+				}
+				return t
 			}
+			out := make(map[string]interface{}, len(t))
+			for k, val := range t {
+				out[k] = rec(val, depth, inLinks || k == "Links")
+			}
+			return out
+		case []interface{}:
+			out := make([]interface{}, len(t))
+			for i, val := range t {
+				out[i] = rec(val, depth, inLinks)
+			}
+			return out
 		}
+		return x
 	}
-	mb, _ := json.Marshal(members)
-	obj["Members"] = mb
-	out, _ := json.Marshal(obj)
+	out, _ := json.Marshal(rec(v, levels, false))
 	return out
 }

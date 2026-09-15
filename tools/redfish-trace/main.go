@@ -44,7 +44,8 @@ func main() {
 		password    = flag.String("password", os.Getenv("REDFISH_PASSWORD"), "BMC password (or env REDFISH_PASSWORD)")
 		ruleName    = flag.String("rule", "", "embedded rule name, e.g. dell_redfish_1.20.1.yml (default: auto from RedfishVersion)")
 		ruleFile    = flag.String("rule-file", "", "load the collection rule from this YAML file instead")
-		modes       = flag.String("modes", "current,improved", "comma-separated modes to run in order: current, exclude, expand, improved")
+		modes       = flag.String("modes", "current,expand", "comma-separated modes to run in order. Each is name[:opt+opt...][@interval]; names: current, exclude, expand, improved (=expand:oem); options: levels=N, all, dot, oem, nextlink. e.g. current@1m,expand:levels=2+all@5m")
+		noExpand    = flag.String("no-expand", `^/redfish/v1/?$`, "regexp of paths never fetched with $expand in 'all' mode (the service root inlines JsonSchemas/Registries)")
 		cycles      = flag.Int("cycles", 2, "traversal cycles per mode (cycle 2+ shows session/connection reuse and learned collections)")
 		interval    = flag.Duration("interval", 5*time.Second, "pause between cycles (monitor-hw default is 60s)")
 		timeout     = flag.Duration("timeout", 5*time.Second, "per-request timeout (monitor-hw uses 5s)")
@@ -66,14 +67,14 @@ func main() {
 	}
 
 	if err := run(*host, *addressFile, *userFile, *user, *password, *ruleName, *ruleFile, *modes, *cycles, *interval, *timeout,
-		*svgOut, *jsonOut, !*noWaterfall, *inputFile, *fakeLatency, *dumpDir, *verbose, !*noLogout, *nextLink, extraExcl); err != nil {
+		*svgOut, *jsonOut, !*noWaterfall, *inputFile, *fakeLatency, *dumpDir, *verbose, !*noLogout, *nextLink, *noExpand, extraExcl); err != nil {
 		fmt.Fprintln(os.Stderr, "error:", err)
 		os.Exit(1)
 	}
 }
 
 func run(host, addressFile, userFile, user, password, ruleName, ruleFile, modeList string, cycles int, interval, timeout time.Duration,
-	svgOut, jsonOut string, waterfall bool, inputFile string, fakeLatency time.Duration, dumpDir string, verbose, logout, nextLink bool, extraExcl []string) error {
+	svgOut, jsonOut string, waterfall bool, inputFile string, fakeLatency time.Duration, dumpDir string, verbose, logout, nextLink bool, noExpand string, extraExcl []string) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
@@ -141,29 +142,38 @@ func run(host, addressFile, userFile, user, password, ruleName, ruleFile, modeLi
 
 	// ---- modes ----
 	var modeDefs []Mode
-	for _, m := range strings.Split(modeList, ",") {
-		switch strings.TrimSpace(m) {
-		case "current":
-			modeDefs = append(modeDefs, Mode{Name: "current"})
-		case "exclude":
-			modeDefs = append(modeDefs, Mode{Name: "exclude", ExtraExcludes: extraExcl})
-		case "expand":
-			modeDefs = append(modeDefs, Mode{Name: "expand", Expand: true, FollowNextLink: nextLink})
-		case "improved":
-			modeDefs = append(modeDefs, Mode{Name: "improved", ExtraExcludes: extraExcl, Expand: true, FollowNextLink: nextLink})
-		case "":
-		default:
-			return fmt.Errorf("unknown mode %q", m)
+	for _, spec := range strings.Split(modeList, ",") {
+		if strings.TrimSpace(spec) == "" {
+			continue
 		}
+		md, err := parseMode(spec, extraExcl, nextLink)
+		if err != nil {
+			return err
+		}
+		modeDefs = append(modeDefs, md)
+	}
+	if len(modeDefs) == 0 {
+		return errors.New("no modes given")
 	}
 
 	results := map[string]cycleResult{}
 	for mi, mode := range modeDefs {
-		fmt.Printf("== mode %s (extra excludes=%v, expand=%v)\n", mode.Name, mode.ExtraExcludes, mode.Expand)
-		tr, err := newTraverser(endpoint, user, password, newRT(), timeout, tracer, mode, rule, verbose)
+		tr, err := newTraverser(endpoint, user, password, newRT(), timeout, tracer, mode, rule, noExpand, interval, verbose)
 		if err != nil {
 			return err
 		}
+		desc := fmt.Sprintf("interval=%s", tr.interval)
+		if len(mode.ExtraExcludes) > 0 {
+			desc += fmt.Sprintf(" extra-excludes=%v", mode.ExtraExcludes)
+		}
+		if mode.Expand {
+			scope := "collections"
+			if mode.ExpandAll {
+				scope = "all"
+			}
+			desc += fmt.Sprintf(" %s on %s", mode.expandQuery(), scope)
+		}
+		fmt.Printf("== mode %s (%s)\n", mode.Name, desc)
 		for c := 1; c <= cycles; c++ {
 			res := tr.runCycle(ctx, c)
 			if res.Err != nil {
@@ -177,7 +187,7 @@ func run(host, addressFile, userFile, user, password, ruleName, ruleFile, modeLi
 			}
 			if c < cycles {
 				select {
-				case <-time.After(interval):
+				case <-time.After(tr.interval):
 				case <-ctx.Done():
 				}
 			}
@@ -204,13 +214,14 @@ func run(host, addressFile, userFile, user, password, ruleName, ruleFile, modeLi
 
 	// ---- summary ----
 	cyclesInfo := groupCycles(mem.sorted())
-	fmt.Printf("\n%-10s %-6s %9s %9s %6s %6s %6s %8s %10s %6s %8s\n", "mode", "cycle", "duration", "requests", "ok", "err", "expand", "inlined", "bytes", "tls", "reused")
+	fmt.Printf("\n%-22s %-6s %9s %9s %6s %6s %6s %8s %10s %6s %8s %9s %8s\n", "mode", "cycle", "duration", "requests", "ok", "err", "expand", "inlined", "bytes", "tls", "reused", "interval", "req/h")
 	for _, c := range cyclesInfo {
 		st := c.stats()
-		fmt.Printf("%-10s %-6d %9s %9d %6d %6d %6d %8d %10s %6d %8d\n", c.mode, c.cycle, fmtDur(st.Duration), st.Requests, st.OK, st.Errors, st.Expand, st.Expanded, fmtBytes(st.Bytes), st.TLS, st.Reused)
+		fmt.Printf("%-22s %-6d %9s %9d %6d %6d %6d %8d %10s %6d %8d %9s %8.0f\n", c.mode, c.cycle, fmtDur(st.Duration), st.Requests, st.OK, st.Errors, st.Expand, st.Expanded, fmtBytes(st.Bytes), st.TLS, st.Reused, fmtDur(c.interval), st.ReqPerHour(c.interval))
 	}
+	fmt.Println("req/h = requests * 3600 / (duration + interval): steady-state BMC request rate of a monitor-hw loop with that interval")
 
-	fmt.Printf("\n%-10s %-6s %-8s %6s %9s %9s %9s %9s\n", "mode", "cycle", "kind", "n", "p50", "p90", "p99", "max")
+	fmt.Printf("\n%-22s %-6s %-8s %6s %9s %9s %9s %9s\n", "mode", "cycle", "kind", "n", "p50", "p90", "p99", "max")
 	for _, c := range cyclesInfo {
 		st := c.stats()
 		for _, row := range []struct {
@@ -220,7 +231,24 @@ func run(host, addressFile, userFile, user, password, ruleName, ruleFile, modeLi
 			if row.l.N == 0 {
 				continue
 			}
-			fmt.Printf("%-10s %-6d %-8s %6d %9s %9s %9s %9s\n", c.mode, c.cycle, row.kind, row.l.N, fmtDur(row.l.P50), fmtDur(row.l.P90), fmtDur(row.l.P99), fmtDur(row.l.Max))
+			fmt.Printf("%-22s %-6d %-8s %6d %9s %9s %9s %9s\n", c.mode, c.cycle, row.kind, row.l.N, fmtDur(row.l.P50), fmtDur(row.l.P90), fmtDur(row.l.P99), fmtDur(row.l.Max))
+		}
+	}
+
+	fmt.Println("\nerrors per cycle:")
+	for _, c := range cyclesInfo {
+		st := c.stats()
+		fmt.Printf("  %-22s %-3d %s\n", c.mode, c.cycle, st.errSummary())
+		for _, r := range st.ErrList {
+			q := ""
+			if r.expand {
+				q = "?$expand"
+			}
+			desc := r.errKind()
+			if r.status == 0 {
+				desc = r.span.Status().Description
+			}
+			fmt.Printf("      +%-8s %9s %-10s %s%s  %s\n", fmtDur(r.start.Sub(c.start)), fmtDur(r.dur), r.kind, r.path, q, desc)
 		}
 	}
 
@@ -232,7 +260,7 @@ func run(host, addressFile, userFile, user, password, ruleName, ruleFile, modeLi
 			if r.expand {
 				q = "?$expand"
 			}
-			fmt.Printf("  %-10s %-3d %9s %4d %s%s\n", c.mode, c.cycle, fmtDur(r.dur), r.status, r.path, q)
+			fmt.Printf("  %-22s %-3d %9s %4d %s%s\n", c.mode, c.cycle, fmtDur(r.dur), r.status, r.path, q)
 		}
 	}
 
