@@ -214,12 +214,14 @@ func run(host, addressFile, userFile, user, password, ruleName, ruleFile, modeLi
 
 	// ---- summary ----
 	cyclesInfo := groupCycles(mem.sorted())
-	fmt.Printf("\n%-22s %-6s %9s %9s %6s %6s %6s %8s %10s %6s %8s %9s %8s\n", "mode", "cycle", "duration", "requests", "ok", "err", "expand", "inlined", "bytes", "tls", "reused", "interval", "req/h")
+	fmt.Printf("\n%-22s %-6s %9s %9s %6s %6s %6s %6s %8s %10s %6s %8s %9s %8s %6s\n", "mode", "cycle", "duration", "requests", "ok", "err", "expand", "fallbk", "inlined", "bytes", "tls", "reused", "interval", "req/h", "busy%")
 	for _, c := range cyclesInfo {
 		st := c.stats()
-		fmt.Printf("%-22s %-6d %9s %9d %6d %6d %6d %8d %10s %6d %8d %9s %8.0f\n", c.mode, c.cycle, fmtDur(st.Duration), st.Requests, st.OK, st.Errors, st.Expand, st.Expanded, fmtBytes(st.Bytes), st.TLS, st.Reused, fmtDur(c.interval), st.ReqPerHour(c.interval))
+		fmt.Printf("%-22s %-6d %9s %9d %6d %6d %6d %6d %8d %10s %6d %8d %9s %8.0f %5.1f%%\n", c.mode, c.cycle, fmtDur(st.Duration), st.Requests, st.OK, st.Errors, st.Expand, st.Fallback, st.Expanded, fmtBytes(st.Bytes), st.TLS, st.Reused, fmtDur(c.interval), st.ReqPerHour(c.interval), st.BusyPercent(c.interval))
 	}
 	fmt.Println("req/h = requests * 3600 / (duration + interval): steady-state BMC request rate of a monitor-hw loop with that interval")
+	fmt.Println("fallbk = $expand requests that failed (400/5xx/timeout) and were retried as plain GETs; many of them means the BMC does not support this $expand form")
+	fmt.Println("busy% = duration / (duration + interval): share of wall time the BMC spends serving the traversal (server-side cost, independent of request count)")
 
 	fmt.Printf("\n%-22s %-6s %-8s %6s %9s %9s %9s %9s\n", "mode", "cycle", "kind", "n", "p50", "p90", "p99", "max")
 	for _, c := range cyclesInfo {

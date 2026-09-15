@@ -24,6 +24,7 @@ type reqInfo struct {
 	bytes    int
 	expand   bool
 	refetch  bool
+	fallback bool
 	reused   bool
 	tls      bool
 	tlsMs    float64
@@ -45,6 +46,15 @@ type cycleInfo struct {
 
 // ReqPerHour is the steady-state request rate a monitor-hw loop with the given interval
 // would put on the BMC: requests / (traversal duration + interval).
+// BusyPercent is the share of wall time the BMC spends serving the traversal loop.
+func (s cycleStats) BusyPercent(interval time.Duration) float64 {
+	period := s.Duration + interval
+	if period <= 0 {
+		return 0
+	}
+	return 100 * float64(s.Duration) / float64(period)
+}
+
 func (s cycleStats) ReqPerHour(interval time.Duration) float64 {
 	period := s.Duration + interval
 	if period <= 0 {
@@ -54,15 +64,15 @@ func (s cycleStats) ReqPerHour(interval time.Duration) float64 {
 }
 
 type cycleStats struct {
-	Requests, OK, NotModified, Errors, Expand, Refetch, TLS, Reused, Expanded int
-	Bytes                                                                     int
-	Duration                                                                  time.Duration
-	Lat                                                                       latency // all requests
-	LatPlain                                                                  latency // GET without $expand
-	LatExpand                                                                 latency // GET with $expand
-	Slowest                                                                   []reqInfo
-	ErrList                                                                   []reqInfo      // every failed request, in time order
-	ErrByKind                                                                 map[string]int // "404", "timeout", "connection", ...
+	Requests, OK, NotModified, Errors, Expand, Refetch, Fallback, TLS, Reused, Expanded int
+	Bytes                                                                               int
+	Duration                                                                            time.Duration
+	Lat                                                                                 latency // all requests
+	LatPlain                                                                            latency // GET without $expand
+	LatExpand                                                                           latency // GET with $expand
+	Slowest                                                                             []reqInfo
+	ErrList                                                                             []reqInfo      // every failed request, in time order
+	ErrByKind                                                                           map[string]int // "404", "timeout", "connection", ...
 }
 
 // errKind classifies a failed request for reporting.
@@ -166,6 +176,9 @@ func (c *cycleInfo) stats() cycleStats {
 		if r.refetch {
 			s.Refetch++
 		}
+		if r.fallback {
+			s.Fallback++
+		}
 		if r.tls {
 			s.TLS++
 		}
@@ -216,7 +229,7 @@ func groupCycles(spans []sdktrace.ReadOnlySpan) []*cycleInfo {
 		r := reqInfo{
 			span: s, kind: a[attrKind].AsString(), path: a[attrPath].AsString(), query: a[attrQuery].AsString(),
 			status: int(a[attrStatus].AsInt64()), bytes: int(a[attrBodySize].AsInt64()),
-			expand: a[attrExpand].AsBool(), refetch: a[attrRefetch].AsBool(), reused: a[attrConnReuse].AsBool(),
+			expand: a[attrExpand].AsBool(), refetch: a[attrRefetch].AsBool(), fallback: a[attrFallback].AsBool(), reused: a[attrConnReuse].AsBool(),
 			tls: a[attrTLS].AsBool(), tlsMs: a[attrTLSMillis].AsFloat64(), expanded: int(a[attrExpanded].AsInt64()),
 			err: s.Status().Code == codes.Error, start: s.StartTime(), dur: s.EndTime().Sub(s.StartTime()),
 		}
@@ -320,8 +333,8 @@ func renderSVG(cycles []*cycleInfo, waterfall bool, title string) string {
 		top := panelTops[i]
 		st := c.stats()
 		fmt.Fprintf(&b, `<text x="%.0f" y="%.0f" font-size="13" font-weight="bold">mode=%s cycle=%d</text>`+"\n", left, top+14, html.EscapeString(c.mode), c.cycle)
-		summary := fmt.Sprintf("duration=%s requests=%d ok=%d errors=%d expand=%d(refetch %d, inlined %d) bytes=%s tls_handshakes=%d conn_reused=%d/%d | interval=%s -> %.0f req/h",
-			fmtDur(c.dur), st.Requests, st.OK, st.Errors, st.Expand, st.Refetch, st.Expanded, fmtBytes(st.Bytes), st.TLS, st.Reused, st.Requests, fmtDur(c.interval), st.ReqPerHour(c.interval))
+		summary := fmt.Sprintf("duration=%s requests=%d ok=%d errors=%d expand=%d(refetch %d, fallback %d, inlined %d) bytes=%s tls_handshakes=%d conn_reused=%d/%d | interval=%s -> %.0f req/h, busy %.1f%%",
+			fmtDur(c.dur), st.Requests, st.OK, st.Errors, st.Expand, st.Refetch, st.Fallback, st.Expanded, fmtBytes(st.Bytes), st.TLS, st.Reused, st.Requests, fmtDur(c.interval), st.ReqPerHour(c.interval), st.BusyPercent(c.interval))
 		fmt.Fprintf(&b, `<text x="%.0f" y="%.0f" fill="#333">%s</text>`+"\n", left, top+30, html.EscapeString(summary))
 		lat := fmt.Sprintf("latency all: %s | plain: %s | $expand: %s | errors: %s", st.Lat, st.LatPlain, st.LatExpand, st.errSummary())
 		fmt.Fprintf(&b, `<text x="%.0f" y="%.0f" fill="#333">%s</text>`+"\n", left, top+46, html.EscapeString(lat))

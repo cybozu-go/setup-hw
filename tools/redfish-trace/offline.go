@@ -17,9 +17,10 @@ import (
 // resource path, as produced by `collector show`) so the tool can be exercised without a BMC.
 // It emulates SessionService and $expand=*($levels=1) on collections.
 type offlineTransport struct {
-	data    map[string]json.RawMessage
-	latency time.Duration
-	token   string
+	data      map[string]json.RawMessage
+	latency   time.Duration
+	token     string
+	maxLevels int // $levels above this get HTTP 400, like iDRAC9 (which supports $levels=1 only)
 }
 
 func newOfflineTransport(path string, latency time.Duration) (*offlineTransport, error) {
@@ -31,7 +32,7 @@ func newOfflineTransport(path string, latency time.Duration) (*offlineTransport,
 	if err := json.Unmarshal(raw, &data); err != nil {
 		return nil, fmt.Errorf("%s: %w", path, err)
 	}
-	return &offlineTransport{data: data, latency: latency, token: "offline-token"}, nil
+	return &offlineTransport{data: data, latency: latency, token: "offline-token", maxLevels: 1}, nil
 }
 
 func (o *offlineTransport) respond(req *http.Request, status int, body []byte, hdr http.Header) *http.Response {
@@ -88,6 +89,9 @@ func (o *offlineTransport) roundTrip(req *http.Request) (*http.Response, error) 
 		levels := 1
 		if m := regexp.MustCompile(`\$levels=(\d+)`).FindStringSubmatch(q); m != nil {
 			levels, _ = strconv.Atoi(m[1])
+		}
+		if o.maxLevels > 0 && levels > o.maxLevels {
+			return o.respond(req, http.StatusBadRequest, []byte(`{"error":{"message":"$levels not supported"}}`), nil), nil
 		}
 		body = o.expand(body, levels, strings.HasPrefix(q, "."), p)
 	}

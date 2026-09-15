@@ -115,6 +115,7 @@ const (
 	attrBodySize  = "http.response.body.size"
 	attrExpand    = "redfish.expand"
 	attrRefetch   = "redfish.refetch"
+	attrFallback  = "redfish.expand_fallback" // plain GET issued because the $expand GET failed
 	attrMembers   = "redfish.members"
 	attrExpanded  = "redfish.expanded_members"
 	attrConnReuse = "net.conn.reused"
@@ -143,6 +144,9 @@ type traverser struct {
 	learned        map[string]bool  // collection paths discovered at run time
 	notFound       map[string]bool  // predicted collections that turned out not to exist (e.g. Storage/X/Drives on older iDRAC)
 	followNextLink bool
+	expandFailures int // $expand requests that had to fall back to a plain GET
+	expandRejects  int // consecutive HTTP 400 answers to $expand; 3 disables $expand for the mode
+	expandDisabled bool
 	verbose        bool
 }
 
@@ -232,7 +236,7 @@ func (t *traverser) needTraverse(path string) bool {
 
 // shouldExpand decides whether a GET carries $expand.
 func (t *traverser) shouldExpand(path string) bool {
-	if !t.mode.Expand {
+	if !t.mode.Expand || t.expandDisabled {
 		return false
 	}
 	if t.mode.ExpandAll {
@@ -274,7 +278,7 @@ func (t *traverser) runCycle(ctx context.Context, cycle int) cycleResult {
 		return cycleResult{Err: err, Duration: time.Since(start)}
 	}
 	// monitor-hw's ruleGetter calls GetVersion (GET /redfish/v1/) on every Update.
-	if _, vspan, err := t.fetch(ctx, "/redfish/v1/", false, "version"); vspan != nil {
+	if _, vspan, _, err := t.fetch(ctx, "/redfish/v1/", false, "version"); vspan != nil {
 		vspan.End()
 		if err != nil {
 			span.RecordError(err)
@@ -313,21 +317,45 @@ func (t *traverser) get(ctx context.Context, path string, data map[string]*gabs.
 	}
 
 	expand := t.shouldExpand(path)
-	parsed, span, err := t.fetch(ctx, path, expand, "request")
+	parsed, span, status, err := t.fetch(ctx, path, expand, "request")
+	if err != nil && expand && status != 401 && status != 403 && status != 404 {
+		// The BMC rejected or could not serve the $expand form (400 for unsupported $levels,
+		// 5xx, timeout). Fall back to the plain GET so the traversal still covers the resource;
+		// monitor-hw must do the same or metrics silently disappear.
+		span.End()
+		t.expandFailures++
+		if status == http.StatusBadRequest {
+			t.expandRejects++
+			if t.expandRejects == 3 && !t.expandDisabled {
+				t.expandDisabled = true
+				fmt.Printf("  warning: BMC answered 400 to %s three times in a row; this $expand form is unsupported, continuing without $expand\n", t.mode.expandQuery())
+			}
+		} else {
+			t.expandRejects = 0
+		}
+		parsed, span, _, err = t.fetch(ctx, path, false, "request")
+		if span != nil {
+			span.SetAttributes(attribute.Bool(attrFallback, true))
+		}
+		expand = false
+	}
 	if err != nil {
 		if span != nil {
 			span.End()
 		}
 		return
 	}
+	if expand {
+		t.expandRejects = 0
+	}
 
-	if t.mode.Expand && !t.mode.ExpandAll && !expand {
+	if t.mode.Expand && !t.mode.ExpandAll && !t.expandDisabled && !expand {
 		// Not predicted as a collection but it is one: learn it and refetch expanded
 		// when that saves requests (N members >= 2 -> 1 extra request instead of N).
 		if n := memberCount(parsed); n >= 2 {
 			t.learned[path] = true
 			span.SetAttributes(attribute.Int(attrMembers, n))
-			p2, span2, err2 := t.fetch(ctx, path, true, "request")
+			p2, span2, _, err2 := t.fetch(ctx, path, true, "request")
 			if err2 == nil {
 				span2.SetAttributes(attribute.Bool(attrRefetch, true))
 				parsed = p2
@@ -401,7 +429,7 @@ func (t *traverser) storeExpanded(ctx context.Context, self string, parsed *gabs
 				next += "?" + t.mode.expandQuery()
 			}
 		}
-		np, nspan, err := t.fetchRaw(ctx, next, "request", true)
+		np, nspan, _, err := t.fetchRaw(ctx, next, "request", true)
 		if nspan != nil {
 			nspan.End()
 		}
@@ -463,7 +491,7 @@ func (t *traverser) follow(ctx context.Context, parsed *gabs.Container, data map
 
 // fetch GETs a resource path, optionally with $expand, and returns the parsed body and its
 // (still open) span. The caller must call span.End().
-func (t *traverser) fetch(ctx context.Context, path string, expand bool, kind string) (*gabs.Container, trace.Span, error) {
+func (t *traverser) fetch(ctx context.Context, path string, expand bool, kind string) (*gabs.Container, trace.Span, int, error) {
 	target := path
 	if expand {
 		target = path + "?" + t.mode.expandQuery()
@@ -471,11 +499,12 @@ func (t *traverser) fetch(ctx context.Context, path string, expand bool, kind st
 	return t.fetchRaw(ctx, target, kind, expand)
 }
 
-func (t *traverser) fetchRaw(ctx context.Context, rawPathAndQuery string, kind string, expand bool) (*gabs.Container, trace.Span, error) {
+// The int is the HTTP status (0 when no response was received).
+func (t *traverser) fetchRaw(ctx context.Context, rawPathAndQuery string, kind string, expand bool) (*gabs.Container, trace.Span, int, error) {
 	// monitor-hw runs with NoEscape=true for Dell: the path is parsed as-is.
 	u, err := t.endpoint.Parse(rawPathAndQuery)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, 0, err
 	}
 	name := "GET " + u.Path
 	ctx, span := t.tracer.Start(ctx, name, trace.WithSpanKind(trace.SpanKindClient), trace.WithAttributes(
@@ -490,7 +519,7 @@ func (t *traverser) fetchRaw(ctx context.Context, rawPathAndQuery string, kind s
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
-		return nil, span, err
+		return nil, span, 0, err
 	}
 	req.Header.Set("X-Auth-Token", t.token)
 	req.Header.Set("Accept", "application/json")
@@ -502,7 +531,7 @@ func (t *traverser) fetchRaw(ctx context.Context, rawPathAndQuery string, kind s
 		if t.verbose {
 			fmt.Printf("  ! GET %s: %v\n", u.RequestURI(), err)
 		}
-		return nil, span, err
+		return nil, span, 0, err
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
@@ -510,7 +539,7 @@ func (t *traverser) fetchRaw(ctx context.Context, rawPathAndQuery string, kind s
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
-		return nil, span, err
+		return nil, span, resp.StatusCode, err
 	}
 	if resp.StatusCode != http.StatusOK {
 		err := fmt.Errorf("%d: %s", resp.StatusCode, u.RequestURI())
@@ -518,18 +547,18 @@ func (t *traverser) fetchRaw(ctx context.Context, rawPathAndQuery string, kind s
 		if t.verbose {
 			fmt.Printf("  ! GET %s: %s\n", u.RequestURI(), resp.Status)
 		}
-		return nil, span, err
+		return nil, span, resp.StatusCode, err
 	}
 	parsed, err := gabs.ParseJSON(body)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
-		return nil, span, err
+		return nil, span, 0, err
 	}
 	if t.verbose {
 		fmt.Printf("  GET %s -> %d (%d bytes)\n", u.RequestURI(), resp.StatusCode, len(body))
 	}
-	return parsed, span, nil
+	return parsed, span, resp.StatusCode, nil
 }
 
 // withConnTrace attaches an httptrace that records connection reuse and TLS handshakes on the span.
