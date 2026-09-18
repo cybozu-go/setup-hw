@@ -21,7 +21,7 @@ var opts struct {
 
 const (
 	defaultAddress  = ":9105"
-	defaultInterval = 60
+	defaultInterval = 300
 )
 
 // rootCmd represents the base command when called without any subcommands
