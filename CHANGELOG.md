@@ -5,6 +5,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Disable PCIe VDM to prevent NIC firmware updates while the host is running in [#173](https://github.com/cybozu-go/setup-hw/pull/173)
+
 ## [1.31.0] - 2026-07-09
 
 ### Changed

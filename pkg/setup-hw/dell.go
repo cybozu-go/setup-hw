@@ -494,6 +494,9 @@ func (dc *dellConfigurator) configiDRAC(ctx context.Context) error {
 	if err := dc.acceptEULA(ctx); err != nil {
 		return err
 	}
+	if err := dc.configPCIeVDM(ctx); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -609,6 +612,13 @@ func (dc *dellConfigurator) configTimeServer(ctx context.Context) error {
 		}
 	}
 	return nil
+}
+
+func (dc *dellConfigurator) configPCIeVDM(ctx context.Context) error {
+	// Disable PCIe VDM to prevent NIC firmware updates from
+	// being applied while the host is running.
+	_, err := racadmSetConfig(ctx, "iDRAC.PCIeVDM.Enable", "Disabled")
+	return err
 }
 
 // configUser creates/updates an iDRAC user with specified parameters
