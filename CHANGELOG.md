@@ -5,9 +5,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.32.0] - 2026-10-22
+
 ### Changed
 
 - Disable PCIe VDM to prevent NIC firmware updates while the host is running in [#173](https://github.com/cybozu-go/setup-hw/pull/173)
+- Restrict GITHUB_TOKEN to read-only in the main workflow in [#169](https://github.com/cybozu-go/setup-hw/pull/169)
+- Declare GITHUB_TOKEN permissions in the release workflow in [#170](https://github.com/cybozu-go/setup-hw/pull/170)
+- Introduce Takumi Guard for the build jobs in [#171](https://github.com/cybozu-go/setup-hw/pull/171)
 
 ## [1.31.0] - 2026-07-09
 
@@ -410,7 +415,8 @@ The [quay.io/cybozu/setup-hw](https://quay.io/repository/cybozu/setup-hw) will n
 ### Added
 - Support Redfish version 1.2.0 and 1.4.0 ([#12](https://github.com/cybozu-go/setup-hw/pull/12))
 
-[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.31.0...HEAD
+[Unreleased]: https://github.com/cybozu-go/setup-hw/compare/v1.32.0...HEAD
+[1.32.0]: https://github.com/cybozu-go/setup-hw/compare/v1.31.0...v1.32.0
 [1.31.0]: https://github.com/cybozu-go/setup-hw/compare/v1.30.0...v1.31.0
 [1.30.0]: https://github.com/cybozu-go/setup-hw/compare/v1.29.0...v1.30.0
 [1.29.0]: https://github.com/cybozu-go/setup-hw/compare/v1.28.0...v1.29.0
