@@ -607,11 +607,22 @@ func (dc *dellConfigurator) configNIC(ctx context.Context) error {
 	if _, err := racadmSetConfig(ctx, dnsRacNameKey(dc.product), hname+"-idrac"); err != nil {
 		return err
 	}
-	if _, err := racadmSetConfig(ctx, "iDRAC.OS-BMC.AdminState", "Disabled"); err != nil {
-		return err
+	for _, key := range osBMCKeys(dc.product) {
+		if _, err := racadmSetConfig(ctx, key, "Disabled"); err != nil {
+			return err
+		}
 	}
 
 	return nil
+}
+
+// osBMCKeys returns the keys to disable OS to iDRAC pass-through.
+// iDRAC10 replaced iDRAC.OS-BMC.AdminState with a switch for each pass-through path.
+func osBMCKeys(product lib.Product) []string {
+	if product.Is17G() {
+		return []string{"iDRAC.OS-BMC.LomP2PEnable", "iDRAC.OS-BMC.UsbP2PEnable"}
+	}
+	return []string{"iDRAC.OS-BMC.AdminState"}
 }
 
 func (dc *dellConfigurator) configIPMI(ctx context.Context) error {
