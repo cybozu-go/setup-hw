@@ -55,7 +55,7 @@ The default is `:9105`.
 
 `--interval=<interval>` specifies the interval of Redfish data traversal
 in seconds.
-The default is 60 seconds.
+The default is 300 seconds.
 This interval means the time between the end of a certain traversal operation
 and the beginning of the next one, so the observed interval of metrics update
 will be somewhat longer than this interval.
