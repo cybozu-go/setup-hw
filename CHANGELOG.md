@@ -7,7 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Add support for R6715 and R5715 (17G) servers in [#175](https://github.com/cybozu-go/setup-hw/pull/175)
+- Add preliminary support for R6715 and R5715 (17G) servers in [#175](https://github.com/cybozu-go/setup-hw/pull/175)
 
 ## [1.32.0] - 2026-10-22
 

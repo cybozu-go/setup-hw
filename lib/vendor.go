@@ -52,6 +52,7 @@ const (
 
 // Is17G returns true if the product is a Dell 17th generation server.
 // 17G servers are managed by iDRAC10, whose racadm attributes differ from iDRAC9.
+// Support for 17G servers is preliminary and has not been fully verified yet.
 func (p Product) Is17G() bool {
 	switch p {
 	case R6715, R5715:
