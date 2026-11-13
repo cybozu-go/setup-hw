@@ -112,7 +112,7 @@ func parseRacadmGetOutput(out, key string) (string, error) {
 		return strings.TrimSpace(out), nil
 	}
 
-	cfg, err := ini.Load([]byte(out))
+	cfg, err := ini.Load([]byte(uncommentReadOnly(out, key)))
 	if err != nil {
 		return "", err
 	}
@@ -132,6 +132,30 @@ func parseRacadmGetOutput(out, key string) (string, error) {
 	}
 
 	return keys[0].String(), nil
+}
+
+// uncommentReadOnly removes the leading '#' from the line of the given key.
+//
+// racadm marks read-only attributes with '#'. When getting a single
+// read-only attribute, iDRAC9 removes the '#' but iDRAC10 keeps it:
+//
+//	$ sudo racadm get BIOS.SysSecurity.TpmInfo   # iDRAC10
+//	[Key=BIOS.Setup.1-1#SysSecurity]
+//	#TpmInfo=Type: 2.0  NTC
+//
+// The ini parser treats such a line as a comment, so remove the '#' only
+// from the line of the requested attribute.
+func uncommentReadOnly(out, key string) string {
+	name := key[strings.LastIndex(key, ".")+1:]
+	lines := strings.Split(out, "\n")
+	for i, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		k, _, found := strings.Cut(strings.TrimPrefix(trimmed, "#"), "=")
+		if strings.HasPrefix(trimmed, "#") && found && strings.EqualFold(strings.TrimSpace(k), name) {
+			lines[i] = trimmed[1:]
+		}
+	}
+	return strings.Join(lines, "\n")
 }
 
 // racadmGetConfigs returns a key-value map under the given group key.
@@ -210,25 +234,55 @@ func racadmSetConfig(ctx context.Context, key, value string) (bool, error) {
 	return true, nil
 }
 
-var waitKeys = []string{
-	"BIOS.SysProfileSettings.SysProfile",
-	"BIOS.ProcSettings.LogicalProc",
-	"BIOS.SysSecurity.TpmInfo",
-	"System.ServerPwr.PSRapidOn",
-	"System.ThermalSettings.FanSpeedOffset",
-	"iDRAC.SNMP.AgentEnable",
-	"iDRAC.NIC.Selection",
-	"iDRAC.IPv4.DHCPEnable",
-	"iDRAC.IPv4.Address",
-	"iDRAC.IPv4.Netmask",
-	"iDRAC.IPv4.Gateway",
-	"iDRAC.NIC.DNSRacName",
-	"iDRAC.IPMILan.PrivLimit",
-	"iDRAC.IPMILan.Enable",
-	"iDRAC.VirtualConsole.PluginType",
+// nicSelectionKey returns the key to select the NIC used by iDRAC.
+// iDRAC10 replaced iDRAC.NIC.Selection with iDRAC.NIC.SelectionByFQDD.
+func nicSelectionKey(product lib.Product) string {
+	if product.Is17G() {
+		return "iDRAC.NIC.SelectionByFQDD"
+	}
+	return "iDRAC.NIC.Selection"
 }
 
-func iDRACWait(ctx context.Context) error {
+// dnsRacNameKey returns the key of the DNS name of iDRAC.
+// iDRAC10 moved DNSRacName from the iDRAC.NIC group to the iDRAC.Network group.
+func dnsRacNameKey(product lib.Product) string {
+	if product.Is17G() {
+		return "iDRAC.Network.DNSRacName"
+	}
+	return "iDRAC.NIC.DNSRacName"
+}
+
+// supportsPSRapidOn returns false for 17G servers, which do not have
+// System.ServerPwr.PSRapidOn.
+func supportsPSRapidOn(product lib.Product) bool {
+	return !product.Is17G()
+}
+
+func waitKeys(product lib.Product) []string {
+	keys := []string{
+		"BIOS.SysProfileSettings.SysProfile",
+		"BIOS.ProcSettings.LogicalProc",
+		"BIOS.SysSecurity.TpmInfo",
+	}
+	if supportsPSRapidOn(product) {
+		keys = append(keys, "System.ServerPwr.PSRapidOn")
+	}
+	return append(keys,
+		"System.ThermalSettings.FanSpeedOffset",
+		"iDRAC.SNMP.AgentEnable",
+		nicSelectionKey(product),
+		"iDRAC.IPv4.DHCPEnable",
+		"iDRAC.IPv4.Address",
+		"iDRAC.IPv4.Netmask",
+		"iDRAC.IPv4.Gateway",
+		dnsRacNameKey(product),
+		"iDRAC.IPMILan.PrivLimit",
+		"iDRAC.IPMILan.Enable",
+		"iDRAC.VirtualConsole.PluginType",
+	)
+}
+
+func iDRACWait(ctx context.Context, product lib.Product) error {
 	log.Info("waiting iDRAC...", nil)
 	for i := 0; i < 60; i++ {
 		out, _ := racadm(ctx, "get", "iDRAC.Info.Name")
@@ -236,7 +290,7 @@ func iDRACWait(ctx context.Context) error {
 			goto NOTREADY
 		}
 
-		for _, key := range waitKeys {
+		for _, key := range waitKeys(product) {
 			_, err := racadmGetConfig(ctx, key)
 			if err != nil {
 				goto NOTREADY
@@ -258,11 +312,18 @@ func iDRACWait(ctx context.Context) error {
 type dellConfigurator struct {
 	addressConfig *config.AddressConfig
 	userConfig    *config.UserConfig
+	product       lib.Product
 	queued        bool
 }
 
 func (dc *dellConfigurator) Run(ctx context.Context) error {
-	if err := iDRACWait(ctx); err != nil {
+	product, err := lib.DetectProduct()
+	if err != nil {
+		return err
+	}
+	dc.product = product
+
+	if err := iDRACWait(ctx, dc.product); err != nil {
 		return err
 	}
 
@@ -325,18 +386,14 @@ func (dc *dellConfigurator) configBIOS(ctx context.Context) error {
 }
 
 func (dc *dellConfigurator) configPerformance(ctx context.Context) error {
-	product, err := lib.DetectProduct()
-	if err != nil {
-		return err
-	}
-	switch product {
+	switch dc.product {
 	case lib.R6525, lib.R7525, lib.R7615:
 		return dc.enqueueConfig(ctx, "BIOS.SysProfileSettings.SysProfile", "PerfPerWattOptimizedOs")
-	case lib.R6615, lib.R6625: // In 16G server, we cannot disable power saving function even if we set cpu-governor. We need set System Profile to Performance.
+	case lib.R6615, lib.R6625, lib.R6715, lib.R5715: // In 16G and later servers, we cannot disable power saving function even if we set cpu-governor. We need set System Profile to Performance.
 		return dc.enqueueConfig(ctx, "BIOS.SysProfileSettings.SysProfile", "PerfOptimized")
 	default:
 		log.Warn("unsupported product, skipping setting of SysProfile", map[string]interface{}{
-			"product": product,
+			"product": dc.product,
 		})
 		return nil
 	}
@@ -348,11 +405,7 @@ func (dc *dellConfigurator) configProcessor(ctx context.Context) error {
 		return err
 	}
 
-	product, err := lib.DetectProduct()
-	if err != nil {
-		return err
-	}
-	switch product {
+	switch dc.product {
 	case lib.R6525, lib.R7525:
 		cpu, err := lib.CountCPUs()
 		if err != nil {
@@ -398,7 +451,7 @@ func (dc *dellConfigurator) configProcessor(ctx context.Context) error {
 			npsVal = "1"
 		}
 		return dc.enqueueConfig(ctx, "BIOS.ProcSettings.NumaNodesPerSocket", npsVal)
-	case lib.R6615, lib.R7615, lib.R6625:
+	case lib.R6615, lib.R7615, lib.R6625, lib.R6715, lib.R5715:
 		return dc.enqueueConfig(ctx, "BIOS.ProcSettings.NumaNodesPerSocket", "1")
 	default:
 		return nil
@@ -449,6 +502,9 @@ func (dc *dellConfigurator) configSystem(ctx context.Context) error {
 }
 
 func (dc *dellConfigurator) configPowerSupply(ctx context.Context) error {
+	if !supportsPSRapidOn(dc.product) {
+		return nil
+	}
 	_, err := racadmSetConfig(ctx, "System.ServerPwr.PSRapidOn", "Disabled")
 	return err
 }
@@ -528,7 +584,7 @@ func (dc *dellConfigurator) configSNMP(ctx context.Context) error {
 }
 
 func (dc *dellConfigurator) configNIC(ctx context.Context) error {
-	if _, err := racadmSetConfig(ctx, "iDRAC.NIC.Selection", "Dedicated"); err != nil {
+	if _, err := racadmSetConfig(ctx, nicSelectionKey(dc.product), "Dedicated"); err != nil {
 		return err
 	}
 	if _, err := racadmSetConfig(ctx, "iDRAC.IPv4.DHCPEnable", "Disabled"); err != nil {
@@ -548,7 +604,7 @@ func (dc *dellConfigurator) configNIC(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	if _, err := racadmSetConfig(ctx, "iDRAC.NIC.DNSRacName", hname+"-idrac"); err != nil {
+	if _, err := racadmSetConfig(ctx, dnsRacNameKey(dc.product), hname+"-idrac"); err != nil {
 		return err
 	}
 	if _, err := racadmSetConfig(ctx, "iDRAC.OS-BMC.AdminState", "Disabled"); err != nil {

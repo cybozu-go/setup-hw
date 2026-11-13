@@ -46,7 +46,20 @@ const (
 	R6615
 	R7615
 	R6625
+	R6715
+	R5715
 )
+
+// Is17G returns true if the product is a Dell 17th generation server.
+// 17G servers are managed by iDRAC10, whose racadm attributes differ from iDRAC9.
+func (p Product) Is17G() bool {
+	switch p {
+	case R6715, R5715:
+		return true
+	default:
+		return false
+	}
+}
 
 // DetectProduct detects product name.
 func DetectProduct() (Product, error) {
@@ -66,6 +79,10 @@ func DetectProduct() (Product, error) {
 		return R7615, nil
 	case strings.Contains(product, "R6625"):
 		return R6625, nil
+	case strings.Contains(product, "R6715"):
+		return R6715, nil
+	case strings.Contains(product, "R5715"):
+		return R5715, nil
 	default:
 		return Other, nil
 	}
