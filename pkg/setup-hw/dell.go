@@ -688,7 +688,60 @@ func (dc *dellConfigurator) configPCIeVDM(ctx context.Context) error {
 	return err
 }
 
+const (
+	// idrac10MaxRoles is the number of iDRAC.Roles.N entries on iDRAC10.
+	idrac10MaxRoles = 32
+
+	// adminPrivilege is the privilege of the predefined "Administrator" role.
+	adminPrivilege = "0x1ff"
+	adminRole      = "Administrator"
+)
+
+// configRole returns the name of the iDRAC10 role that has priv.
+//
+// iDRAC10 assigns privileges to a user through a role (iDRAC.Users.N.Role)
+// instead of iDRAC.Users.N.Privilege. The predefined Administrator role is
+// used for the full privilege. For other privileges, a custom role named
+// after the user is created in iDRAC.Roles.N, or updated if it exists.
+func (dc *dellConfigurator) configRole(ctx context.Context, user, priv string) (string, error) {
+	if priv == adminPrivilege {
+		return adminRole, nil
+	}
+
+	var target, empty string
+	for i := 1; i <= idrac10MaxRoles; i++ {
+		prefix := fmt.Sprintf("iDRAC.Roles.%d.", i)
+		name, err := racadmGetConfig(ctx, prefix+"Name")
+		if err != nil {
+			return "", err
+		}
+		if name == user {
+			target = prefix
+			break
+		}
+		if name == "" && empty == "" {
+			empty = prefix
+		}
+	}
+	if target == "" {
+		if empty == "" {
+			return "", fmt.Errorf("no free iDRAC role entry for %s", user)
+		}
+		target = empty
+		if _, err := racadmSetConfig(ctx, target+"Name", user); err != nil {
+			return "", err
+		}
+	}
+	if _, err := racadmSetConfig(ctx, target+"Privileges", priv); err != nil {
+		return "", err
+	}
+	return user, nil
+}
+
 // configUser creates/updates an iDRAC user with specified parameters
+//
+// On 17G servers, priv is set to a role (see configRole) and
+// password.hash_salt is used instead of password.hash and password.salt.
 //
 // priv is the bitwise OR of the following privileges:
 // - 0x001 Login
@@ -713,11 +766,25 @@ func (dc *dellConfigurator) configUser(ctx context.Context, idx, name, priv, ipm
 	if _, err := racadmSetConfig(ctx, prefix+"Username", name); err != nil {
 		return err
 	}
-	if cred.Password.Raw != "" {
+	switch {
+	case cred.Password.Raw != "":
 		if err := racadmRetrySilent(ctx, "set", prefix+"Password", cred.Password.Raw); err != nil {
 			return err
 		}
-	} else {
+	case dc.product.Is17G():
+		if cred.Password.HashSalt == "" {
+			return fmt.Errorf("password.raw or password.hash_salt is required for %s on 17G servers", name)
+		}
+		cur, err := racadmGetConfig(ctx, prefix+"PasswordHashSalt")
+		if err != nil {
+			return err
+		}
+		if cur != cred.Password.HashSalt {
+			if err := racadmRetrySilent(ctx, "set", prefix+"PasswordHashSalt", cred.Password.HashSalt); err != nil {
+				return err
+			}
+		}
+	default:
 		if _, err := racadmSetConfig(ctx, prefix+"SHA256Password", cred.Password.Hash); err != nil {
 			return err
 		}
@@ -726,8 +793,18 @@ func (dc *dellConfigurator) configUser(ctx context.Context, idx, name, priv, ipm
 		}
 	}
 
-	if _, err := racadmSetConfig(ctx, prefix+"Privilege", priv); err != nil {
-		return err
+	if dc.product.Is17G() {
+		role, err := dc.configRole(ctx, name, priv)
+		if err != nil {
+			return err
+		}
+		if _, err := racadmSetConfig(ctx, prefix+"Role", role); err != nil {
+			return err
+		}
+	} else {
+		if _, err := racadmSetConfig(ctx, prefix+"Privilege", priv); err != nil {
+			return err
+		}
 	}
 	if _, err := racadmSetConfig(ctx, prefix+"IpmiLanPrivilege", ipmiPriv); err != nil {
 		return err
