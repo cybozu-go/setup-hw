@@ -79,7 +79,7 @@ SelectionByFQDD=Dedicated
 func TestWaitKeys(t *testing.T) {
 	t.Parallel()
 
-	gen16Only := []string{"System.ServerPwr.PSRapidOn", "iDRAC.NIC.Selection", "iDRAC.NIC.DNSRacName"}
+	gen16Only := []string{"System.ServerPwr.PSRapidOn", "iDRAC.NIC.Selection", "iDRAC.NIC.DNSRacName", "iDRAC.VirtualConsole.PluginType"}
 	gen17Only := []string{"iDRAC.NIC.SelectionByFQDD", "iDRAC.Network.DNSRacName"}
 
 	for _, p := range []lib.Product{lib.R6615, lib.R7615, lib.R6625} {

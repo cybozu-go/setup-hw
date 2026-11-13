@@ -258,6 +258,12 @@ func supportsPSRapidOn(product lib.Product) bool {
 	return !product.Is17G()
 }
 
+// supportsPluginType returns false for 17G servers, where
+// iDRAC.VirtualConsole.PluginType is deprecated and may be removed.
+func supportsPluginType(product lib.Product) bool {
+	return !product.Is17G()
+}
+
 func waitKeys(product lib.Product) []string {
 	keys := []string{
 		"BIOS.SysProfileSettings.SysProfile",
@@ -267,7 +273,7 @@ func waitKeys(product lib.Product) []string {
 	if supportsPSRapidOn(product) {
 		keys = append(keys, "System.ServerPwr.PSRapidOn")
 	}
-	return append(keys,
+	keys = append(keys,
 		"System.ThermalSettings.FanSpeedOffset",
 		"iDRAC.SNMP.AgentEnable",
 		nicSelectionKey(product),
@@ -278,8 +284,11 @@ func waitKeys(product lib.Product) []string {
 		dnsRacNameKey(product),
 		"iDRAC.IPMILan.PrivLimit",
 		"iDRAC.IPMILan.Enable",
-		"iDRAC.VirtualConsole.PluginType",
 	)
+	if supportsPluginType(product) {
+		keys = append(keys, "iDRAC.VirtualConsole.PluginType")
+	}
+	return keys
 }
 
 func iDRACWait(ctx context.Context, product lib.Product) error {
@@ -836,6 +845,9 @@ func (dc *dellConfigurator) configUsers(ctx context.Context) error {
 }
 
 func (dc *dellConfigurator) configVirtualConsole(ctx context.Context) error {
+	if !supportsPluginType(dc.product) {
+		return nil
+	}
 	_, err := racadmSetConfig(ctx, "iDRAC.VirtualConsole.PluginType", "2")
 	return err
 }
