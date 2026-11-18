@@ -1,5 +1,5 @@
 # The Ubuntu version must be supported by Dell iDRAC Tools. See docs/maintenance.md.
-FROM ghcr.io/cybozu/ubuntu:24.04 AS stage1
+FROM ghcr.io/cybozu/ubuntu:24.04.20261117@sha256:f50db2c1458e623f6b8e4a313b81141965ecbb8572444e0cd9f6668564c803a4 AS stage1
 LABEL org.opencontainers.image.source="https://github.com/cybozu-go/setup-hw"
 
 COPY setup-hw /usr/local/bin/setup-hw
