@@ -70,6 +70,9 @@ It just lists all page paths in default.
 If patterned `Metrics.Path`s are given through the `--base-rule` option, however, it can use the patterned paths to unify matched pages when generating rules.
 The properties found in all the matched pages are merged into one rule, because the pages may have different properties.
 
+The output is laid out in the same way as the rule files under [redfish/rules](../redfish/rules):
+`Traverse` comes first with `Root` before `Excludes`, and the rules in `Metrics` are separated by blank lines.
+
 ### Options
 
 `--key=<key>:<type>` specifies the property key to be searched in generating a rule file, followed by the type of the property.

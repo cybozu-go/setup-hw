@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"os"
@@ -64,7 +65,7 @@ It takes one or more JSON file names that were dumped by "collector show" comman
 
 			mergedRule := mergeCollectRules(rules)
 
-			out, err := yaml.Marshal(mergedRule)
+			out, err := renderRule(mergedRule)
 			if err != nil {
 				return err
 			}
@@ -240,6 +241,55 @@ func appendPropertyRule(rules []*redfish.PropertyRule, newRule *redfish.Property
 	}
 
 	return append(rules, newRule)
+}
+
+// renderRule renders a collection rule in the layout of the rule files under redfish/rules:
+// Traverse comes first with Root before Excludes, and metric rules are separated by blank lines.
+// sigs.k8s.io/yaml sorts keys alphabetically, so each part is marshaled separately.
+func renderRule(rule *redfish.CollectRule) ([]byte, error) {
+	var buf bytes.Buffer
+
+	buf.WriteString("Traverse:\n")
+	root, err := yaml.Marshal(map[string]string{"Root": rule.TraverseRule.Root})
+	if err != nil {
+		return nil, err
+	}
+	writeIndented(&buf, root)
+	if len(rule.TraverseRule.ExcludeRules) > 0 {
+		excludes, err := yaml.Marshal(map[string][]string{"Excludes": rule.TraverseRule.ExcludeRules})
+		if err != nil {
+			return nil, err
+		}
+		writeIndented(&buf, excludes)
+	}
+
+	if len(rule.MetricRules) == 0 {
+		buf.WriteString("\nMetrics: []\n")
+		return buf.Bytes(), nil
+	}
+	buf.WriteString("\nMetrics:\n")
+	for i, mr := range rule.MetricRules {
+		if i > 0 {
+			buf.WriteString("\n")
+		}
+		out, err := yaml.Marshal([]*redfish.MetricRule{mr})
+		if err != nil {
+			return nil, err
+		}
+		buf.Write(out)
+	}
+	return buf.Bytes(), nil
+}
+
+// writeIndented writes YAML lines to buf with an indent of two spaces.
+func writeIndented(buf *bytes.Buffer, data []byte) {
+	for _, line := range strings.SplitAfter(string(data), "\n") {
+		if line == "" {
+			continue
+		}
+		buf.WriteString("  ")
+		buf.WriteString(line)
+	}
 }
 
 func init() {
