@@ -16,6 +16,8 @@ Usage
 The development tools (e.g. golangci-lint) are managed by [aqua](https://aquaproj.github.io/) in `aqua.yaml`.
 Install aqua first. The tools are installed automatically when they are executed via `aqua exec`.
 
+See [docs/maintenance.md](docs/maintenance.md) for how to update the dependencies periodically.
+
 ```console
 $ cd setup-hw
 $ make build-image

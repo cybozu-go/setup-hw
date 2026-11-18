@@ -38,6 +38,7 @@ Credential types are:
 * Raw password
 * Hashed password with salt  
     For iDRAC, use [`idrac-passwd-hash`](../pkg/idrac-passwd-hash) tool to generate them.
+    It can be installed by `go install github.com/cybozu-go/setup-hw/pkg/idrac-passwd-hash@latest`.
     * `hash` and `salt` are for iDRAC9 and earlier.
     * `hash_salt` is for iDRAC10 (17G servers), which uses a different hash algorithm.
       17G servers require `raw` or `hash_salt`.

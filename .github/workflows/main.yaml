@@ -41,7 +41,7 @@ jobs:
         run: make download-idractools
 
       - name: Build binaries
-        run: make install GOBIN=`pwd`/docker
+        run: make build
 
       - name: Build setup-hw image
         run: |

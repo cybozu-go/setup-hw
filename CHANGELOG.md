@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Manage development tools with aqua in [#177](https://github.com/cybozu-go/setup-hw/pull/177)
 - Use golangci-lint instead of staticcheck in [#177](https://github.com/cybozu-go/setup-hw/pull/177)
+- Update iDRAC Tools to 11.4.2.0 in [#178](https://github.com/cybozu-go/setup-hw/pull/178)
 
 ## [1.33.0] - 2026-11-19
 

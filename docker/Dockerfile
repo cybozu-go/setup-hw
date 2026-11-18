@@ -1,3 +1,4 @@
+# The Ubuntu version must be supported by Dell iDRAC Tools. See docs/maintenance.md.
 FROM ghcr.io/cybozu/ubuntu:24.04 AS stage1
 LABEL org.opencontainers.image.source="https://github.com/cybozu-go/setup-hw"
 
@@ -20,10 +21,11 @@ RUN apt-get update -y \
     && apt-get install -y --no-install-recommends pciutils libargtable2-0 kmod dmidecode
 
 RUN mkdir /pkg
+# The packages are extracted by "make download-idractools".
 COPY iDRACTools/racadm/UBUNTU24/x86_64/*.deb /pkg/
-RUN dpkg -i /pkg/srvadmin-hapi_11.4.0.0_amd64.deb \
-    && dpkg -i /pkg/srvadmin-idracadm7_11.4.0.0_all.deb \
-    && dpkg -i /pkg/srvadmin-idracadm8_11.4.0.0_amd64.deb
+RUN dpkg -i /pkg/srvadmin-hapi_*.deb \
+    && dpkg -i /pkg/srvadmin-idracadm7_*.deb \
+    && dpkg -i /pkg/srvadmin-idracadm8_*.deb
 
 RUN apt-get clean \
     && rm -rf /pkg \
