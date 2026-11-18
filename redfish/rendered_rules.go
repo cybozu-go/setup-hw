@@ -3683,73 +3683,6 @@ var Rules = map[string]*CollectRule{
 		},
 		MetricRules: []*MetricRule{
 			{
-				Path: "/redfish/v1/Chassis/System.Embedded.1/EnvironmentMetrics",
-				PropertyRules: []*PropertyRule{
-					{
-						Pointer: "/PowerWatts/Reading",
-						Name:    "chassis_systemembedded1_environmentmetrics_powerwatts_reading",
-						Help:    "",
-						Type:    "number",
-					},
-				},
-			},
-			{
-				Path: "/redfish/v1/Chassis/System.Embedded.1/NetworkAdapters/NIC.Slot.5/EnvironmentMetrics",
-				PropertyRules: []*PropertyRule{
-					{
-						Pointer: "/Oem/Dell/TemperatureCelsius/{temperaturecelsiu}/Reading",
-						Name:    "chassis_systemembedded1_networkadapters_nicslot5_environmentmetrics_oem_dell_temperaturecelsius_reading",
-						Help:    "",
-						Type:    "number",
-					},
-				},
-			},
-			{
-				Path: "/redfish/v1/Chassis/System.Embedded.1/ThermalSubsystem/Oem/Dell/DellFanBoards/CoolingController.Integrated.1",
-				PropertyRules: []*PropertyRule{
-					{
-						Pointer: "/Status/Health",
-						Name:    "chassis_systemembedded1_thermalsubsystem_oem_dell_dellfanboards_coolingcontrollerintegrated1_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-				},
-			},
-			{
-				Path: "/redfish/v1/Chassis/System.Embedded.1/TrustedComponents/TPM",
-				PropertyRules: []*PropertyRule{
-					{
-						Pointer: "/Status/Health",
-						Name:    "chassis_systemembedded1_trustedcomponents_tpm_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-					{
-						Pointer: "/Status/State",
-						Name:    "chassis_systemembedded1_trustedcomponents_tpm_status_state",
-						Help:    "",
-						Type:    "state",
-					},
-				},
-			},
-			{
-				Path: "/redfish/v1/Chassis/System.Embedded.1/TrustedComponents/iDRACfTPM",
-				PropertyRules: []*PropertyRule{
-					{
-						Pointer: "/Status/Health",
-						Name:    "chassis_systemembedded1_trustedcomponents_idracftpm_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-					{
-						Pointer: "/Status/State",
-						Name:    "chassis_systemembedded1_trustedcomponents_idracftpm_status_state",
-						Help:    "",
-						Type:    "state",
-					},
-				},
-			},
-			{
 				Path: "/redfish/v1/Chassis/{chassis}",
 				PropertyRules: []*PropertyRule{
 					{
@@ -3767,6 +3700,17 @@ var Rules = map[string]*CollectRule{
 				},
 			},
 			{
+				Path: "/redfish/v1/Chassis/{chassis}/EnvironmentMetrics",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/PowerWatts/Reading",
+						Name:    "chassis_environmentmetrics_powerwatts_reading",
+						Help:    "",
+						Type:    "number",
+					},
+				},
+			},
+			{
 				Path: "/redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}",
 				PropertyRules: []*PropertyRule{
 					{
@@ -3780,6 +3724,17 @@ var Rules = map[string]*CollectRule{
 						Name:    "chassis_networkadapters_status_state",
 						Help:    "",
 						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/EnvironmentMetrics",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Oem/Dell/TemperatureCelsius/{temperaturecelsiu}/Reading",
+						Name:    "chassis_networkadapters_environmentmetrics_oem_dell_temperaturecelsius_reading",
+						Help:    "",
+						Type:    "number",
 					},
 				},
 			},
@@ -4035,6 +3990,84 @@ var Rules = map[string]*CollectRule{
 				Path: "/redfish/v1/Chassis/{chassis}/Sensors/{sensor}",
 				PropertyRules: []*PropertyRule{
 					{
+						Pointer: "/Oem/Dell/AverageReadings/LastDay/Reading",
+						Name:    "chassis_sensors_oem_dell_averagereadings_lastday_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/Oem/Dell/AverageReadings/LastHour/Reading",
+						Name:    "chassis_sensors_oem_dell_averagereadings_lasthour_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/Oem/Dell/AverageReadings/LastMonth/Reading",
+						Name:    "chassis_sensors_oem_dell_averagereadings_lastmonth_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/Oem/Dell/AverageReadings/LastWeek/Reading",
+						Name:    "chassis_sensors_oem_dell_averagereadings_lastweek_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/Oem/Dell/AverageReadings/LastYear/Reading",
+						Name:    "chassis_sensors_oem_dell_averagereadings_lastyear_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/Oem/Dell/LowestReadings/LastDay/Reading",
+						Name:    "chassis_sensors_oem_dell_lowestreadings_lastday_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/Oem/Dell/LowestReadings/LastHour/Reading",
+						Name:    "chassis_sensors_oem_dell_lowestreadings_lasthour_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/Oem/Dell/LowestReadings/LastWeek/Reading",
+						Name:    "chassis_sensors_oem_dell_lowestreadings_lastweek_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/Oem/Dell/PeakReadings/LastDay/Reading",
+						Name:    "chassis_sensors_oem_dell_peakreadings_lastday_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/Oem/Dell/PeakReadings/LastHour/Reading",
+						Name:    "chassis_sensors_oem_dell_peakreadings_lasthour_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/Oem/Dell/PeakReadings/LastMonth/Reading",
+						Name:    "chassis_sensors_oem_dell_peakreadings_lastmonth_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/Oem/Dell/PeakReadings/LastWeek/Reading",
+						Name:    "chassis_sensors_oem_dell_peakreadings_lastweek_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/Oem/Dell/PeakReadings/LastYear/Reading",
+						Name:    "chassis_sensors_oem_dell_peakreadings_lastyear_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
 						Pointer: "/Reading",
 						Name:    "chassis_sensors_reading",
 						Help:    "",
@@ -4059,6 +4092,12 @@ var Rules = map[string]*CollectRule{
 						Type:    "number",
 					},
 					{
+						Pointer: "/Thresholds/LowerCautionUser/Reading",
+						Name:    "chassis_sensors_thresholds_lowercautionuser_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
 						Pointer: "/Thresholds/LowerCritical/Reading",
 						Name:    "chassis_sensors_thresholds_lowercritical_reading",
 						Help:    "",
@@ -4067,6 +4106,12 @@ var Rules = map[string]*CollectRule{
 					{
 						Pointer: "/Thresholds/UpperCaution/Reading",
 						Name:    "chassis_sensors_thresholds_uppercaution_reading",
+						Help:    "",
+						Type:    "number",
+					},
+					{
+						Pointer: "/Thresholds/UpperCautionUser/Reading",
+						Name:    "chassis_sensors_thresholds_uppercautionuser_reading",
 						Help:    "",
 						Type:    "number",
 					},
@@ -4178,6 +4223,17 @@ var Rules = map[string]*CollectRule{
 				},
 			},
 			{
+				Path: "/redfish/v1/Chassis/{chassis}/ThermalSubsystem/Oem/Dell/DellFanBoards/{fanboard}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "chassis_thermalsubsystem_oem_dell_dellfanboards_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+				},
+			},
+			{
 				Path: "/redfish/v1/Chassis/{chassis}/ThermalSubsystem/ThermalMetrics",
 				PropertyRules: []*PropertyRule{
 					{
@@ -4207,17 +4263,34 @@ var Rules = map[string]*CollectRule{
 				},
 			},
 			{
-				Path: "/redfish/v1/ComponentIntegrity/iDRACfTPM",
+				Path: "/redfish/v1/Chassis/{chassis}/TrustedComponents/{component}",
 				PropertyRules: []*PropertyRule{
 					{
 						Pointer: "/Status/Health",
-						Name:    "componentintegrity_idracftpm_status_health",
+						Name:    "chassis_trustedcomponents_status_health",
 						Help:    "",
 						Type:    "health",
 					},
 					{
 						Pointer: "/Status/State",
-						Name:    "componentintegrity_idracftpm_status_state",
+						Name:    "chassis_trustedcomponents_status_state",
+						Help:    "",
+						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/ComponentIntegrity/{component}",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/Status/Health",
+						Name:    "componentintegrity_status_health",
+						Help:    "",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "componentintegrity_status_state",
 						Help:    "",
 						Type:    "state",
 					},
@@ -4235,40 +4308,6 @@ var Rules = map[string]*CollectRule{
 					{
 						Pointer: "/Status/State",
 						Name:    "fabrics_status_state",
-						Help:    "",
-						Type:    "state",
-					},
-				},
-			},
-			{
-				Path: "/redfish/v1/Managers/iDRAC.Embedded.1/USBPorts/TypeA_1",
-				PropertyRules: []*PropertyRule{
-					{
-						Pointer: "/Status/Health",
-						Name:    "managers_idracembedded1_usbports_typea_1_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-					{
-						Pointer: "/Status/State",
-						Name:    "managers_idracembedded1_usbports_typea_1_status_state",
-						Help:    "",
-						Type:    "state",
-					},
-				},
-			},
-			{
-				Path: "/redfish/v1/Managers/iDRAC.Embedded.1/USBPorts/TypeC_1",
-				PropertyRules: []*PropertyRule{
-					{
-						Pointer: "/Status/Health",
-						Name:    "managers_idracembedded1_usbports_typec_1_status_health",
-						Help:    "",
-						Type:    "health",
-					},
-					{
-						Pointer: "/Status/State",
-						Name:    "managers_idracembedded1_usbports_typec_1_status_state",
 						Help:    "",
 						Type:    "state",
 					},
@@ -4343,13 +4382,19 @@ var Rules = map[string]*CollectRule{
 				},
 			},
 			{
-				Path: "/redfish/v1/Systems/System.Embedded.1/Processors/CPU.Socket.0/EnvironmentMetrics",
+				Path: "/redfish/v1/Managers/{manager}/USBPorts/{port}",
 				PropertyRules: []*PropertyRule{
 					{
-						Pointer: "/TemperatureCelsius/Reading",
-						Name:    "systems_systemembedded1_processors_cpusocket0_environmentmetrics_temperaturecelsius_reading",
+						Pointer: "/Status/Health",
+						Name:    "managers_usbports_status_health",
 						Help:    "",
-						Type:    "number",
+						Type:    "health",
+					},
+					{
+						Pointer: "/Status/State",
+						Name:    "managers_usbports_status_state",
+						Help:    "",
+						Type:    "state",
 					},
 				},
 			},
@@ -4506,6 +4551,17 @@ var Rules = map[string]*CollectRule{
 						Name:    "systems_processors_status_state",
 						Help:    "",
 						Type:    "state",
+					},
+				},
+			},
+			{
+				Path: "/redfish/v1/Systems/{system}/Processors/{processor}/EnvironmentMetrics",
+				PropertyRules: []*PropertyRule{
+					{
+						Pointer: "/TemperatureCelsius/Reading",
+						Name:    "systems_processors_environmentmetrics_temperaturecelsius_reading",
+						Help:    "",
+						Type:    "number",
 					},
 				},
 			},

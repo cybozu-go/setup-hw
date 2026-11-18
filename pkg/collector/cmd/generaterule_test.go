@@ -398,6 +398,7 @@ func TestRenderRuleFiles(t *testing.T) {
 	// except for comments added by hand, which are ignored in comparison.
 	files := []string{
 		"dell_redfish_1.20.1.yml",
+		"dell_redfish_1.22.1.yml",
 	}
 	for _, name := range files {
 		t.Run(name, func(t *testing.T) {
