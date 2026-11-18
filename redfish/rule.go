@@ -8,8 +8,9 @@ import (
 	"strings"
 
 	"github.com/cybozu-go/log"
-	"github.com/cybozu-go/setup-hw/gabs"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/cybozu-go/setup-hw/gabs"
 )
 
 // CollectRule is a set of rules of traversing and converting Redfish data.

@@ -5,6 +5,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Manage development tools with aqua in [#177](https://github.com/cybozu-go/setup-hw/pull/177)
+- Use golangci-lint instead of staticcheck in [#177](https://github.com/cybozu-go/setup-hw/pull/177)
+
 ## [1.33.0] - 2026-11-19
 
 ### Added

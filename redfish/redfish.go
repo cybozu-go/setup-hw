@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/cybozu-go/log"
+
 	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/setup-hw/gabs"
 )

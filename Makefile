@@ -8,33 +8,45 @@ BINS = $(BINS_IMAGE) $(BINS_NOIMAGE)
 GENERATED = redfish/rendered_rules.go
 GENERATE_SRC = $(shell find redfish/rules)
 
+# CLI tools are managed by aqua. See aqua.yaml.
+GOLANGCI_LINT := aqua exec -- golangci-lint
+
+.PHONY: all
 all:
 	@echo "Specify one of these targets:"
 	@echo
 	@echo "    generate  - generate codes."
+	@echo "    lint      - run golangci-lint."
+	@echo "    lint-fix  - run golangci-lint and perform fixes."
 	@echo "    test      - run signle host tests."
 	@echo "    install   - install binaries."
 
+.PHONY: generate
 generate: $(GENERATED)
 
 $(GENERATED): $(GENERATE_SRC) pkg/render-rules/main.go
 	go generate ./redfish/...
 
+.PHONY: check-generated
 check-generated:
 	$(MAKE) generate
 	go mod tidy
 	git diff --exit-code --name-only
 
-setup:
-	env GOFLAGS= go install honnef.co/go/tools/cmd/staticcheck@ff63afafc529279f454e02f1d060210bd4263951 # v0.7.0
+.PHONY: lint
+lint:
+	$(GOLANGCI_LINT) run ./...
 
+.PHONY: lint-fix
+lint-fix:
+	$(GOLANGCI_LINT) run --fix ./...
+
+.PHONY: test
 test:
-	test -z "$$(gofmt -s -l . | tee /dev/stderr)"
-	staticcheck ./...
 	go build ./...
 	go test -race -v ./...
-	go vet ./...
 
+.PHONY: install
 install: generate
 ifdef GOBIN
 	mkdir -p $(GOBIN)
@@ -51,6 +63,7 @@ download-idractools:
 	echo "b706d0ac3f09e74a32a9e6dfa883641e1edb0a8d2cbdd85908766f502417c3ca  idrac-tools.tar.gz" | sha256sum -c
 	tar -xzf idrac-tools.tar.gz -C docker
 
+.PHONY: build-image
 build-image: install
 ifdef GOBIN
 	mkdir -p $(GOBIN)
@@ -59,5 +72,3 @@ else
 	cp $(foreach f, $(BINS_IMAGE), $(GOPATH)/bin/$(f)) ./docker/
 endif
 	cd docker && docker build -t ghcr.io/cybozu-go/setup-hw:dev .
-
-.PHONY: all generate check-generate setup test install download-idractools build-image

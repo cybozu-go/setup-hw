@@ -8,9 +8,10 @@ import (
 	"strings"
 
 	"github.com/cybozu-go/log"
-	"github.com/cybozu-go/setup-hw/gabs"
 	"github.com/cybozu-go/well"
 	"github.com/spf13/cobra"
+
+	"github.com/cybozu-go/setup-hw/gabs"
 )
 
 var showConfig struct {
@@ -31,7 +32,6 @@ var showCmd = &cobra.Command{
 	Long:  `show collected Redfish data`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
-
 		if len(showConfig.ignoreFields) != 0 {
 			pattern := strings.Join(showConfig.ignoreFields, "|")
 			r, err := regexp.Compile(pattern)

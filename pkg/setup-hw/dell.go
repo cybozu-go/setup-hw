@@ -10,10 +10,11 @@ import (
 	"time"
 
 	"github.com/cybozu-go/log"
-	"github.com/cybozu-go/setup-hw/config"
-	"github.com/cybozu-go/setup-hw/lib"
 	"github.com/cybozu-go/well"
 	"gopkg.in/ini.v1"
+
+	"github.com/cybozu-go/setup-hw/config"
+	"github.com/cybozu-go/setup-hw/lib"
 )
 
 const (
@@ -668,7 +669,7 @@ func (dc *dellConfigurator) configTimeServer(ctx context.Context) error {
 	// 10.71.255.6: Active boot server's VIP
 	// 10.71.255.1: bootserver's VIP (1)
 	// 10.71.255.3: bootserver's VIP (3)
-	var timeServers = []timeServer{
+	timeServers := []timeServer{
 		{
 			timeServer: "iDRAC.NTPConfigGroup.NTP1",
 			ipAddress:  "10.71.255.6",

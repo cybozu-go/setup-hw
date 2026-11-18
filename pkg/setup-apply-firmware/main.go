@@ -9,8 +9,9 @@ import (
 	"path/filepath"
 
 	"github.com/cybozu-go/log"
-	"github.com/cybozu-go/setup-hw/lib"
 	"github.com/cybozu-go/well"
+
+	"github.com/cybozu-go/setup-hw/lib"
 )
 
 func main() {

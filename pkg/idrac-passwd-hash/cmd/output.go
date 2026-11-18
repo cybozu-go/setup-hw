@@ -27,7 +27,7 @@ func outputJSON(hash, salt []byte, hashSalt string) error {
 }
 
 func outputPlain(hash, salt []byte, hashSalt string) error {
-	_, err := os.Stdout.WriteString(
-		fmt.Sprintf("Hash: %s\nSalt: %s\nHashSalt: %s\n", toHex(hash), toHex(salt), hashSalt))
+	_, err := fmt.Fprintf(os.Stdout,
+		"Hash: %s\nSalt: %s\nHashSalt: %s\n", toHex(hash), toHex(salt), hashSalt)
 	return err
 }

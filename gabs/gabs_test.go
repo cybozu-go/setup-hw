@@ -134,8 +134,7 @@ func TestExistsWithArrays(t *testing.T) {
 		t.Errorf("Wrong result from array based Exists: %v != %v", exp, actual)
 	}
 
-	sample =
-		[]byte(`[{"foo":{"bar":{"baz":10}}},{"foo":{"bar":{"baz":2}}},{"foo":{"bar":{"baz":3}}}]`)
+	sample = []byte(`[{"foo":{"bar":{"baz":10}}},{"foo":{"bar":{"baz":2}}},{"foo":{"bar":{"baz":3}}}]`)
 
 	if val, err = ParseJSON(sample); err != nil {
 		t.Errorf("Failed to parse: %v", err)

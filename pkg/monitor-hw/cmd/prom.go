@@ -7,10 +7,11 @@ import (
 	"time"
 
 	"github.com/cybozu-go/log"
-	"github.com/cybozu-go/setup-hw/redfish"
 	"github.com/cybozu-go/well"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+
+	"github.com/cybozu-go/setup-hw/redfish"
 )
 
 type logger struct{}

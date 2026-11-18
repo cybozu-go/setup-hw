@@ -738,7 +738,6 @@ func TestStubClient(t *testing.T) {
 }
 
 func checkActualResult(t *testing.T, rule *CollectRule, client Client, expectedSet []*metrics) {
-
 	collector, err := NewCollector(func(context.Context) (*CollectRule, error) {
 		return rule, nil
 	}, client)
@@ -799,5 +798,4 @@ func checkActualResult(t *testing.T, rule *CollectRule, client Client, expectedS
 			t.Errorf("expected metric not found: %s", expected.key())
 		}
 	}
-
 }

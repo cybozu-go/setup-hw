@@ -5,10 +5,11 @@ import (
 	"encoding/json"
 	"os"
 
+	"sigs.k8s.io/yaml"
+
 	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/setup-hw/gabs"
 	"github.com/cybozu-go/setup-hw/redfish"
-	"sigs.k8s.io/yaml"
 )
 
 func collectOrLoad(ctx context.Context, inputFile string, baseRule string) (*redfish.Collected, error) {
