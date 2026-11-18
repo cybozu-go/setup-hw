@@ -80,35 +80,36 @@ It takes one or more JSON file names that were dumped by "collector show" comman
 	},
 }
 
+// generateRule generates metric rules for the keys found in data.
+// Pages that match the same patterned path in rule may have different properties,
+// so the properties found in all the matched pages are merged into one metric rule.
+// This also makes the result independent of the iteration order of data.
 func generateRule(data map[string]*gabs.Container, keyTypes []*keyType, rule *redfish.CollectRule) []*redfish.MetricRule {
-	var rules []*redfish.MetricRule
-
-	matchedRules := make(map[string]bool)
-OUTER:
+	propertyRulesByPath := make(map[string][]*redfish.PropertyRule)
 	for path, parsedJSON := range data {
+		rulePath := path
 		if rule != nil {
 			for _, r := range rule.MetricRules {
 				matched, _ := r.MatchPath(path)
 				if matched {
-					if matchedRules[r.Path] {
-						continue OUTER
-					}
-					matchedRules[r.Path] = true
-					path = r.Path
+					rulePath = r.Path
 					break
 				}
 			}
 		}
-		relPath := path[len(rule.TraverseRule.Root):]
-		propertyRules := generateRuleAux(parsedJSON, keyTypes, relPath, "", []*redfish.PropertyRule{})
-
-		if len(propertyRules) > 0 {
-			sort.Slice(propertyRules, func(i, j int) bool { return propertyRules[i].Pointer < propertyRules[j].Pointer })
-			rules = append(rules, &redfish.MetricRule{
-				Path:          path,
-				PropertyRules: propertyRules,
-			})
+		relPath := rulePath[len(rule.TraverseRule.Root):]
+		for _, pr := range generateRuleAux(parsedJSON, keyTypes, relPath, "", nil) {
+			propertyRulesByPath[rulePath] = appendPropertyRule(propertyRulesByPath[rulePath], pr)
 		}
+	}
+
+	var rules []*redfish.MetricRule
+	for path, propertyRules := range propertyRulesByPath {
+		sort.Slice(propertyRules, func(i, j int) bool { return propertyRules[i].Pointer < propertyRules[j].Pointer })
+		rules = append(rules, &redfish.MetricRule{
+			Path:          path,
+			PropertyRules: propertyRules,
+		})
 	}
 
 	sort.Slice(rules, func(i, j int) bool { return rules[i].Path < rules[j].Path })
@@ -134,8 +135,6 @@ func generateRuleAux(data *gabs.Container, keyTypes []*keyType, path, pointer st
 	}
 
 	if childrenSlice, err := data.Children(); err == nil && len(childrenSlice) > 0 {
-		// inspect the first element only; the rest should have the same structure
-		v := childrenSlice[0]
 		ps := strings.Split(pointer, "/")
 		parent := ps[len(ps)-1]
 		if strings.HasSuffix(parent, "ies") {
@@ -143,7 +142,13 @@ func generateRuleAux(data *gabs.Container, keyTypes []*keyType, path, pointer st
 		} else if strings.HasSuffix(parent, "s") {
 			parent = regexp.MustCompile("s$").ReplaceAllString(parent, "")
 		}
-		return generateRuleAux(v, keyTypes, path, pointer+"/{"+strings.ToLower(parent)+"}", rules)
+		// inspect all the elements because they may have different properties;
+		// the caller removes duplicated rules
+		newPointer := pointer + "/{" + strings.ToLower(parent) + "}"
+		for _, v := range childrenSlice {
+			rules = generateRuleAux(v, keyTypes, path, newPointer, rules)
+		}
+		return rules
 	}
 
 	return rules
