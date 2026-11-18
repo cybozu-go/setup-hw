@@ -26,8 +26,6 @@ check-generated:
 	git diff --exit-code --name-only
 
 setup:
-	# goimports is called by pkg/render-rules
-	env GOFLAGS= go install golang.org/x/tools/cmd/goimports@3d6f8dfd4853c8b323940b931f1170c6d0df8d23 # v0.46.0
 	env GOFLAGS= go install honnef.co/go/tools/cmd/staticcheck@ff63afafc529279f454e02f1d060210bd4263951 # v0.7.0
 
 test:

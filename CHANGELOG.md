@@ -5,6 +5,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Format the rendered rules with go/format instead of goimports in [#176](https://github.com/cybozu-go/setup-hw/pull/176)
+
 ## [1.32.0] - 2026-10-22
 
 ### Changed
