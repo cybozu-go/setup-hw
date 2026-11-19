@@ -14,7 +14,7 @@ $ git clone https://github.com/cybozu-go/setup-hw
 
 ```
 $ cd setup-hw
-$ make install
+$ go install ./pkg/collector
 ```
 
 ## 3.Setup config
