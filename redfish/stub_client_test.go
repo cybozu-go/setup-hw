@@ -7,8 +7,9 @@ import (
 	"sort"
 
 	"github.com/cybozu-go/log"
-	"github.com/cybozu-go/setup-hw/gabs"
 	prommodel "github.com/prometheus/client_model/go"
+
+	"github.com/cybozu-go/setup-hw/gabs"
 )
 
 type metrics struct {
@@ -76,7 +77,6 @@ func makeStubMap(data []byte) dataMap {
 
 func (c *stubClient) Traverse(ctx context.Context, rule *CollectRule) Collected {
 	cBytes, err := os.ReadFile(c.filename)
-
 	if err != nil {
 		log.Error("cannot open dummy data file: "+c.filename, map[string]interface{}{
 			log.FnError: err,

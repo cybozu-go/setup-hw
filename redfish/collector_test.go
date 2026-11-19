@@ -12,11 +12,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cybozu-go/setup-hw/config"
-	"github.com/cybozu-go/setup-hw/gabs"
 	"github.com/prometheus/client_golang/prometheus"
 	prommodel "github.com/prometheus/client_model/go"
 	"sigs.k8s.io/yaml"
+
+	"github.com/cybozu-go/setup-hw/config"
+	"github.com/cybozu-go/setup-hw/gabs"
 )
 
 func collectRule(filename string) (*CollectRule, error) {
@@ -182,13 +183,13 @@ func testCollect(t *testing.T) {
 		{
 			name: "hw_last_update",
 			typ:  prommodel.MetricType_COUNTER,
-			//value:  math.NaN(), // don't care
+			// value:  math.NaN(), // don't care
 			labels: map[string]string{},
 		},
 		{
 			name: "hw_last_update_duration_minutes",
 			typ:  prommodel.MetricType_GAUGE,
-			//value:  math.NaN(), // don't care
+			// value:  math.NaN(), // don't care
 			labels: map[string]string{},
 		},
 		{

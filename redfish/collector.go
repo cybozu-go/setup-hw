@@ -6,8 +6,9 @@ import (
 	"time"
 
 	"github.com/cybozu-go/log"
-	"github.com/cybozu-go/setup-hw/gabs"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/cybozu-go/setup-hw/gabs"
 )
 
 const namespace = "hw"

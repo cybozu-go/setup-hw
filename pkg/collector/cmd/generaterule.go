@@ -9,11 +9,12 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/cybozu-go/setup-hw/gabs"
-	"github.com/cybozu-go/setup-hw/redfish"
 	"github.com/cybozu-go/well"
 	"github.com/spf13/cobra"
 	"sigs.k8s.io/yaml"
+
+	"github.com/cybozu-go/setup-hw/gabs"
+	"github.com/cybozu-go/setup-hw/redfish"
 )
 
 var generateRuleConfig struct {

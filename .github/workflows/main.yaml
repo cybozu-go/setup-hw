@@ -23,12 +23,16 @@ jobs:
         uses: flatt-security/setup-takumi-guard-golang@1c8aa7498f7f635fbd6ad6a0f436d03092b3502d # v1.1.0
         with:
           bot-id: ${{ vars.TAKUMI_GUARD_BOT_ID }}
-
-      - name: Install test tools
-        run: make setup
+      - name: Setup aqua
+        uses: aquaproj/aqua-installer@82d0e83878a8657c4a6f2ff1755d3bfbfc67f329 # v4.1.0
+        with:
+          aqua_version: v2.66.0
 
       - name: Check auto-generated files
         run: make check-generated
+
+      - name: Run lint
+        run: make lint
 
       - name: Run test
         run: make test

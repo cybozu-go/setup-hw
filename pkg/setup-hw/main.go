@@ -5,9 +5,10 @@ import (
 	"os"
 
 	"github.com/cybozu-go/log"
+	"github.com/cybozu-go/well"
+
 	"github.com/cybozu-go/setup-hw/config"
 	"github.com/cybozu-go/setup-hw/lib"
-	"github.com/cybozu-go/well"
 )
 
 const (

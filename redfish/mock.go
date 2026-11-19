@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/cybozu-go/log"
+
 	"github.com/cybozu-go/setup-hw/gabs"
 )
 

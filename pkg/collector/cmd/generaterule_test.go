@@ -6,11 +6,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/cybozu-go/setup-hw/gabs"
-	"github.com/cybozu-go/setup-hw/redfish"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"sigs.k8s.io/yaml"
+
+	"github.com/cybozu-go/setup-hw/gabs"
+	"github.com/cybozu-go/setup-hw/redfish"
 )
 
 func TestGenerateRule(t *testing.T) {
