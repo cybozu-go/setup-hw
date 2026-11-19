@@ -16,7 +16,10 @@ var rootCmd = &cobra.Command{
 
 This tool asks a password and outputs hashed password with
 a generated random salt as described in Dell manual:
-https://www.dell.com/support/manuals/us/en/04/poweredge-r940/idrac_3.15.15.15_ug/generating-hash-password-without-snmpv3-and-ipmi-authentication?guid=guid-e4486863-89bc-4b0c-9578-ff564fade424&lang=en-us`,
+https://www.dell.com/support/manuals/us/en/04/poweredge-r940/idrac_3.15.15.15_ug/generating-hash-password-without-snmpv3-and-ipmi-authentication?guid=guid-e4486863-89bc-4b0c-9578-ff564fade424&lang=en-us
+
+"hash" and "salt" are for iDRAC9 and earlier.
+"hash_salt" is for iDRAC10, which uses a different hash algorithm.`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cmd.SilenceUsage = true
@@ -25,7 +28,7 @@ https://www.dell.com/support/manuals/us/en/04/poweredge-r940/idrac_3.15.15.15_ug
 			return err
 		}
 
-		salt, err := generateSalt()
+		salt, err := generateSalt(saltSize)
 		if err != nil {
 			return err
 		}
@@ -35,10 +38,20 @@ https://www.dell.com/support/manuals/us/en/04/poweredge-r940/idrac_3.15.15.15_ug
 			return err
 		}
 
-		if jsonOutput {
-			return outputJSON(hash, salt)
+		salt10, err := generateSalt(idrac10SaltSize)
+		if err != nil {
+			return err
 		}
-		return outputPlain(hash, salt)
+
+		hashSalt, err := hashPasswordIDRAC10(passwd, salt10)
+		if err != nil {
+			return err
+		}
+
+		if jsonOutput {
+			return outputJSON(hash, salt, hashSalt)
+		}
+		return outputPlain(hash, salt, hashSalt)
 	},
 }
 

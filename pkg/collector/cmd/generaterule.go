@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"os"
@@ -64,7 +65,7 @@ It takes one or more JSON file names that were dumped by "collector show" comman
 
 			mergedRule := mergeCollectRules(rules)
 
-			out, err := yaml.Marshal(mergedRule)
+			out, err := renderRule(mergedRule)
 			if err != nil {
 				return err
 			}
@@ -80,35 +81,36 @@ It takes one or more JSON file names that were dumped by "collector show" comman
 	},
 }
 
+// generateRule generates metric rules for the keys found in data.
+// Pages that match the same patterned path in rule may have different properties,
+// so the properties found in all the matched pages are merged into one metric rule.
+// This also makes the result independent of the iteration order of data.
 func generateRule(data map[string]*gabs.Container, keyTypes []*keyType, rule *redfish.CollectRule) []*redfish.MetricRule {
-	var rules []*redfish.MetricRule
-
-	matchedRules := make(map[string]bool)
-OUTER:
+	propertyRulesByPath := make(map[string][]*redfish.PropertyRule)
 	for path, parsedJSON := range data {
+		rulePath := path
 		if rule != nil {
 			for _, r := range rule.MetricRules {
 				matched, _ := r.MatchPath(path)
 				if matched {
-					if matchedRules[r.Path] {
-						continue OUTER
-					}
-					matchedRules[r.Path] = true
-					path = r.Path
+					rulePath = r.Path
 					break
 				}
 			}
 		}
-		relPath := path[len(rule.TraverseRule.Root):]
-		propertyRules := generateRuleAux(parsedJSON, keyTypes, relPath, "", []*redfish.PropertyRule{})
-
-		if len(propertyRules) > 0 {
-			sort.Slice(propertyRules, func(i, j int) bool { return propertyRules[i].Pointer < propertyRules[j].Pointer })
-			rules = append(rules, &redfish.MetricRule{
-				Path:          path,
-				PropertyRules: propertyRules,
-			})
+		relPath := rulePath[len(rule.TraverseRule.Root):]
+		for _, pr := range generateRuleAux(parsedJSON, keyTypes, relPath, "", nil) {
+			propertyRulesByPath[rulePath] = appendPropertyRule(propertyRulesByPath[rulePath], pr)
 		}
+	}
+
+	var rules []*redfish.MetricRule
+	for path, propertyRules := range propertyRulesByPath {
+		sort.Slice(propertyRules, func(i, j int) bool { return propertyRules[i].Pointer < propertyRules[j].Pointer })
+		rules = append(rules, &redfish.MetricRule{
+			Path:          path,
+			PropertyRules: propertyRules,
+		})
 	}
 
 	sort.Slice(rules, func(i, j int) bool { return rules[i].Path < rules[j].Path })
@@ -134,8 +136,6 @@ func generateRuleAux(data *gabs.Container, keyTypes []*keyType, path, pointer st
 	}
 
 	if childrenSlice, err := data.Children(); err == nil && len(childrenSlice) > 0 {
-		// inspect the first element only; the rest should have the same structure
-		v := childrenSlice[0]
 		ps := strings.Split(pointer, "/")
 		parent := ps[len(ps)-1]
 		if strings.HasSuffix(parent, "ies") {
@@ -143,7 +143,13 @@ func generateRuleAux(data *gabs.Container, keyTypes []*keyType, path, pointer st
 		} else if strings.HasSuffix(parent, "s") {
 			parent = regexp.MustCompile("s$").ReplaceAllString(parent, "")
 		}
-		return generateRuleAux(v, keyTypes, path, pointer+"/{"+strings.ToLower(parent)+"}", rules)
+		// inspect all the elements because they may have different properties;
+		// the caller removes duplicated rules
+		newPointer := pointer + "/{" + strings.ToLower(parent) + "}"
+		for _, v := range childrenSlice {
+			rules = generateRuleAux(v, keyTypes, path, newPointer, rules)
+		}
+		return rules
 	}
 
 	return rules
@@ -235,6 +241,55 @@ func appendPropertyRule(rules []*redfish.PropertyRule, newRule *redfish.Property
 	}
 
 	return append(rules, newRule)
+}
+
+// renderRule renders a collection rule in the layout of the rule files under redfish/rules:
+// Traverse comes first with Root before Excludes, and metric rules are separated by blank lines.
+// sigs.k8s.io/yaml sorts keys alphabetically, so each part is marshaled separately.
+func renderRule(rule *redfish.CollectRule) ([]byte, error) {
+	var buf bytes.Buffer
+
+	buf.WriteString("Traverse:\n")
+	root, err := yaml.Marshal(map[string]string{"Root": rule.TraverseRule.Root})
+	if err != nil {
+		return nil, err
+	}
+	writeIndented(&buf, root)
+	if len(rule.TraverseRule.ExcludeRules) > 0 {
+		excludes, err := yaml.Marshal(map[string][]string{"Excludes": rule.TraverseRule.ExcludeRules})
+		if err != nil {
+			return nil, err
+		}
+		writeIndented(&buf, excludes)
+	}
+
+	if len(rule.MetricRules) == 0 {
+		buf.WriteString("\nMetrics: []\n")
+		return buf.Bytes(), nil
+	}
+	buf.WriteString("\nMetrics:\n")
+	for i, mr := range rule.MetricRules {
+		if i > 0 {
+			buf.WriteString("\n")
+		}
+		out, err := yaml.Marshal([]*redfish.MetricRule{mr})
+		if err != nil {
+			return nil, err
+		}
+		buf.Write(out)
+	}
+	return buf.Bytes(), nil
+}
+
+// writeIndented writes YAML lines to buf with an indent of two spaces.
+func writeIndented(buf *bytes.Buffer, data []byte) {
+	for _, line := range strings.SplitAfter(string(data), "\n") {
+		if line == "" {
+			continue
+		}
+		buf.WriteString("  ")
+		buf.WriteString(line)
+	}
 }
 
 func init() {

@@ -70,6 +70,9 @@ type BMCPassword struct {
 	Raw  string `json:"raw"`
 	Hash string `json:"hash"`
 	Salt string `json:"salt"`
+	// HashSalt is the hashed password and salt for iDRAC10.
+	// iDRAC10 does not accept Hash and Salt because it uses a different hash algorithm.
+	HashSalt string `json:"hash_salt"`
 }
 
 // Credentials represents credentials of a BMC user.

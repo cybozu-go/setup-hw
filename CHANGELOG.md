@@ -5,9 +5,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Add preliminary support for R6715 and R5715 (17G) servers in [#175](https://github.com/cybozu-go/setup-hw/pull/175)
+
 ### Changed
 
 - Format the rendered rules with go/format instead of goimports in [#176](https://github.com/cybozu-go/setup-hw/pull/176)
+- Make `collector generate-rule` merge the properties of all matched pages and output rules in the layout of the rule files in [#175](https://github.com/cybozu-go/setup-hw/pull/175)
 
 ## [1.32.0] - 2026-10-22
 

@@ -34,7 +34,9 @@ Metrics:
   ## Chassis
   - Path: /redfish/v1/Chassis/{chassis}
   - Path: /redfish/v1/Chassis/{chassis}/Assembly
+  - Path: /redfish/v1/Chassis/{chassis}/EnvironmentMetrics
   - Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}
+  - Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/EnvironmentMetrics
   - Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/NetworkDeviceFunctions/{function}
   - Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/NetworkPorts/{port}
   - Path: /redfish/v1/Chassis/{chassis}/NetworkAdapters/{nic}/Ports/{port}
@@ -49,7 +51,11 @@ Metrics:
   - Path: /redfish/v1/Chassis/{chassis}/Thermal
   - Path: /redfish/v1/Chassis/{chassis}/ThermalSubsystem
   - Path: /redfish/v1/Chassis/{chassis}/ThermalSubsystem/Fans/{unit}
+  - Path: /redfish/v1/Chassis/{chassis}/ThermalSubsystem/Oem/Dell/DellFanBoards/{fanboard}
   - Path: /redfish/v1/Chassis/{chassis}/ThermalSubsystem/ThermalMetrics
+  - Path: /redfish/v1/Chassis/{chassis}/TrustedComponents/{component}
+  ## ComponentIntegrity
+  - Path: /redfish/v1/ComponentIntegrity/{component}
   ## Dell
   - Path: /redfish/v1/Dell/Chassis/{system}/DellAssembly/{assembly}
   - Path: /redfish/v1/Dell/Systems/{system}/DellNumericSensor/{sensor}
@@ -80,6 +86,7 @@ Metrics:
   - Path: /redfish/v1/Managers/{manager}/EthernetInterfaces/{interface}
   - Path: /redfish/v1/Managers/{manager}/HostInterfaces/{host}
   - Path: /redfish/v1/Managers/{manager}/NetworkProtocol
+  - Path: /redfish/v1/Managers/{manager}/USBPorts/{port}
   ## Systems
   - Path: /redfish/v1/Systems/{system}
   - Path: /redfish/v1/Systems/{system}/BootOptions/{option}
@@ -93,6 +100,7 @@ Metrics:
   - Path: /redfish/v1/Systems/{system}/PCIeDevices/{device}
   - Path: /redfish/v1/Systems/{system}/PCIeDevices/{device}/PCIeFunctions/{function}
   - Path: /redfish/v1/Systems/{system}/Processors/{processor}
+  - Path: /redfish/v1/Systems/{system}/Processors/{processor}/EnvironmentMetrics
   - Path: /redfish/v1/Systems/{system}/SimpleStorage/{controller}
   - Path: /redfish/v1/Systems/{system}/Storage/{storage}
   - Path: /redfish/v1/Systems/{system}/Storage/{storage}/Controllers/{controller}

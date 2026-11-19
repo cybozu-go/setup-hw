@@ -62,12 +62,16 @@ It generates multiple collection rules internally, and merges rules into one.
 By accepting multiple input files, it can produce a unified collection rule for slightly varying types of machines.
 
 `collector generate-rule` summarizes keys if they are in an array.
-It generates `Pointer` of `/foos/{foo}/Status` if it finds a `Status` key in the first item of the array at `/foos`.
+It generates `Pointer` of `/foos/{foo}/Status` if it finds a `Status` key in any item of the array at `/foos`.
 This is based on [patterns](rule.md#patterned-pointer) in a collection rule.
 
 In contrast, `collector generate-rule` cannot detect [patterns](rule.md#patterned-path) in paths, i.e. it cannot generate rules with page paths like `/redfish/v1/Chassis/{chassis}` by itself.
 It just lists all page paths in default.
 If patterned `Metrics.Path`s are given through the `--base-rule` option, however, it can use the patterned paths to unify matched pages when generating rules.
+The properties found in all the matched pages are merged into one rule, because the pages may have different properties.
+
+The output is laid out in the same way as the rule files under [redfish/rules](../redfish/rules):
+`Traverse` comes first with `Root` before `Excludes`, and the rules in `Metrics` are separated by blank lines.
 
 ### Options
 
