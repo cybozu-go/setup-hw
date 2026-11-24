@@ -1,15 +1,18 @@
 # binaries to be included in the image
 BINS_IMAGE = setup-hw monitor-hw collector setup-apply-firmware setup-isoreboot
 
-# binaries not to be included in the image
-BINS_NOIMAGE = idrac-passwd-hash
-
-BINS = $(BINS_IMAGE) $(BINS_NOIMAGE)
 GENERATED = redfish/rendered_rules.go
 GENERATE_SRC = $(shell find redfish/rules)
 
 # CLI tools are managed by aqua. See aqua.yaml.
 GOLANGCI_LINT := aqua exec -- golangci-lint
+
+# Dell iDRAC Tools for Linux. See docs/maintenance.md for how to update.
+# - Version: 11.4.2.0
+# - URL: https://www.dell.com/support/home/en-au/drivers/driversdetails?driverid=2dnrn
+IDRAC_TOOLS_URL := https://dl.dell.com/FOLDER14927789M/1/Dell-iDRACTools-Web-LX-11.4.2.0-1990_A00.tar.gz
+IDRAC_TOOLS_SHA256 := 17ef224d5cb4b646b87dbb4bff3f4f5af901bc7e3589f0f27142caa0b4a130b0
+IDRAC_TOOLS_STAMP := docker/iDRACTools/.sha256-$(IDRAC_TOOLS_SHA256)
 
 .PHONY: all
 all:
@@ -19,7 +22,7 @@ all:
 	@echo "    lint      - run golangci-lint."
 	@echo "    lint-fix  - run golangci-lint and perform fixes."
 	@echo "    test      - run signle host tests."
-	@echo "    install   - install binaries."
+	@echo "    build     - build binaries for the image into docker directory."
 
 .PHONY: generate
 generate: $(GENERATED)
@@ -46,29 +49,21 @@ test:
 	go build ./...
 	go test -race -v ./...
 
-.PHONY: install
-install: generate
-ifdef GOBIN
-	mkdir -p $(GOBIN)
-endif
-	GOBIN=$(GOBIN) CGO_ENABLED=0 go install -ldflags="-s -w" $(foreach f, $(BINS), ./pkg/$(f))
+.PHONY: build
+build: generate
+	CGO_ENABLED=0 go build -ldflags="-s -w" -o docker/ $(foreach f, $(BINS_IMAGE), ./pkg/$(f))
 
 .PHONY: download-idractools
-download-idractools:
-	# Must change the URL to the latest version of iDRAC Tools.
-	# Please see https://www.dell.com/support/home/ja-jp/drivers/driversdetails?driverid=2fgym
-	curl 'https://dl.dell.com/FOLDER13988164M/1/Dell-iDRACTools-Web-LX-11.4.0.0-1435_A00.tar.gz' \
-		-H 'user-agent: setup-hw' \
-		--output idrac-tools.tar.gz
-	echo "b706d0ac3f09e74a32a9e6dfa883641e1edb0a8d2cbdd85908766f502417c3ca  idrac-tools.tar.gz" | sha256sum -c
+download-idractools: $(IDRAC_TOOLS_STAMP)
+
+# iDRAC Tools is downloaded again only when the checksum is changed.
+$(IDRAC_TOOLS_STAMP):
+	curl -fsSL '$(IDRAC_TOOLS_URL)' -H 'user-agent: setup-hw' --output idrac-tools.tar.gz
+	echo "$(IDRAC_TOOLS_SHA256)  idrac-tools.tar.gz" | sha256sum -c
+	rm -rf docker/iDRACTools
 	tar -xzf idrac-tools.tar.gz -C docker
+	touch $@
 
 .PHONY: build-image
-build-image: install
-ifdef GOBIN
-	mkdir -p $(GOBIN)
-	cp $(foreach f, $(BINS_IMAGE), $(GOBIN)/$(f)) ./docker/
-else
-	cp $(foreach f, $(BINS_IMAGE), $(GOPATH)/bin/$(f)) ./docker/
-endif
-	cd docker && docker build -t ghcr.io/cybozu-go/setup-hw:dev .
+build-image: build download-idractools
+	docker build -t ghcr.io/cybozu-go/setup-hw:dev docker
